@@ -19,6 +19,15 @@ Yoda takes source material and produces an interactive [Cursor Canvas](https://d
 
 **Step 1:** Clone the repository
 
+Using SSH:
+
+```bash
+git clone git@github.com:CriszelGipala-rh/yoda.git
+cd yoda
+```
+
+Or using HTTPS:
+
 ```bash
 git clone https://github.com/CriszelGipala-rh/yoda.git
 cd yoda
