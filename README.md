@@ -1,5 +1,20 @@
 # Yoda
 
+```
+         ____
+        /    \
+       | ^  ^ |
+        \ -- /
+    .---'    '---.
+   /  /)      (\  \
+  |  //        \\  |
+   \_\)        (/_/
+     |  QUIZ    |
+     |  ME YOU  |
+     |  MUST!   |
+      '--------'
+```
+
 > "Teach you, I will." — Master Yoda
 
 A **Cursor Agent Skill** that generates interactive quizzes from any content — courses, documentation, photos, links, PDFs, code, or plain text.
