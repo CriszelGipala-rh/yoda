@@ -17,28 +17,39 @@ Yoda takes source material and produces an interactive [Cursor Canvas](https://d
 
 ## Installation
 
-Copy the `skill/` folder to your Cursor skills directory:
+**Step 1:** Clone the repository
 
 ```bash
+git clone https://github.com/CriszelGipala-rh/yoda.git
+cd yoda
+```
+
+**Step 2:** Copy the `skill/` folder to your Cursor skills directory:
+
+```bash
+mkdir -p ~/.cursor/skills
 cp -r skill/ ~/.cursor/skills/yoda/
 ```
 
-Or symlink it:
+Or symlink it (so updates from `git pull` apply automatically):
 
 ```bash
+mkdir -p ~/.cursor/skills
 ln -s $(pwd)/skill ~/.cursor/skills/yoda
 ```
 
+**Step 3:** Restart Cursor (or open a new chat) — the skill is now active.
+
 ## Usage
 
-In Cursor, invoke the skill by asking:
+In Cursor, just provide content and ask for a quiz:
 
-- "Quiz me on this document"
-- "Create a practice test from this code"
-- "Generate study questions from this link"
-- "Make a knowledge check from these notes"
+- Paste text: *"Quiz me on this: [paste notes here]"*
+- Point to a file: *"Create a quiz from @path/to/file.md"*
+- Give a URL: *"Generate a test from https://example.com/docs"*
+- Drop an image: *"Make questions from this diagram"*
 
-Yoda will read the content, extract key concepts, and generate an interactive canvas quiz.
+Yoda will read the content, extract key concepts, and generate an interactive canvas quiz that opens beside your chat.
 
 ## Project Structure
 
