@@ -26,7 +26,7 @@ Yoda takes source material and produces an interactive [Cursor Canvas](https://d
 - **Instant feedback** — explanations shown after submission
 - **Score tracking** — pass/fail with detailed breakdowns
 - **Retake options** — same questions or a fresh mix from a larger pool
-- **Cute mascot** — a dog that reacts to your score
+- **Cute mascot** — yoda that reacts to your score
 
 ## Installation
 
