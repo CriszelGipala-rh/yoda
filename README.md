@@ -1,99 +1,120 @@
 # Yoda
 
 ```text
-⡴⠶⠦⠤⣤⣄⣀⡀⢀⣠⡴⠖⠚⠋⠛⠛⠲⢦⣄⡀⠀⠀⠀⠀⠀⠀⠀⢀⠀
-⠙⢦⡀⠉⠒⠤⣍⡉⠉⠁⠀⠐⢤⠐⠀⡰⠀⠀⠈⠙⠉⢉⣉⣉⣉⠍⠉⣩⠇
-⠀⠀⠻⣄⠀⠀⠀⢻⢤⣞⣿⣿⡆⢀⡀⢠⣟⣿⣷⠄⡾⠉⠀⠀⠀⣠⡾⠃⠀
-⠀⠀⠀⠙⠳⣤⣀⣈⣀⠙⠿⠟⠃⢓⡊⠙⠻⠛⠋⣠⣃⣀⣀⣤⠞⠋⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠈⢻⡝⠓⠒⢺⠷⠒⠒⠒⠛⠛⢉⣩⠿⣿⡁⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣼⡟⢲⢤⣸⡄⠀⢀⣠⠴⣺⡏⣏⣤⡾⠇⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣿⢞⣺⣠⠋⠹⠉⡏⢁⡴⣹⣧⣤⠾⠁⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠙⢻⡟⢁⠄⡇⢠⠈⠉⠀⠋⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢸⠋⠁⠀⡇⢸⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠙⠛⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                     ____
+                _.-'      '-._
+             .-'              '-.
+           .'       _      _       '.
+          /       .' \    / '.       \
+     ____/_.-.___/    \__/    \__.-._\____
+    <            /  (o)  (o)  \            >
+     \           |      /\      |           /
+      '.          \    .--.    /          .'
+        '-._       '._ '--' _.'       _.-'
+            '--._     '----'     _.--'
+                 \     /|\     /
+               ___\   / | \   /___
+              /       | | |       \
+             /_/|     | | |     |\_\
+                |_____|_|_|_____|
+                  /_/     \_\
 ```
 
-> "Teach you, I will." — Master Yoda
+> **Teach you, I will. Quiz you, I must.**
 
-A **Cursor Agent Skill** that generates interactive quizzes from any content — courses, documentation, photos, links, PDFs, code, or plain text.
+Yoda is a Cursor Agent Skill that transforms supplied learning material into a
+complete interactive Cursor Canvas quiz.
 
-## What it does
+## Supported source material
 
-Yoda takes source material and produces an interactive [Cursor Canvas](https://docs.cursor.com) quiz with:
+- Links and documentation
+- Pasted text and notes
+- PDFs and documents
+- Screenshots and photos
+- Code and technical material
 
-- **Mixed question types** — multiple choice, true/false, short answer, fill-in-the-blank
-- **Difficulty levels** — easy, medium, hard (sorted and color-coded)
-- **Instant feedback** — explanations shown after submission
-- **Score tracking** — pass/fail with detailed breakdowns
-- **Retake options** — same questions or a fresh mix from a larger pool
-- **Cute mascot** — yoda that reacts to your score
+## Training journey
+
+The updated canvas follows this flow:
+
+```text
+Source ready
+  → Material analysis
+  → Youngling / Padawan / Jedi Master
+  → Quiz-style selection
+  → Optional settings
+  → One-question-at-a-time quiz
+  → Training report
+  → Review and retest mistakes
+  → Fresh quiz or weak-topic practice
+```
+
+Features include:
+
+- Canonical full and compact Yoda ASCII art
+- Five quiz styles
+- Force Meter and Jedi Focus streaks
+- Progressive hints and skip support
+- Three explanation depths
+- Adaptive next-question difficulty
+- Correct, incorrect, and skipped tracking
+- Topic mastery and weak-area detection
+- Mistake filters and targeted retesting
 
 ## Installation
 
-**Step 1:** Clone the repository
-
-Using SSH:
-
-```bash
-git clone git@github.com:CriszelGipala-rh/yoda.git
-cd yoda
-```
-
-Or using HTTPS:
+Clone the repository:
 
 ```bash
 git clone https://github.com/CriszelGipala-rh/yoda.git
 cd yoda
 ```
 
-**Step 2:** Copy the `skill/` folder to your Cursor skills directory:
+Copy or symlink the `skill/` directory:
 
 ```bash
 mkdir -p ~/.cursor/skills
 cp -r skill/ ~/.cursor/skills/yoda/
 ```
 
-Or symlink it (so updates from `git pull` apply automatically):
+Or:
 
 ```bash
 mkdir -p ~/.cursor/skills
-ln -s $(pwd)/skill ~/.cursor/skills/yoda
+ln -s "$(pwd)/skill" ~/.cursor/skills/yoda
 ```
 
-**Step 3:** Restart Cursor (or open a new chat) — the skill is now active.
+Restart Cursor or open a new chat.
 
 ## Usage
 
-In Cursor, just provide content and ask for a quiz:
+Supply material and ask for a quiz:
 
-- Paste text: *"Quiz me on this: [paste notes here]"*
-- Point to a file: *"Create a quiz from @path/to/file.md"*
-- Give a URL: *"Generate a test from https://example.com/docs"*
-- Drop an image: *"Make questions from this diagram"*
+```text
+Quiz me on this: <link, text, file, screenshot, photo, PDF, or code>
+```
 
-Yoda will read the content, extract key concepts, and generate an interactive canvas quiz that opens beside your chat.
+Yoda reads the source first and then generates the canvas. The canvas entry screen
+shows the source as ready rather than displaying non-functional upload controls.
 
-## Project Structure
+## Project structure
 
 ```text
 yoda/
-├── README.md              # This file
+├── README.md
 ├── skill/
-│   ├── SKILL.md           # Core skill definition
-│   └── examples.md        # Canvas reference patterns
+│   ├── SKILL.md
+│   ├── examples.md
+│   └── template.canvas.tsx
 └── demo/
-    └── do180-ch03-quiz.canvas.tsx  # Example quiz (OpenShift DO180 Ch.3)
+    ├── do180-yoda-training.canvas.tsx
+    └── do180-ch03-quiz.canvas.tsx
 ```
 
-## Demo
-
-The `demo/` folder contains a full working quiz canvas generated from Red Hat DO180 (Introduction to Containers and Kubernetes) Chapter 3. It demonstrates:
-
-- 20-question pool with 10 active per session
-- Seeded shuffle for reproducible randomization
-- Difficulty-grouped layout (Easy → Medium → Hard)
-- Score-reactive dog mascot (thumbs up / curious / determined)
-- "Retake Same" and "New Mix" options
+- `skill/template.canvas.tsx` is the authoritative copy-ready UI engine.
+- `demo/do180-yoda-training.canvas.tsx` is the full updated DO180 example.
+- `demo/do180-ch03-quiz.canvas.tsx` is the earlier single-page quiz retained for
+  comparison.
 
 ## License
 
