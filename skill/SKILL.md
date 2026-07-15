@@ -39,8 +39,8 @@ Use the source supplied in the conversation:
 - Code: inspect logic, APIs, edge cases, commands, and expected behaviour.
 - Pasted text or notes: use them directly.
 
-The canvas opens after source ingestion. Do not add a fake file uploader that does
-nothing. The entry screen must show the source title/summary as **Source ready**.
+The canvas starts directly at the analysis screen. There is no entry/landing screen.
+The quiz is generated immediately from the source content.
 
 If the source cannot be accessed, explain what failed and ask for pasted text or a
 screenshot instead of inventing a quiz.
@@ -100,8 +100,7 @@ Keep the canonical full and compact Yoda ASCII constants unchanged.
 ### 5. Preserve the complete screen flow
 
 ```text
-entry
-  -> analysis
+analysis
   -> levelSelect
   -> styleSelect
   -> settings
@@ -113,8 +112,7 @@ entry
 
 Required experiences:
 
-- **Entry:** Yoda ASCII art, "Teach you, I will.", "Quiz you, I must.", source-ready card.
-- **Analysis:** visible stages rather than a generic spinner.
+- **Analysis:** Yoda ASCII art, visible stages rather than a generic spinner.
 - **Level:** Youngling, Padawan, Jedi Master.
 - **Style:** Quick Wisdom, Truth Test, Speak You Must, Real Battle, Balance.
 - **Settings:** 5/10/15 questions, hints, immediate explanations.
