@@ -18,8 +18,8 @@ interface Question {
   hints: string[];
 }
 
-const QUIZ_TITLE = "DO180 — Containers & Pods Training";
-const QUIZ_SUBTITLE = "Chapter 3 · Running Containers, Managing Pods & Node Internals";
+const QUIZ_TITLE = "DO180 \u2014 Containers & Pods Training";
+const QUIZ_SUBTITLE = "Chapter 3 \u00b7 Running Containers, Managing Pods & Node Internals";
 const QUIZ_DESCRIPTION = "Master the fundamentals of containers, pods, and OpenShift node architecture through Yoda-guided training.";
 
 const questions: Question[] = [
@@ -54,7 +54,7 @@ const questions: Question[] = [
       { value: "d", label: "D) Deployments" },
     ],
     correct: "c",
-    explanation: "Kubernetes does not schedule containers directly. It schedules pods — the smallest execution unit it understands. A pod can hold one or more containers sharing the same network namespace, storage volumes, and lifecycle.",
+    explanation: "Kubernetes does not schedule containers directly. It schedules pods \u2014 the smallest execution unit it understands. A pod can hold one or more containers sharing the same network namespace, storage volumes, and lifecycle.",
     simpleExplanation: "Kubernetes works with pods, not individual containers. A pod is like a wrapper that groups one or more containers together.",
     example: "When you run 'oc run nginx --image=nginx', Kubernetes creates a pod that contains the nginx container. The pod is what gets placed on a node.",
     hints: ["Kubernetes has a unit smaller than a Deployment but larger than a single container.", "Think about what 'oc get' shows you in the most basic listing."],
@@ -93,7 +93,7 @@ const questions: Question[] = [
     explanation: "oc logs shows the output of the container's entry point process sent to stdout and stderr. If your application writes logs to files, you must reconfigure it to send output to stdout/stderr for oc logs to capture it.",
     simpleExplanation: "'oc logs' shows whatever the main process inside the container prints to the screen. If your app writes to a file instead, 'oc logs' won't show it.",
     example: "If your app does 'console.log(\"Starting server\")' it appears in oc logs. But if it writes to /var/log/app.log instead, oc logs shows nothing useful.",
-    hints: ["Think about where terminal output goes — stdout and stderr.", "It's not reading files from inside the container."],
+    hints: ["Think about where terminal output goes \u2014 stdout and stderr.", "It's not reading files from inside the container."],
   },
   {
     id: "q5",
@@ -126,8 +126,8 @@ const questions: Question[] = [
     topic: "Troubleshooting",
     stem: "What error status appears when a container's entry point repeatedly exits with a non-zero return code and OpenShift keeps restarting it?",
     correct: ["crashloopbackoff", "crash loop back off", "crashloop backoff", "crash loop backoff"],
-    explanation: "CrashLoopBackOff occurs when the container's entry point exits with a non-zero return code, the restart policy triggers a restart, but the container fails again — creating a repeating crash-restart cycle.",
-    simpleExplanation: "When a container keeps crashing and restarting in a loop, Kubernetes shows 'CrashLoopBackOff' — meaning it's backing off between restart attempts.",
+    explanation: "CrashLoopBackOff occurs when the container's entry point exits with a non-zero return code, the restart policy triggers a restart, but the container fails again \u2014 creating a repeating crash-restart cycle.",
+    simpleExplanation: "When a container keeps crashing and restarting in a loop, Kubernetes shows 'CrashLoopBackOff' \u2014 meaning it's backing off between restart attempts.",
     example: "If your container's start command has a typo (like 'node app.j' instead of 'node app.js'), it will exit immediately with an error, get restarted, fail again, and enter CrashLoopBackOff.",
     hints: ["The name literally describes what's happening: crash, loop, back off.", "It's a status you see in 'oc get pods'."],
   },
@@ -138,7 +138,7 @@ const questions: Question[] = [
     topic: "Node Architecture",
     stem: "What command gives you a shell on an OpenShift node via the API without using SSH?",
     correct: ["oc debug node", "oc debug"],
-    explanation: "oc debug node/<node-name> creates a pod with an interface into the node via the OpenShift API. Direct SSH is not recommended — configuration changes should be made via MachineConfig objects.",
+    explanation: "oc debug node/<node-name> creates a pod with an interface into the node via the OpenShift API. Direct SSH is not recommended \u2014 configuration changes should be made via MachineConfig objects.",
     simpleExplanation: "'oc debug node' lets you get a terminal on a node through Kubernetes, without needing SSH access or keys.",
     example: "Run 'oc debug node/worker-1.example.com' to get a shell where you can inspect the node's filesystem at /host and run host-level commands.",
     hints: ["It's an 'oc' subcommand specifically for troubleshooting.", "Think: debugging a node."],
@@ -151,7 +151,7 @@ const questions: Question[] = [
     stem: "The ___ is a systemd service running on every node that receives instructions from the OpenShift API and tells cri-o to download images and start containers.",
     correct: ["kubelet"],
     explanation: "The kubelet is a systemd service on every node. It receives instructions from the OpenShift API and instructs cri-o to download container images and start containers.",
-    simpleExplanation: "The kubelet is like a foreman on each node — it gets orders from the boss (API server) and tells the workers (cri-o) what to do.",
+    simpleExplanation: "The kubelet is like a foreman on each node \u2014 it gets orders from the boss (API server) and tells the workers (cri-o) what to do.",
     example: "When you create a pod, the API server assigns it to a node. That node's kubelet picks it up and tells cri-o: 'pull this image and start this container with these settings'.",
     hints: ["It's an agent that runs on every single node.", "Its name starts with 'kube'."],
   },
@@ -165,7 +165,7 @@ const questions: Question[] = [
     explanation: "OCI (Open Container Initiative) was established by Docker in June 2015 along with other industry leaders. It creates open standards ensuring images built for one runtime work on others.",
     simpleExplanation: "OCI is a standards body that makes sure containers work the same way regardless of which tool you use to build or run them.",
     example: "Because of OCI standards, an image built with 'podman build' works with Docker, cri-o, containerd, and any other OCI-compliant runtime without modification.",
-    hints: ["Think about what 'I' stands for in a standards organization.", "It's a group that sets standards — an ___ for containers."],
+    hints: ["Think about what 'I' stands for in a standards organization.", "It's a group that sets standards \u2014 an ___ for containers."],
   },
   {
     id: "q11",
@@ -177,7 +177,7 @@ const questions: Question[] = [
       { value: "a", label: "A) Only the network namespace" },
       { value: "b", label: "B) Network namespace, storage volumes, and lifecycle" },
       { value: "c", label: "C) Only storage volumes and lifecycle" },
-      { value: "d", label: "D) Nothing — each container is fully isolated" },
+      { value: "d", label: "D) Nothing \u2014 each container is fully isolated" },
     ],
     correct: "b",
     explanation: "All containers within a pod share the same network namespace, storage volumes, and lifecycle. This is what makes the pod the fundamental co-scheduling unit in Kubernetes.",
@@ -216,7 +216,7 @@ const questions: Question[] = [
       { value: "d", label: "D) docker.io/redhat" },
     ],
     correct: "c",
-    explanation: "registry.access.redhat.com is open to the entire world — anyone can pull images without authentication. registry.redhat.io requires authentication (for customers), and quay.io is geared towards publishers.",
+    explanation: "registry.access.redhat.com is open to the entire world \u2014 anyone can pull images without authentication. registry.redhat.io requires authentication (for customers), and quay.io is geared towards publishers.",
     simpleExplanation: "registry.access.redhat.com is the free, open registry. No login needed. The other Red Hat registries require credentials.",
     example: "You can run 'podman pull registry.access.redhat.com/ubi8/ubi:latest' on any machine without logging in first.",
     hints: ["The word 'access' in the URL is a clue.", "It's the one designed for open access."],
@@ -241,7 +241,7 @@ const questions: Question[] = [
     stem: "Containers are fast because they use process isolation rather than requiring a guest operating system or hypervisor.",
     correct: "true",
     explanation: "Unlike virtual machines, containers don't need a guest OS or hypervisor. A container is just a Linux process with isolated views of the system, which makes them extremely lightweight and fast to start.",
-    simpleExplanation: "Containers are just fancy processes — no need to boot an entire OS. That's why they start in seconds instead of minutes.",
+    simpleExplanation: "Containers are just fancy processes \u2014 no need to boot an entire OS. That's why they start in seconds instead of minutes.",
     example: "Starting a container takes about 1 second. Starting a VM takes 30-60 seconds because it must boot a full OS kernel and initialize hardware drivers.",
     hints: ["Compare containers to virtual machines in terms of overhead."],
   },
@@ -267,7 +267,7 @@ const questions: Question[] = [
     explanation: "'oc logs -f' follows the log output in real time, similar to how 'tail -f' works for files. This is useful for watching live application output.",
     simpleExplanation: "Add '-f' to keep watching new log lines as they appear, just like 'tail -f' does for files.",
     example: "Run 'oc logs -f deploy/myapp' to watch the logs update live as requests hit your application.",
-    hints: ["Think about what 'tail -f' does — the 'f' stands for the same thing.", "It's a single-letter flag."],
+    hints: ["Think about what 'tail -f' does \u2014 the 'f' stands for the same thing.", "It's a single-letter flag."],
   },
   {
     id: "q18",
@@ -278,8 +278,8 @@ const questions: Question[] = [
     correct: ["onfailure", "on failure", "on-failure", "onFailure"],
     explanation: "The OnFailure restart policy means the container will only be restarted if its entry point exits with a non-zero return code. 'Always' restarts regardless, and 'Never' prevents any restarts.",
     simpleExplanation: "OnFailure means: only restart if something went wrong (non-zero exit). If the container exits cleanly (exit code 0), leave it stopped.",
-    example: "A batch job that should run once uses OnFailure — if it crashes mid-way, restart it; if it finishes successfully, don't restart.",
-    hints: ["It's conditional — restart only when something went wrong.", "Think: on what condition should it restart?"],
+    example: "A batch job that should run once uses OnFailure \u2014 if it crashes mid-way, restart it; if it finishes successfully, don't restart.",
+    hints: ["It's conditional \u2014 restart only when something went wrong.", "Think: on what condition should it restart?"],
   },
   {
     id: "q19",
@@ -290,8 +290,8 @@ const questions: Question[] = [
     correct: ["entry point", "entrypoint", "entry-point"],
     explanation: "The entry point is container image metadata that tells the container runtime what process or command to execute when starting a container from that image.",
     simpleExplanation: "The entry point is the 'start here' instruction baked into the image. It says which program to launch.",
-    example: "An nginx image has an entry point of '/docker-entrypoint.sh nginx -g daemon off;' — that's what runs when the container starts.",
-    hints: ["It's the starting point — where execution enters.", "Think: entry + point."],
+    example: "An nginx image has an entry point of '/docker-entrypoint.sh nginx -g daemon off;' \u2014 that's what runs when the container starts.",
+    hints: ["It's the starting point \u2014 where execution enters.", "Think: entry + point."],
   },
   {
     id: "q20",
@@ -306,9 +306,9 @@ const questions: Question[] = [
       { value: "d", label: "D) The previous version of the container image's output" },
     ],
     correct: "b",
-    explanation: "oc logs --previous shows the output from the container's previous execution — particularly useful when a container has crashed or restarted and you need to see what happened before the failure.",
+    explanation: "oc logs --previous shows the output from the container's previous execution \u2014 particularly useful when a container has crashed or restarted and you need to see what happened before the failure.",
     simpleExplanation: "When a container crashes and restarts, you lose the old logs. '--previous' lets you see what was printed before the crash.",
-    example: "Your pod is in CrashLoopBackOff. 'oc logs mypod' shows the current (failing) attempt. 'oc logs --previous mypod' shows what happened in the attempt before — often revealing the actual error.",
+    example: "Your pod is in CrashLoopBackOff. 'oc logs mypod' shows the current (failing) attempt. 'oc logs --previous mypod' shows what happened in the attempt before \u2014 often revealing the actual error.",
     hints: ["Think about what information you lose when a container restarts.", "It's useful specifically after a crash or restart."],
   },
 ];
@@ -417,21 +417,21 @@ const LEVELS: Array<{
     title: "Youngling",
     description: "Gentle questions and helpful hints.",
     detail: "Best for learning the foundations step by step.",
-    icon: "🌱",
+    icon: "\ud83c\udf31",
   },
   {
     id: "padawan",
     title: "Padawan",
     description: "Balanced training with explanations.",
     detail: "A mix of recall, understanding, and practical questions.",
-    icon: "⚔️",
+    icon: "\u2694\ufe0f",
   },
   {
     id: "master",
     title: "Jedi Master",
     description: "Difficult questions and realistic challenges.",
     detail: "Fewer easy questions and more troubleshooting scenarios.",
-    icon: "🟢",
+    icon: "\ud83d\udfe2",
   },
 ];
 
@@ -441,11 +441,11 @@ const STYLES: Array<{
   description: string;
   icon: string;
 }> = [
-  { id: "mcq", title: "Quick Wisdom", description: "Multiple choice", icon: "▣" },
-  { id: "truefalse", title: "Truth Test", description: "True or false", icon: "◐" },
-  { id: "short", title: "Speak, You Must", description: "Short answer and fill in the blank", icon: "💬" },
-  { id: "realBattle", title: "Real Battle", description: "Practical and troubleshooting questions", icon: "⚡" },
-  { id: "mixed", title: "Balance", description: "A mixed challenge", icon: "✦" },
+  { id: "mcq", title: "Quick Wisdom", description: "Multiple choice", icon: "\u25a3" },
+  { id: "truefalse", title: "Truth Test", description: "True or false", icon: "\u25d0" },
+  { id: "short", title: "Speak, You Must", description: "Short answer and fill in the blank", icon: "\ud83d\udcac" },
+  { id: "realBattle", title: "Real Battle", description: "Practical and troubleshooting questions", icon: "\u26a1" },
+  { id: "mixed", title: "Balance", description: "A mixed challenge", icon: "\u2726" },
 ];
 
 function normalizeAnswer(value: string): string {
@@ -554,32 +554,212 @@ function getTopicScores(qs: Question[], answers: Record<string, string>) {
   return scores;
 }
 
-function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
-  const theme = useHostTheme();
-  const art = variant === "compact" ? COMPACT_YODA_ASCII : FULL_YODA_ASCII;
+
+const PALETTE = {
+  bg: "#04110b",
+  bgSoft: "#071a11",
+  panel: "#0b2216",
+  panelAlt: "#102a1d",
+  panelRaised: "#122f20",
+  border: "rgba(153, 255, 126, 0.18)",
+  borderStrong: "rgba(153, 255, 126, 0.42)",
+  glow: "rgba(110, 255, 122, 0.35)",
+  text: "#ecfbe9",
+  textMuted: "#b8d2bf",
+  textSoft: "#8fa596",
+  green: "#7dff7b",
+  greenBright: "#a8ff84",
+  greenDeep: "#1f7a45",
+  greenFill: "#193f27",
+  successBg: "rgba(125,255,123,0.10)",
+  danger: "#ff8f91",
+  dangerBg: "rgba(255,120,120,0.12)",
+  warning: "#ffd56d",
+  warningBg: "rgba(255,213,109,0.12)",
+  info: "#93d7ff",
+  infoBg: "rgba(147,215,255,0.12)",
+  white: "#ffffff",
+};
+
+function surfaceStyle(selected = false): any {
+  return {
+    background: selected
+      ? `linear-gradient(180deg, rgba(20,53,34,0.98), rgba(10,26,18,0.98))`
+      : `linear-gradient(180deg, rgba(12,32,22,0.96), rgba(7,21,14,0.96))`,
+    border: `1px solid ${selected ? PALETTE.borderStrong : PALETTE.border}`,
+    boxShadow: selected
+      ? `0 0 0 1px ${PALETTE.glow}, 0 14px 40px rgba(0,0,0,0.35)`
+      : `0 12px 32px rgba(0,0,0,0.28)`,
+    borderRadius: 18,
+  };
+}
+
+function labelCase(input: string): string {
+  return input.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase());
+}
+
+function SmallCaps({ children }: { children: any }) {
   return (
-    <div
-      role="img"
-      aria-label="Yoda-style quiz guide"
+    <div style={{ color: "#73c95b", fontSize: 14, fontWeight: 700, letterSpacing: 2.4, textTransform: "uppercase" }}>
+      {children}
+    </div>
+  );
+}
+
+function Chip({ children, active = false, tone = "default" }: { children: any; active?: boolean; tone?: "default" | "success" | "danger" | "warning" | "info" }) {
+  const toneMap: Record<string, any> = {
+    default: { bg: "rgba(255,255,255,0.04)", color: PALETTE.textMuted, border: PALETTE.border },
+    success: { bg: PALETTE.successBg, color: PALETTE.greenBright, border: "rgba(125,255,123,0.32)" },
+    danger: { bg: PALETTE.dangerBg, color: PALETTE.danger, border: "rgba(255,143,145,0.35)" },
+    warning: { bg: PALETTE.warningBg, color: PALETTE.warning, border: "rgba(255,213,109,0.35)" },
+    info: { bg: PALETTE.infoBg, color: PALETTE.info, border: "rgba(147,215,255,0.35)" },
+  };
+  const resolved = toneMap[tone] || toneMap.default;
+  return (
+    <span
       style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        overflow: "hidden",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "6px 10px",
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 700,
+        color: active ? PALETTE.bg : resolved.color,
+        background: active ? `linear-gradient(180deg, ${PALETTE.greenBright}, ${PALETTE.green})` : resolved.bg,
+        border: `1px solid ${active ? "rgba(168,255,132,0.65)" : resolved.border}`,
+        boxShadow: active ? `0 0 18px rgba(125,255,123,0.22)` : "none",
       }}
     >
+      {children}
+    </span>
+  );
+}
+
+function ActionButton({
+  children,
+  onClick,
+  disabled = false,
+  variant = "primary",
+  fullWidth = false,
+}: {
+  children: any;
+  onClick?: () => void;
+  disabled?: boolean;
+  variant?: "primary" | "secondary" | "ghost";
+  fullWidth?: boolean;
+}) {
+  const styles = {
+    primary: {
+      background: `linear-gradient(180deg, ${PALETTE.greenBright}, ${PALETTE.green})`,
+      color: PALETTE.bg,
+      border: "rgba(168,255,132,0.7)",
+      shadow: `0 0 24px rgba(125,255,123,0.24)`,
+    },
+    secondary: {
+      background: "rgba(255,255,255,0.04)",
+      color: PALETTE.text,
+      border: PALETTE.border,
+      shadow: "none",
+    },
+    ghost: {
+      background: "transparent",
+      color: PALETTE.textMuted,
+      border: "rgba(255,255,255,0.08)",
+      shadow: "none",
+    },
+  }[variant];
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: fullWidth ? "100%" : "auto",
+        padding: "12px 18px",
+        borderRadius: 14,
+        border: `1px solid ${styles.border}`,
+        background: disabled ? "rgba(255,255,255,0.05)" : styles.background,
+        color: disabled ? PALETTE.textSoft : styles.color,
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: disabled ? "not-allowed" : "pointer",
+        boxShadow: disabled ? "none" : styles.shadow,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Panel({ children, selected = false, style = {} }: { children: any; selected?: boolean; style?: any }) {
+  return <div style={{ padding: 18, ...surfaceStyle(selected), ...style }}>{children}</div>;
+}
+
+function InfoBox({ title, children, tone = "info" }: { title: string; children: any; tone?: "info" | "success" | "danger" | "warning" }) {
+  const tones = {
+    info: { bg: PALETTE.infoBg, color: PALETTE.info, border: "rgba(147,215,255,0.28)" },
+    success: { bg: PALETTE.successBg, color: PALETTE.greenBright, border: "rgba(125,255,123,0.28)" },
+    danger: { bg: PALETTE.dangerBg, color: PALETTE.danger, border: "rgba(255,143,145,0.28)" },
+    warning: { bg: PALETTE.warningBg, color: PALETTE.warning, border: "rgba(255,213,109,0.28)" },
+  }[tone];
+
+  return (
+    <div style={{ background: tones.bg, border: `1px solid ${tones.border}`, borderRadius: 16, padding: 16 }}>
+      <div style={{ color: tones.color, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+      <div style={{ color: PALETTE.textMuted, fontSize: 14, lineHeight: 1.55 }}>{children}</div>
+    </div>
+  );
+}
+
+function MeterBar({ label, value, hint, color = PALETTE.green }: { label: string; value: number; hint?: string; color?: string }) {
+  return (
+    <div style={{ width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, gap: 12 }}>
+        <div style={{ color: PALETTE.text, fontSize: 14, fontWeight: 700 }}>{label}</div>
+        <div style={{ color: PALETTE.textSoft, fontSize: 13 }}>{hint || `${value}%`}</div>
+      </div>
+      <div style={{ height: 10, borderRadius: 999, overflow: "hidden", background: "rgba(255,255,255,0.07)", border: `1px solid rgba(255,255,255,0.04)` }}>
+        <div
+          style={{
+            width: `${clamp(value, 0, 100)}%`,
+            height: "100%",
+            borderRadius: 999,
+            background: `linear-gradient(90deg, ${PALETTE.greenDeep}, ${color})`,
+            boxShadow: `0 0 16px ${PALETTE.glow}`,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function TinyStat({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "success" | "danger" | "warning" }) {
+  const color = tone === "success" ? PALETTE.greenBright : tone === "danger" ? PALETTE.danger : tone === "warning" ? PALETTE.warning : PALETTE.text;
+  return (
+    <div style={{ minWidth: 0, padding: 16, borderRadius: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${PALETTE.border}` }}>
+      <div style={{ fontSize: 30, fontWeight: 800, color }}>{value}</div>
+      <div style={{ fontSize: 13, color: PALETTE.textSoft }}>{label}</div>
+    </div>
+  );
+}
+
+function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
+  const art = variant === "compact" ? COMPACT_YODA_ASCII : FULL_YODA_ASCII;
+  return (
+    <div role="img" aria-label="Yoda-style quiz guide" style={{ width: "100%", display: "flex", justifyContent: "center" }}>
       <pre
         aria-hidden="true"
         style={{
           margin: 0,
           whiteSpace: "pre",
-          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-          fontSize: variant === "full" ? 10 : 12,
+          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+          fontSize: variant === "full" ? 11 : 14,
           lineHeight: 1.05,
-          letterSpacing: 0,
-          color: theme.accent.primary,
+          color: PALETTE.greenBright,
           textAlign: "center",
           userSelect: "none",
+          textShadow: `0 0 18px rgba(125,255,123,0.18)`,
         }}
       >
         {art}
@@ -589,24 +769,21 @@ function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
 }
 
 function ScreenShell({ children, eyebrow }: { children: any; eyebrow?: string }) {
-  const theme = useHostTheme();
   return (
     <div
       style={{
-        maxWidth: 900,
+        maxWidth: 980,
         margin: "0 auto",
-        padding: 20,
-        borderRadius: 18,
-        border: `1px solid ${theme.stroke.secondary}`,
-        background: theme.fill.quaternary,
+        padding: 24,
+        borderRadius: 26,
+        border: `1px solid ${PALETTE.border}`,
+        background: `radial-gradient(circle at top, rgba(26,60,39,0.65), rgba(4,17,11,0.98) 45%), linear-gradient(180deg, ${PALETTE.bgSoft}, ${PALETTE.bg})`,
+        boxShadow: `0 20px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04)`,
+        color: PALETTE.text,
       }}
     >
-      <Stack gap={20}>
-        {eyebrow && (
-          <Text size="small" weight="semibold" style={{ color: theme.accent.primary, letterSpacing: 1.2 }}>
-            {eyebrow.toUpperCase()}
-          </Text>
-        )}
+      <Stack gap={22}>
+        {eyebrow && <SmallCaps>{eyebrow}</SmallCaps>}
         {children}
       </Stack>
     </div>
@@ -628,57 +805,48 @@ function OptionButton({
   disabled: boolean;
   onClick: () => void;
 }) {
-  const theme = useHostTheme();
-  let background = theme.fill.tertiary;
-  let color = theme.text.primary;
-  let border = theme.stroke.secondary;
+  let background = "rgba(255,255,255,0.03)";
+  let border = PALETTE.border;
+  let color = PALETTE.text;
 
   if (correct) {
-    background = theme.diff.insertedLine;
-    border = theme.category.green;
+    background = "rgba(125,255,123,0.10)";
+    border = "rgba(125,255,123,0.45)";
+    color = PALETTE.white;
   } else if (wrong) {
-    background = theme.diff.removedLine;
-    border = theme.category.red;
+    background = "rgba(255,143,145,0.10)";
+    border = "rgba(255,143,145,0.45)";
+    color = PALETTE.white;
   } else if (selected) {
-    background = theme.fill.secondary;
-    border = theme.accent.primary;
+    background = "rgba(125,255,123,0.06)";
+    border = PALETTE.borderStrong;
   }
 
   return (
-    <div
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      aria-pressed={selected}
-      onClick={() => !disabled && onClick()}
-      onKeyDown={(event: any) => {
-        if (!disabled && (event.key === "Enter" || event.key === " ")) onClick();
-      }}
+    <button
+      onClick={onClick}
+      disabled={disabled}
       style={{
-        padding: "12px 14px",
-        borderRadius: 10,
-        cursor: disabled ? "default" : "pointer",
+        width: "100%",
+        textAlign: "left",
+        padding: "15px 16px",
+        borderRadius: 14,
         background,
         color,
         border: `1px solid ${border}`,
-        opacity: disabled && !selected && !correct ? 0.65 : 1,
+        fontSize: 16,
+        fontWeight: selected || correct || wrong ? 700 : 500,
+        cursor: disabled ? "default" : "pointer",
+        opacity: disabled && !selected && !correct && !wrong ? 0.72 : 1,
       }}
     >
-      <Text size="small" weight={selected || correct || wrong ? "semibold" : "normal"} style={{ color }}>
-        {label}
-      </Text>
-    </div>
+      {label}
+    </button>
   );
 }
 
 function ForceMeterBar({ value }: { value: number }) {
-  return (
-    <UsageBar
-      total={100}
-      topLeftLabel={<Text size="small" weight="semibold">Force Meter</Text>}
-      topRightLabel={<Text size="small" tone="secondary">{value}%</Text>}
-      segments={[{ id: "force", value, color: "green" }]}
-    />
-  );
+  return <MeterBar label="Force Meter" value={value} />;
 }
 
 function SelectableCard({
@@ -696,85 +864,88 @@ function SelectableCard({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  const theme = useHostTheme();
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-pressed={isSelected}
+    <button
       onClick={onSelect}
-      onKeyDown={(event: any) => {
-        if (event.key === "Enter" || event.key === " ") onSelect();
-      }}
       style={{
-        minHeight: 126,
-        padding: 16,
-        borderRadius: 12,
+        width: "100%",
+        textAlign: "left",
+        padding: 18,
+        borderRadius: 18,
         cursor: "pointer",
-        border: `1px solid ${isSelected ? theme.accent.primary : theme.stroke.secondary}`,
-        background: isSelected ? theme.fill.secondary : theme.fill.tertiary,
-        boxShadow: isSelected ? `0 0 0 2px ${theme.accent.primary}` : "none",
+        ...surfaceStyle(isSelected),
       }}
     >
-      <Stack gap={7}>
-        <Row align="center" gap={8}>
-          {icon && <Text>{icon}</Text>}
-          <Text weight="semibold">{title}</Text>
-          <Spacer />
-          {isSelected && <Pill active>Selected</Pill>}
-        </Row>
-        <Text size="small">{description}</Text>
-        {detail && <Text size="small" tone="secondary">{detail}</Text>}
-      </Stack>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+        {icon && <span style={{ fontSize: 24 }}>{icon}</span>}
+        <span style={{ color: PALETTE.text, fontSize: 18, fontWeight: 800 }}>{title}</span>
+        <div style={{ marginLeft: "auto" }}>{isSelected && <Chip active>Selected</Chip>}</div>
+      </div>
+      <div style={{ color: PALETTE.textMuted, fontSize: 15, fontWeight: 600, marginBottom: detail ? 8 : 0 }}>{description}</div>
+      {detail && <div style={{ color: PALETTE.textSoft, fontSize: 14, lineHeight: 1.5 }}>{detail}</div>}
+    </button>
+  );
+}
+
+function HeadingBlock({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}>
+      <h1 style={{ margin: 0, fontSize: 24, color: PALETTE.text }}>{title}</h1>
+      {subtitle && <div style={{ maxWidth: 620, color: PALETTE.textSoft, fontSize: 14, lineHeight: 1.6 }}>{subtitle}</div>}
+    </div>
+  );
+}
+
+function EntryActionTile({ icon, label }: { icon: string; label: string }) {
+  return (
+    <div style={{ flex: 1, minWidth: 96, padding: 12, borderRadius: 14, background: "rgba(255,255,255,0.03)", border: `1px solid ${PALETTE.border}`, textAlign: "center" }}>
+      <div style={{ fontSize: 20, marginBottom: 6 }}>{icon}</div>
+      <div style={{ color: PALETTE.textMuted, fontSize: 12, fontWeight: 700 }}>{label}</div>
     </div>
   );
 }
 
 function EntryScreen({ onStart }: { onStart: () => void }) {
-  const theme = useHostTheme();
   return (
-    <ScreenShell eyebrow="Yoda · Teach You, I Will">
-      <Stack gap={18} style={{ alignItems: "center" }}>
-        <YodaArt variant="full" />
-        <Stack gap={8} style={{ alignItems: "center", textAlign: "center" }}>
-          <H1>Teach you, I will.</H1>
-          <Text weight="semibold" style={{ color: theme.accent.primary }}>Quiz you, I must.</Text>
-          <Text tone="secondary" size="small" style={{ maxWidth: 560, textAlign: "center" }}>
-            Your learning material is ready. Choose your path, complete one question at a time,
-            and review the topics that need more training.
-          </Text>
-        </Stack>
-      </Stack>
+    <ScreenShell eyebrow="Yoda \u2014 Teach You, I Will">
+      <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "center" }}>
+        <YodaArt variant="compact" />
+        <HeadingBlock title="Teach you, I will." subtitle="Paste a link, upload a screenshot, add a photo, or give me your notes." />
+      </div>
 
-      <Card>
-        <CardHeader trailing={<Pill active>Source ready</Pill>}>Learning material</CardHeader>
-        <CardBody>
-          <Stack gap={10}>
-            <Text weight="semibold">{QUIZ_TITLE}</Text>
-            <Text size="small" tone="secondary">{QUIZ_SUBTITLE}</Text>
-            <Text size="small">{QUIZ_DESCRIPTION}</Text>
-            <Row gap={6} wrap>
-              <Pill size="sm">Link</Pill>
-              <Pill size="sm">Text</Pill>
-              <Pill size="sm">Screenshot</Pill>
-              <Pill size="sm">Photo</Pill>
-              <Pill size="sm">PDF</Pill>
-              <Pill size="sm">Document</Pill>
-            </Row>
-          </Stack>
-        </CardBody>
-      </Card>
+      <Panel>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ color: PALETTE.text, fontWeight: 700 }}>Quiz me on this:</div>
+          <div style={{ minHeight: 120, borderRadius: 18, border: `1px dashed ${PALETTE.borderStrong}`, background: "rgba(255,255,255,0.02)", padding: 16, color: PALETTE.textSoft, lineHeight: 1.6 }}>
+            DO180 \u2014 Containers &amp; Pods Training \u00b7 Chapter 3 \u00b7 Running Containers, Managing Pods &amp; Node Internals
+          </div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <EntryActionTile icon="\ud83d\udd17" label="Paste link" />
+            <EntryActionTile icon="\u2934" label="Upload" />
+            <EntryActionTile icon="\ud83d\udcf7" label="Photo" />
+            <EntryActionTile icon="\ud83d\udcc4" label="Document" />
+            <EntryActionTile icon="\u2b1c" label="Drag & drop" />
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Chip tone="success">Source ready</Chip>
+            <Chip>Link</Chip>
+            <Chip>Text</Chip>
+            <Chip>Screenshot</Chip>
+            <Chip>Photo</Chip>
+            <Chip>PDF</Chip>
+          </div>
+        </div>
+      </Panel>
 
-      <Stack gap={8} style={{ alignItems: "center" }}>
-        <Button variant="primary" onClick={onStart}>Begin Your Training</Button>
-        <Text size="small" tone="tertiary">Grounded only in the supplied source material.</Text>
-      </Stack>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+        <ActionButton variant="primary" onClick={onStart}>Begin Your Training</ActionButton>
+        <div style={{ color: PALETTE.textSoft, fontSize: 13 }}>Teach you, I will. Quiz you, I must.</div>
+      </div>
     </ScreenShell>
   );
 }
 
 function AnalysisScreen({ onReady, onBack }: { onReady: () => void; onBack: () => void }) {
-  const theme = useHostTheme();
   const [step, setStep] = useCanvasState<number>("analysisStep", 0);
   const safeStep = clamp(step, 0, ANALYSIS_STAGES.length - 1);
   const progress = Math.round(((safeStep + 1) / ANALYSIS_STAGES.length) * 100);
@@ -782,51 +953,40 @@ function AnalysisScreen({ onReady, onBack }: { onReady: () => void; onBack: () =
 
   return (
     <ScreenShell eyebrow="Analysing material">
-      <Stack gap={10} style={{ alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", textAlign: "center" }}>
         <YodaArt variant="compact" />
-        <H2>{YODA_MESSAGES.analysis[safeStep]}</H2>
-        <Text size="small" tone="secondary">
-          A generic spinner, use we shall not. What is happening, show you we will.
-        </Text>
-      </Stack>
+        <h2 style={{ margin: 0, color: PALETTE.text, fontSize: 22 }}>{YODA_MESSAGES.analysis[safeStep]}</h2>
+      </div>
 
-      <UsageBar
-        total={100}
-        topLeftLabel={<Text size="small" weight="semibold">Preparing training</Text>}
-        topRightLabel={<Text size="small" tone="secondary">{progress}%</Text>}
-        segments={[{ id: "analysis", value: progress, color: "green" }]}
-      />
-
-      <Card>
-        <CardBody>
-          <Stack gap={9}>
+      <Panel>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <MeterBar label="Preparing training" value={progress} hint={`${progress}%`} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {ANALYSIS_STAGES.map((stage, index) => (
-              <Row key={stage} gap={10} align="center">
-                <Text style={{ color: index <= safeStep ? theme.accent.primary : theme.text.tertiary }}>
-                  {index < safeStep ? "✓" : index === safeStep ? "●" : "○"}
-                </Text>
-                <Text
-                  size="small"
-                  weight={index === safeStep ? "semibold" : "normal"}
-                  tone={index > safeStep ? "tertiary" : undefined}
-                >
+              <div key={stage} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ color: index < safeStep ? PALETTE.greenBright : index === safeStep ? PALETTE.info : PALETTE.textSoft, fontSize: 18 }}>
+                  {index < safeStep ? "\u2713" : index === safeStep ? "\u25cf" : "\u25cb"}
+                </span>
+                <span style={{ color: index === safeStep ? PALETTE.text : index < safeStep ? PALETTE.textMuted : PALETTE.textSoft, fontWeight: index === safeStep ? 700 : 500 }}>
                   {stage}
-                </Text>
-              </Row>
+                </span>
+              </div>
             ))}
-          </Stack>
-        </CardBody>
-      </Card>
+          </div>
+          <InfoBox title="A worthy challenge, this will be." tone="success">
+            Study your material, question patterns, and useful explanations, Yoda now prepares.
+          </InfoBox>
+        </div>
+      </Panel>
 
-      <Row gap={10}>
-        <Button variant="secondary" onClick={onBack}>Back</Button>
-        <Spacer />
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <ActionButton variant="secondary" onClick={onBack}>Back</ActionButton>
         {!done ? (
-          <Button variant="primary" onClick={() => setStep(safeStep + 1)}>Continue Analysis</Button>
+          <ActionButton variant="primary" onClick={() => setStep(safeStep + 1)}>Continue Analysis</ActionButton>
         ) : (
-          <Button variant="primary" onClick={onReady}>Choose My Path</Button>
+          <ActionButton variant="primary" onClick={onReady}>Choose My Path</ActionButton>
         )}
-      </Row>
+      </div>
     </ScreenShell>
   );
 }
@@ -840,19 +1000,17 @@ function LevelSelectScreen({
   onSelect: (level: TrainingLevel) => void;
   onBack: () => void;
 }) {
-  const theme = useHostTheme();
   const [selected, setSelected] = useCanvasState<TrainingLevel>("levelChoice", initialLevel);
   const chosen = LEVELS.find(item => item.id === selected);
 
   return (
     <ScreenShell eyebrow="Training level">
-      <Stack gap={10} style={{ alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
         <YodaArt variant="compact" />
-        <H2>Choose your path, you must.</H2>
-        <Text size="small" tone="secondary">The challenge can adjust again while you train.</Text>
-      </Stack>
+        <HeadingBlock title="Choose your path, you must." subtitle="Gentle, balanced, or difficult training \u2014 your choice before the challenge begins." />
+      </div>
 
-      <Grid columns={3} gap={12}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
         {LEVELS.map(item => (
           <SelectableCard
             key={item.id}
@@ -864,19 +1022,16 @@ function LevelSelectScreen({
             onSelect={() => setSelected(item.id)}
           />
         ))}
-      </Grid>
+      </div>
 
-      <Callout tone="info" title="Path selected">
-        <Text size="small" style={{ color: theme.accent.primary }}>
-          The {chosen?.title || "Padawan"} path, chosen you have.
-        </Text>
-      </Callout>
+      <InfoBox title="Path selected" tone="info">
+        <span style={{ color: PALETTE.info, fontWeight: 700 }}>The {chosen?.title || "Padawan"} path, chosen you have.</span>
+      </InfoBox>
 
-      <Row gap={10}>
-        <Button variant="secondary" onClick={onBack}>Back</Button>
-        <Spacer />
-        <Button variant="primary" onClick={() => onSelect(selected)}>Continue</Button>
-      </Row>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <ActionButton variant="secondary" onClick={onBack}>Back</ActionButton>
+        <ActionButton variant="primary" onClick={() => onSelect(selected)}>Continue</ActionButton>
+      </div>
     </ScreenShell>
   );
 }
@@ -893,13 +1048,10 @@ function StyleSelectScreen({
   const [selected, setSelected] = useCanvasState<TrainingStyle>("styleChoice", initialStyle);
 
   return (
-    <ScreenShell eyebrow="Quiz format">
-      <Stack gap={8} style={{ alignItems: "center", textAlign: "center" }}>
-        <H2>Choose your training style.</H2>
-        <Text size="small" tone="secondary">One format, or balance them all.</Text>
-      </Stack>
+    <ScreenShell eyebrow="Quiz style">
+      <HeadingBlock title="Choose your training style." subtitle="Quick Wisdom, Truth Test, Speak, You Must, Real Battle, or a balanced mixed challenge." />
 
-      <Grid columns={2} gap={12}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14 }}>
         {STYLES.map(item => (
           <SelectableCard
             key={item.id}
@@ -910,13 +1062,22 @@ function StyleSelectScreen({
             onSelect={() => setSelected(item.id)}
           />
         ))}
-      </Grid>
+      </div>
 
-      <Row gap={10}>
-        <Button variant="secondary" onClick={onBack}>Back</Button>
-        <Spacer />
-        <Button variant="primary" onClick={() => onSelect(selected)}>Training Settings</Button>
-      </Row>
+      <Panel>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ color: PALETTE.text, fontWeight: 700 }}>Advanced settings</div>
+            <div style={{ color: PALETTE.textSoft, fontSize: 14 }}>Question count, hints, and explanation timing appear next.</div>
+          </div>
+          <Chip active>Collapsed</Chip>
+        </div>
+      </Panel>
+
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <ActionButton variant="secondary" onClick={onBack}>Back</ActionButton>
+        <ActionButton variant="primary" onClick={() => onSelect(selected)}>Training Settings</ActionButton>
+      </div>
     </ScreenShell>
   );
 }
@@ -942,15 +1103,12 @@ function SettingsScreen({
 }) {
   return (
     <ScreenShell eyebrow="Optional settings">
-      <Stack gap={8} style={{ textAlign: "center", alignItems: "center" }}>
-        <H2>Shape your training, you may.</H2>
-        <Text size="small" tone="secondary">The defaults are already suitable for a balanced session.</Text>
-      </Stack>
+      <HeadingBlock title="Shape your training, you may." subtitle="Keep the defaults for a balanced experience, or tune the session before the quiz begins." />
 
-      <Card>
-        <CardHeader>Number of questions</CardHeader>
-        <CardBody>
-          <Grid columns={3} gap={10}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 14 }}>
+        <Panel>
+          <div style={{ color: PALETTE.text, fontWeight: 700, marginBottom: 14 }}>Number of questions</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
             {[5, 10, 15].map(count => (
               <SelectableCard
                 key={count}
@@ -960,34 +1118,33 @@ function SettingsScreen({
                 onSelect={() => onQuestionCount(count)}
               />
             ))}
-          </Grid>
-        </CardBody>
-      </Card>
+          </div>
+        </Panel>
 
-      <Grid columns={2} gap={12}>
-        <SelectableCard
-          title="Use the Force"
-          description={hintsEnabled ? "Hints are available" : "Hints are disabled"}
-          detail="Hints guide the learner without revealing the answer."
-          icon="💡"
-          isSelected={hintsEnabled}
-          onSelect={onToggleHints}
-        />
-        <SelectableCard
-          title="Immediate explanations"
-          description={instantExplanations ? "Show after each answer" : "Save explanations for review"}
-          detail="The learner can still review every mistake after the quiz."
-          icon="📚"
-          isSelected={instantExplanations}
-          onSelect={onToggleExplanations}
-        />
-      </Grid>
+        <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 14 }}>
+          <SelectableCard
+            title="Use the Force"
+            description={hintsEnabled ? "Hints are available" : "Hints are disabled"}
+            detail="Hints guide the learner without revealing the answer directly."
+            icon="\ud83d\udca1"
+            isSelected={hintsEnabled}
+            onSelect={onToggleHints}
+          />
+          <SelectableCard
+            title="Immediate explanations"
+            description={instantExplanations ? "Show after each answer" : "Save explanations for review"}
+            detail="The learner can still review every mistake after the quiz."
+            icon="\ud83d\udcda"
+            isSelected={instantExplanations}
+            onSelect={onToggleExplanations}
+          />
+        </div>
+      </div>
 
-      <Row gap={10}>
-        <Button variant="secondary" onClick={onBack}>Back</Button>
-        <Spacer />
-        <Button variant="primary" onClick={onStart}>Begin Quiz</Button>
-      </Row>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <ActionButton variant="secondary" onClick={onBack}>Back</ActionButton>
+        <ActionButton variant="primary" onClick={onStart}>Begin Quiz</ActionButton>
+      </div>
     </ScreenShell>
   );
 }
@@ -1035,7 +1192,6 @@ function QuizScreenView({
   onExplanation: (mode: ExplanationMode) => void;
   onFinish: () => void;
 }) {
-  const theme = useHostTheme();
   const question = qs[currentQ];
   if (!question) return null;
 
@@ -1047,6 +1203,7 @@ function QuizScreenView({
   const isSkipped = Boolean(skipped[question.id]);
   const explanation = explanationMode[question.id] || "why";
   const progress = Math.round(((currentQ + (showFeedback ? 1 : 0)) / qs.length) * 100);
+  const xp = isSkipped ? "+0 XP" : isCorrect ? "+10 XP" : "+5 XP";
 
   let reaction = "Think carefully, you must.";
   if (showFeedback && isSkipped) reaction = "Skipped, this question was. Learn from it, you still can.";
@@ -1062,178 +1219,149 @@ function QuizScreenView({
         : `Jedi Focus: ${streak}`;
 
   const feedbackTone = isSkipped ? "warning" : isCorrect ? "success" : "danger";
-  const feedbackTitle = isSkipped ? "Question skipped" : isCorrect ? "Correct" : "Not quite";
+  const feedbackTitle = isSkipped ? "Question skipped" : isCorrect ? "Correct, you are." : "Not quite";
 
   return (
     <ScreenShell eyebrow={`Question ${currentQ + 1} of ${qs.length}`}>
-      <Row align="center" gap={10}>
-        <Text size="small" weight="semibold">Training progress</Text>
-        <Spacer />
-        {streak > 0 && <Pill active>{streakLabel}</Pill>}
-      </Row>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ color: PALETTE.textSoft, fontSize: 14 }}>Training progress</div>
+        {streak > 0 && <Chip active>{streakLabel}</Chip>}
+      </div>
 
-      <UsageBar
-        total={100}
-        topLeftLabel={<Text size="small" tone="secondary">Progress</Text>}
-        topRightLabel={<Text size="small" tone="secondary">{progress}%</Text>}
-        segments={[{ id: "progress", value: progress, color: "blue" }]}
-      />
+      <MeterBar label="Progress" value={progress} />
       <ForceMeterBar value={forceMeter} />
 
-      <Stack gap={7} style={{ alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}>
         <YodaArt variant="compact" />
-        <Text weight="semibold" style={{ color: showFeedback && !isCorrect && !isSkipped ? theme.category.red : theme.accent.primary }}>
-          {reaction}
-        </Text>
-      </Stack>
+        <div style={{ color: showFeedback && !isCorrect && !isSkipped ? PALETTE.danger : PALETTE.greenBright, fontSize: 18, fontWeight: 700 }}>{reaction}</div>
+      </div>
 
-      <Card>
-        <CardHeader
-          trailing={
-            <Row gap={6} wrap>
-              <Pill size="sm">{question.difficulty}</Pill>
-              <Pill size="sm">{question.topic}</Pill>
-            </Row>
-          }
-        >
-          Your challenge
-        </CardHeader>
-        <CardBody>
-          <Stack gap={14}>
-            <Text weight="semibold">{question.stem}</Text>
+      <Panel>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+          <div style={{ color: PALETTE.text, fontWeight: 700 }}>Your challenge</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Chip>{labelCase(question.difficulty)}</Chip>
+            <Chip>{question.topic}</Chip>
+          </div>
+        </div>
+        <div style={{ color: PALETTE.white, fontSize: 22, fontWeight: 800, lineHeight: 1.35, marginBottom: 16 }}>{question.stem}</div>
 
-            {question.type === "mcq" && question.options && (
-              <Stack gap={8}>
-                {question.options.map(option => {
-                  const optionIsCorrect = showFeedback && (
-                    Array.isArray(question.correct)
-                      ? question.correct.includes(option.value)
-                      : option.value === question.correct
-                  );
-                  const optionIsWrong = showFeedback && answer === option.value && !isCorrect;
-                  return (
-                    <OptionButton
-                      key={option.value}
-                      label={option.label}
-                      selected={answer === option.value}
-                      correct={optionIsCorrect || undefined}
-                      wrong={optionIsWrong || undefined}
-                      disabled={showFeedback}
-                      onClick={() => onAnswer(option.value)}
-                    />
-                  );
-                })}
-              </Stack>
-            )}
-
-            {question.type === "truefalse" && (
-              <Grid columns={2} gap={8}>
+        {question.type === "mcq" && question.options && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {question.options.map(option => {
+              const optionIsCorrect = showFeedback && (Array.isArray(question.correct) ? question.correct.includes(option.value) : option.value === question.correct);
+              const optionIsWrong = showFeedback && answer === option.value && !isCorrect;
+              return (
                 <OptionButton
-                  label="True"
-                  selected={answer === "true"}
-                  correct={showFeedback && question.correct === "true" ? true : undefined}
-                  wrong={showFeedback && answer === "true" && question.correct !== "true" ? true : undefined}
+                  key={option.value}
+                  label={option.label}
+                  selected={answer === option.value}
+                  correct={optionIsCorrect || undefined}
+                  wrong={optionIsWrong || undefined}
                   disabled={showFeedback}
-                  onClick={() => onAnswer("true")}
+                  onClick={() => onAnswer(option.value)}
                 />
-                <OptionButton
-                  label="False"
-                  selected={answer === "false"}
-                  correct={showFeedback && question.correct === "false" ? true : undefined}
-                  wrong={showFeedback && answer === "false" && question.correct !== "false" ? true : undefined}
-                  disabled={showFeedback}
-                  onClick={() => onAnswer("false")}
-                />
-              </Grid>
-            )}
+              );
+            })}
+          </div>
+        )}
 
-            {(question.type === "short" || question.type === "fillinblank") && (
-              <TextInput
-                value={isSkipped ? "" : answer}
-                onChange={onAnswer}
-                placeholder={question.type === "short" ? "Type your answer..." : "Fill in the blank..."}
-                disabled={showFeedback}
-              />
-            )}
-          </Stack>
-        </CardBody>
-      </Card>
+        {question.type === "truefalse" && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+            <OptionButton
+              label="True"
+              selected={answer === "true"}
+              correct={showFeedback && question.correct === "true" ? true : undefined}
+              wrong={showFeedback && answer === "true" && question.correct !== "true" ? true : undefined}
+              disabled={showFeedback}
+              onClick={() => onAnswer("true")}
+            />
+            <OptionButton
+              label="False"
+              selected={answer === "false"}
+              correct={showFeedback && question.correct === "false" ? true : undefined}
+              wrong={showFeedback && answer === "false" && question.correct !== "false" ? true : undefined}
+              disabled={showFeedback}
+              onClick={() => onAnswer("false")}
+            />
+          </div>
+        )}
+
+        {(question.type === "short" || question.type === "fillinblank") && (
+          <input
+            value={isSkipped ? "" : answer}
+            onChange={(event: any) => onAnswer(event.target.value)}
+            placeholder={question.type === "short" ? "Type your answer..." : "Fill in the blank..."}
+            disabled={showFeedback}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "14px 16px",
+              borderRadius: 14,
+              border: `1px solid ${PALETTE.borderStrong}`,
+              background: "rgba(255,255,255,0.03)",
+              color: PALETTE.text,
+              fontSize: 16,
+              outline: "none",
+            }}
+          />
+        )}
+      </Panel>
 
       {hintCount > 0 && !showFeedback && (
-        <Callout tone="info" title={YODA_MESSAGES.hint[(hintCount - 1) % YODA_MESSAGES.hint.length]}>
-          <Text size="small">{question.hints[hintCount - 1]}</Text>
-        </Callout>
+        <InfoBox title={YODA_MESSAGES.hint[(hintCount - 1) % YODA_MESSAGES.hint.length]} tone="info">
+          {question.hints[hintCount - 1]}
+        </InfoBox>
       )}
 
       {!showFeedback && (
-        <Row gap={8} wrap>
-          <Button variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()}>
-            Submit Answer
-          </Button>
-          {hintsEnabled && hintsAvailable > 0 && (
-            <Button variant="secondary" onClick={onHint}>
-              Use the Force · {hintsAvailable} remaining
-            </Button>
-          )}
-          <Spacer />
-          <Button variant="secondary" onClick={onSkip}>Skip for now</Button>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()}>Submit Answer</ActionButton>
+            {hintsEnabled && hintsAvailable > 0 && (
+              <ActionButton variant="secondary" onClick={onHint}>Use the Force \u00b7 {hintsAvailable} remaining</ActionButton>
+            )}
+          </div>
+          <ActionButton variant="ghost" onClick={onSkip}>Skip for now</ActionButton>
+        </div>
       )}
 
       {showFeedback && (
-        <Stack gap={12}>
-          <Callout tone={feedbackTone} title={feedbackTitle}>
-            <Stack gap={7}>
-              {instantExplanations ? (
-                <Text size="small">
-                  {explanation === "simple"
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <InfoBox title={feedbackTitle} tone={feedbackTone as any}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div>
+                {instantExplanations
+                  ? explanation === "simple"
                     ? question.simpleExplanation
                     : explanation === "example"
                       ? question.example
-                      : question.explanation}
-                </Text>
-              ) : (
-                <Text size="small">Your detailed explanation will be available in the review screen.</Text>
-              )}
-              {(!isCorrect || isSkipped) && (
-                <Text size="small" weight="semibold">Correct answer: {getCorrectAnswerLabel(question)}</Text>
-              )}
-            </Stack>
-          </Callout>
+                      : question.explanation
+                  : "Your detailed explanation will be available in the review screen."}
+              </div>
+              {(!isCorrect || isSkipped) && <div style={{ color: PALETTE.white, fontWeight: 700 }}>Correct answer: {getCorrectAnswerLabel(question)}</div>}
+            </div>
+          </InfoBox>
 
-          {instantExplanations && (
-            <Row gap={8} wrap>
-              <Button
-                variant={explanation === "why" ? "primary" : "secondary"}
-                onClick={() => onExplanation("why")}
-              >
-                Understand why
-              </Button>
-              <Button
-                variant={explanation === "simple" ? "primary" : "secondary"}
-                onClick={() => onExplanation("simple")}
-              >
-                Simpler, make it
-              </Button>
-              <Button
-                variant={explanation === "example" ? "primary" : "secondary"}
-                onClick={() => onExplanation("example")}
-              >
-                An example, show me
-              </Button>
-            </Row>
-          )}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ color: isCorrect ? PALETTE.greenBright : isSkipped ? PALETTE.warning : PALETTE.warning, fontWeight: 800 }}>{xp}</div>
+            {instantExplanations && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <ActionButton variant={explanation === "why" ? "primary" : "secondary"} onClick={() => onExplanation("why")}>Understand why</ActionButton>
+                <ActionButton variant={explanation === "simple" ? "primary" : "secondary"} onClick={() => onExplanation("simple")}>Simpler, make it</ActionButton>
+                <ActionButton variant={explanation === "example" ? "primary" : "secondary"} onClick={() => onExplanation("example")}>An example, show me</ActionButton>
+              </div>
+            )}
+          </div>
 
           {adaptationMessage && (
-            <Callout tone="info" title="Adaptive training">
-              <Text size="small">{adaptationMessage}</Text>
-            </Callout>
+            <InfoBox title="Adaptive training" tone="info">{adaptationMessage}</InfoBox>
           )}
 
-          <Button variant="primary" onClick={isLast ? onFinish : onNext}>
+          <ActionButton variant="primary" onClick={isLast ? onFinish : onNext} fullWidth>
             {isLast ? "Finish Training" : "Next Question"}
-          </Button>
-        </Stack>
+          </ActionButton>
+        </div>
       )}
     </ScreenShell>
   );
@@ -1260,7 +1388,6 @@ function ResultsScreen({
   onHarder: () => void;
   onContinue: (weakestTopic: string) => void;
 }) {
-  const theme = useHostTheme();
   const score = qs.filter(question => checkAnswer(answers[question.id] || "", question.correct)).length;
   const skippedCount = qs.filter(question => skipped[question.id]).length;
   const incorrectCount = qs.length - score - skippedCount;
@@ -1268,80 +1395,56 @@ function ResultsScreen({
   const rank = getJediRank(pct);
   const totalHints = Object.values(hintsUsed).reduce((total, value) => total + value, 0);
   const topicScores = getTopicScores(qs, answers);
-  const sortedTopics = Object.entries(topicScores).sort(
-    (left, right) => (right[1].correct / right[1].total) - (left[1].correct / left[1].total)
-  );
-  const strongest = sortedTopics[0]?.[0] || "—";
-  const weakest = sortedTopics[sortedTopics.length - 1]?.[0] || "—";
-  const completion = pct >= 90
-    ? YODA_MESSAGES.completion[0]
-    : pct >= 60
-      ? YODA_MESSAGES.completion[1]
-      : YODA_MESSAGES.completion[2];
+  const sortedTopics = Object.entries(topicScores).sort((left, right) => (right[1].correct / right[1].total) - (left[1].correct / left[1].total));
+  const strongest = sortedTopics[0]?.[0] || "\u2014";
+  const weakest = sortedTopics[sortedTopics.length - 1]?.[0] || "\u2014";
+  const completion = pct >= 90 ? YODA_MESSAGES.completion[0] : pct >= 60 ? YODA_MESSAGES.completion[1] : YODA_MESSAGES.completion[2];
   const hasMistakes = score < qs.length;
 
   return (
-    <ScreenShell eyebrow="Training report">
-      <Stack gap={12} style={{ alignItems: "center", textAlign: "center" }}>
-        <H2>Training complete, you have.</H2>
+    <ScreenShell eyebrow="Training complete">
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
         <YodaArt variant="full" />
-        <Text weight="semibold" style={{ color: theme.accent.primary }}>{completion}</Text>
-      </Stack>
+        <HeadingBlock title="Training complete, you have." subtitle={completion} />
+      </div>
 
-      <Card>
-        <CardBody>
-          <Grid columns={4} gap={12}>
-            <Stat value={`${pct}%`} label="Score" tone={pct >= 80 ? "success" : pct >= 60 ? "warning" : "danger"} />
-            <Stat value={`${score}`} label="Correct" tone="success" />
-            <Stat value={`${incorrectCount}`} label="Incorrect" tone={incorrectCount > 0 ? "danger" : "success"} />
-            <Stat value={`${skippedCount}`} label="Skipped" />
-          </Grid>
-        </CardBody>
-      </Card>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+        <TinyStat value={`${pct}%`} label="Score" tone={pct >= 80 ? "success" : pct >= 60 ? "warning" : "danger"} />
+        <TinyStat value={`${score}`} label="Correct" tone="success" />
+        <TinyStat value={`${incorrectCount}`} label="Incorrect" tone={incorrectCount > 0 ? "danger" : "success"} />
+        <TinyStat value={`${skippedCount}`} label="Skipped" />
+      </div>
 
-      <Grid columns={4} gap={12}>
-        <Stat value={rank} label="Jedi Rank" />
-        <Stat value={`${maxStreak}`} label="Best Streak" />
-        <Stat value={`${totalHints}`} label="Hints Used" />
-        <Stat value={`${score}/${qs.length}`} label="Questions" />
-      </Grid>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+        <TinyStat value={rank} label="Jedi Rank" />
+        <TinyStat value={`${maxStreak}`} label="Best Streak" />
+        <TinyStat value={`${totalHints}`} label="Hints Used" />
+        <TinyStat value={`${score}/${qs.length}`} label="Questions" />
+      </div>
 
-      <Grid columns={2} gap={12}>
-        <Callout tone="success" title="Strongest topic">
-          <Text size="small">{strongest}</Text>
-        </Callout>
-        <Callout tone="warning" title="Keep training in">
-          <Text size="small">{weakest}</Text>
-        </Callout>
-      </Grid>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+        <InfoBox title="Strongest topic" tone="success">{strongest}</InfoBox>
+        <InfoBox title="Keep training in" tone="warning">{weakest}</InfoBox>
+      </div>
 
-      <Card>
-        <CardHeader>Topic mastery</CardHeader>
-        <CardBody>
-          <Stack gap={10}>
-            {sortedTopics.map(([topic, result]) => {
-              const topicPct = Math.round((result.correct / result.total) * 100);
-              return (
-                <UsageBar
-                  key={topic}
-                  total={100}
-                  topLeftLabel={<Text size="small">{topic}</Text>}
-                  topRightLabel={<Text size="small" tone="secondary">{result.correct}/{result.total}</Text>}
-                  segments={[{ id: topic, value: topicPct, color: topicPct >= 70 ? "green" : "yellow" }]}
-                />
-              );
-            })}
-          </Stack>
-        </CardBody>
-      </Card>
+      <Panel>
+        <div style={{ color: PALETTE.text, fontWeight: 700, marginBottom: 14 }}>Topic mastery</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {sortedTopics.map(([topic, result]) => {
+            const topicPct = Math.round((result.correct / result.total) * 100);
+            return <MeterBar key={topic} label={topic} value={topicPct} hint={`${result.correct}/${result.total}`} color={topicPct >= 70 ? PALETTE.green : PALETTE.warning} />;
+          })}
+        </div>
+      </Panel>
 
-      <Row gap={8} wrap>
-        {hasMistakes && <Button variant="primary" onClick={onReview}>Review My Mistakes</Button>}
-        <Button variant="secondary" onClick={onRetake}>Train Me Again</Button>
-        <Button variant="secondary" onClick={onHarder}>Face a Harder Challenge</Button>
-        <Spacer />
-        <Button variant="primary" onClick={() => onContinue(weakest)}>Continue Training</Button>
-      </Row>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {hasMistakes && <ActionButton variant="primary" onClick={onReview}>Review My Mistakes</ActionButton>}
+        <ActionButton variant="secondary" onClick={onRetake}>Train Me Again</ActionButton>
+        <ActionButton variant="secondary" onClick={onHarder}>Face a Harder Challenge</ActionButton>
+        <div style={{ marginLeft: "auto" }}>
+          <ActionButton variant="primary" onClick={() => onContinue(weakest)}>Continue Training</ActionButton>
+        </div>
+      </div>
     </ScreenShell>
   );
 }
@@ -1375,93 +1478,51 @@ function ReviewScreen({
 
   return (
     <ScreenShell eyebrow="Review mistakes">
-      <Stack gap={8} style={{ alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" }}>
         <YodaArt variant="compact" />
-        <H2>Mistakes, teachers they are.</H2>
-        <Text size="small" tone="secondary">Study them, then face them again.</Text>
-      </Stack>
+        <HeadingBlock title="Mistakes, teachers they are." subtitle="Study them, then face them again." />
+      </div>
 
-      <Row gap={8} wrap>
-        <Button variant={filter === "all" ? "primary" : "secondary"} onClick={() => setFilter("all")}>
-          All ({mistakes.length})
-        </Button>
-        <Button variant={filter === "incorrect" ? "primary" : "secondary"} onClick={() => setFilter("incorrect")}>
-          Incorrect ({incorrectCount})
-        </Button>
-        <Button variant={filter === "skipped" ? "primary" : "secondary"} onClick={() => setFilter("skipped")}>
-          Skipped ({skippedCount})
-        </Button>
-      </Row>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={() => setFilter("all")} style={{ background: "transparent", border: "none", padding: 0 }}>{<Chip active={filter === "all"}>{`All (${mistakes.length})`}</Chip>}</button>
+        <button onClick={() => setFilter("incorrect")} style={{ background: "transparent", border: "none", padding: 0 }}>{<Chip active={filter === "incorrect"}>{`Incorrect (${incorrectCount})`}</Chip>}</button>
+        <button onClick={() => setFilter("skipped")} style={{ background: "transparent", border: "none", padding: 0 }}>{<Chip active={filter === "skipped"}>{`Skipped (${skippedCount})`}</Chip>}</button>
+      </div>
 
-      {visible.map((question, index) => {
-        const userAnswer = skipped[question.id] ? "Skipped" : answers[question.id] || "No answer";
-        const explanation = explanationMode[question.id] || "why";
-        return (
-          <Card key={question.id}>
-            <CardHeader trailing={<Pill size="sm">{question.topic}</Pill>}>
-              Review {index + 1} of {visible.length}
-            </CardHeader>
-            <CardBody>
-              <Stack gap={12}>
-                <Text weight="semibold">{question.stem}</Text>
-                <Grid columns={2} gap={10}>
-                  <Callout tone="danger" title="Your answer">
-                    <Text size="small">{userAnswer}</Text>
-                  </Callout>
-                  <Callout tone="success" title="Correct answer">
-                    <Text size="small">{getCorrectAnswerLabel(question)}</Text>
-                  </Callout>
-                </Grid>
-                <Callout tone="info" title="Explanation">
-                  <Text size="small">
-                    {explanation === "simple"
-                      ? question.simpleExplanation
-                      : explanation === "example"
-                        ? question.example
-                        : question.explanation}
-                  </Text>
-                </Callout>
-                <Row gap={8} wrap>
-                  <Button
-                    variant={explanation === "why" ? "primary" : "secondary"}
-                    onClick={() => onExplanation(question.id, "why")}
-                  >
-                    Understand why
-                  </Button>
-                  <Button
-                    variant={explanation === "simple" ? "primary" : "secondary"}
-                    onClick={() => onExplanation(question.id, "simple")}
-                  >
-                    Simpler, make it
-                  </Button>
-                  <Button
-                    variant={explanation === "example" ? "primary" : "secondary"}
-                    onClick={() => onExplanation(question.id, "example")}
-                  >
-                    An example, show me
-                  </Button>
-                </Row>
-              </Stack>
-            </CardBody>
-          </Card>
-        );
-      })}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {visible.map((question, index) => {
+          const userAnswer = skipped[question.id] ? "Skipped" : answers[question.id] || "No answer";
+          const explanation = explanationMode[question.id] || "why";
+          return (
+            <Panel key={question.id}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+                <div style={{ color: PALETTE.text, fontWeight: 700 }}>Review {index + 1} of {visible.length}</div>
+                <Chip>{question.topic}</Chip>
+              </div>
+              <div style={{ color: PALETTE.white, fontSize: 20, fontWeight: 800, lineHeight: 1.4, marginBottom: 14 }}>{question.stem}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12, marginBottom: 12 }}>
+                <InfoBox title="Your answer" tone="danger">{userAnswer}</InfoBox>
+                <InfoBox title="Correct answer" tone="success">{getCorrectAnswerLabel(question)}</InfoBox>
+              </div>
+              <InfoBox title="Explanation" tone="info">
+                {explanation === "simple" ? question.simpleExplanation : explanation === "example" ? question.example : question.explanation}
+              </InfoBox>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+                <ActionButton variant={explanation === "why" ? "primary" : "secondary"} onClick={() => onExplanation(question.id, "why")}>Understand why</ActionButton>
+                <ActionButton variant={explanation === "simple" ? "primary" : "secondary"} onClick={() => onExplanation(question.id, "simple")}>Simpler, make it</ActionButton>
+                <ActionButton variant={explanation === "example" ? "primary" : "secondary"} onClick={() => onExplanation(question.id, "example")}>An example, show me</ActionButton>
+              </div>
+            </Panel>
+          );
+        })}
+      </div>
 
-      {visible.length === 0 && (
-        <Callout tone="success" title="Nothing here">
-          <Text size="small">No questions match this filter.</Text>
-        </Callout>
-      )}
+      {visible.length === 0 && <InfoBox title="Nothing here" tone="success">No questions match this filter.</InfoBox>}
 
-      <Row gap={8} wrap>
-        <Button variant="secondary" onClick={onBack}>Back to Results</Button>
-        <Spacer />
-        {mistakes.length > 0 && (
-          <Button variant="primary" onClick={() => onRetest(mistakes.map(question => question.id))}>
-            Retest My Mistakes
-          </Button>
-        )}
-      </Row>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <ActionButton variant="secondary" onClick={onBack}>Back to Results</ActionButton>
+        {mistakes.length > 0 && <ActionButton variant="primary" onClick={() => onRetest(mistakes.map(question => question.id))}>Retest My Mistakes</ActionButton>}
+      </div>
     </ScreenShell>
   );
 }
@@ -1479,32 +1540,31 @@ function ContinueTrainingScreen({
 }) {
   return (
     <ScreenShell eyebrow="Continue training">
-      <Stack gap={10} style={{ alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
         <YodaArt variant="compact" />
-        <H2>Continue your training, you will?</H2>
-        <Text size="small" tone="secondary">The Force grows stronger with focused practice.</Text>
-      </Stack>
+        <HeadingBlock title="Continue your training, you will?" subtitle="The Force grows stronger with focused practice." />
+      </div>
 
-      <Grid columns={2} gap={12}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14 }}>
         <SelectableCard
           title="New Quiz"
           description="Generate a fresh mix from the same material."
           detail="Useful for checking whether the learning has stayed with you."
-          icon="✦"
+          icon="\u2726"
           isSelected={false}
           onSelect={onNewQuiz}
         />
         <SelectableCard
           title="Practice Weak Area"
-          description={weakestTopic === "—" ? "Focus on missed concepts." : `Focus on ${weakestTopic}.`}
+          description={weakestTopic === "\u2014" ? "Focus on missed concepts." : `Focus on ${weakestTopic}.`}
           detail="A shorter session weighted toward the topic that needs review."
-          icon="🎯"
+          icon="\ud83c\udfaf"
           isSelected={false}
           onSelect={onWeakArea}
         />
-      </Grid>
+      </div>
 
-      <Button variant="secondary" onClick={onHome}>Back to Home</Button>
+      <ActionButton variant="secondary" onClick={onHome} fullWidth>Back to Home</ActionButton>
     </ScreenShell>
   );
 }
@@ -1529,7 +1589,7 @@ export default function DO180YodaTraining() {
   const [hintsUsed, setHintsUsed] = useCanvasState<Record<string, number>>("hintsUsed", {});
   const [explanationMode, setExplanationMode] = useCanvasState<Record<string, ExplanationMode>>("explanationMode", {});
   const [adaptationMessage, setAdaptationMessage] = useCanvasState<string>("adaptationMessage", "");
-  const [weakestTopic, setWeakestTopic] = useCanvasState<string>("weakestTopic", "—");
+  const [weakestTopic, setWeakestTopic] = useCanvasState<string>("weakestTopic", "\u2014");
 
   const activeQuestions = questionIds
     .map(id => questions.find(question => question.id === id))
@@ -1699,7 +1759,7 @@ export default function DO180YodaTraining() {
     const sorted = Object.entries(topicScores).sort(
       (left, right) => (left[1].correct / left[1].total) - (right[1].correct / right[1].total)
     );
-    setWeakestTopic(sorted[0]?.[0] || "—");
+    setWeakestTopic(sorted[0]?.[0] || "\u2014");
     setScreen("results");
   };
 
@@ -1723,7 +1783,7 @@ export default function DO180YodaTraining() {
     beginQuiz({
       nextCount: Math.min(5, questionCount),
       nextSeed,
-      focusTopics: weakestTopic === "—" ? [] : [weakestTopic],
+      focusTopics: weakestTopic === "\u2014" ? [] : [weakestTopic],
     });
   };
 
