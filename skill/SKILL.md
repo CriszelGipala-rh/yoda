@@ -3,14 +3,15 @@ name: yoda
 description: >-
   "Teach you, I will." — Generate interactive quizzes from any content — courses,
   documentation, photos, links, PDFs, code, or plain text. Outputs a Cursor Canvas
-  with mixed question types (multiple choice, true/false, short answer,
-  fill-in-the-blank), scoring, and immediate feedback. Use when the user asks to
-  create a quiz, test, practice questions, study material, flashcards, or knowledge
-  check from provided content.
+  with a multi-screen training journey: entry, analysis, difficulty/style selection,
+  one-question-at-a-time quiz with Yoda reactions, Force Meter, streaks, hints,
+  tiered explanations, completion report, and review-mistakes mode.
+  Use when the user asks to create a quiz, test, practice questions, study material,
+  flashcards, or knowledge check from provided content.
 disable-model-invocation: true
 ---
 
-# Yoda
+# Yoda — Teach You, I Will
 
 ## Workflow
 
@@ -21,13 +22,14 @@ disable-model-invocation: true
    - Inline text: use directly from the conversation
    - Code: read and identify APIs, logic, patterns, and edge cases
 
-2. **Extract key concepts** — Identify 10-20 testable facts, concepts, or relationships. Prioritize:
+2. **Extract key concepts** — Identify 10-20 testable facts grouped by topic. Prioritize:
    - Core ideas over trivia
    - Cause-and-effect relationships
    - Common misconceptions (good distractor material)
    - Applied understanding over rote memorization
+   - Practical scenarios and troubleshooting
 
-3. **Generate questions** — Produce a balanced mix (default 10 questions):
+3. **Generate questions** — Produce questions per the Data Model below. Default 10 questions with a balanced mix:
    - ~40% multiple choice
    - ~20% true/false
    - ~20% short answer
@@ -35,117 +37,94 @@ disable-model-invocation: true
 
    Adjust ratios based on content type (e.g., code-heavy content benefits from more short answer).
 
-4. **Render canvas** — Output a `.canvas.tsx` file following the Canvas Output Spec below.
+4. **Generate supporting content** — For each question, produce:
+   - A main explanation
+   - A simple explanation (plain language)
+   - A practical example
+   - 1-2 progressive hints
+   - A topic label
 
-5. **Present to user** — Link the canvas and mention they can open it beside the chat.
+5. **Generate Yoda messages** — Create quiz-specific rotating messages for:
+   - Analysis/loading stage (5-6 messages)
+   - Correct answer reactions (3-4 variants)
+   - Incorrect answer reactions (3-4 variants)
+   - Streak milestone messages
+   - Completion message
 
-## Question Types
+6. **Render canvas** — Output a `.canvas.tsx` file following the Multi-Screen Canvas Spec below.
 
-### Multiple Choice
-- 4 options labeled A-D
-- Exactly one correct answer
-- Distractors must be plausible (common mistakes, related concepts, partial truths)
-- Each question has an explanation revealed after submission
+7. **Present to user** — Link the canvas and mention they can open it beside the chat.
 
-### True/False
-- Present a statement that is clearly true or false
-- Avoid double negatives or trick wording
-- Include a brief explanation of why
-
-### Short Answer
-- Ask for a specific term, name, value, or brief phrase
-- Define 1-3 acceptable keywords for matching (case-insensitive, trimmed)
-- Keep expected answers to 1-3 words
-
-### Fill-in-the-Blank
-- Display a sentence with one key term replaced by `___`
-- Use TextInput for the blank
-- Match against acceptable answers (case-insensitive, trimmed)
-
-## Canvas Output Spec
-
-Read the canvas skill at `~/.cursor/skills-cursor/canvas/SKILL.md` before writing the canvas file. Import only from `cursor/canvas`. Embed all quiz data inline.
-
-### State Model
+## Data Model
 
 ```tsx
-const [answers, setAnswers] = useCanvasState<Record<string, string>>("answers", {});
-const [submitted, setSubmitted] = useCanvasState("submitted", false);
-```
+interface Question {
+  id: string;
+  type: "mcq" | "truefalse" | "short" | "fillinblank";
+  difficulty: "easy" | "medium" | "hard";
+  topic: string;
+  stem: string;
+  options?: { value: string; label: string }[];
+  correct: string | string[];
+  explanation: string;
+  simpleExplanation: string;
+  example: string;
+  hints: string[];
+}
 
-### Layout Structure
-
-```
-Stack
-├── H1: Quiz title (derived from source content)
-├── Row: metadata (question count, source, difficulty mix)
-├── Divider
-├── [For each question]:
-│   └── Card (collapsible after submission)
-│       ├── CardHeader: "Q{n}" + Pill(difficulty) + Pill(type)
-│       └── CardBody:
-│           ├── Text: question stem
-│           ├── [Answer input varies by type]
-│           └── (after submit) Callout: feedback + explanation
-├── Divider
-├── Button: "Submit Quiz" (disabled if not all answered)
-└── (after submit) Grid(columns=3):
-    ├── Stat: score (e.g. "8/10")
-    ├── Stat: percentage
-    └── Stat: difficulty breakdown
-```
-
-### Component Mapping by Question Type
-
-| Type | Input Component | Props |
-|------|----------------|-------|
-| Multiple choice | `Select` | `options=[{value:"a", label:"A) ..."}...]` |
-| True/False | Two `Button` variants side by side | `variant` toggles on selection |
-| Short answer | `TextInput` | `placeholder="Type your answer..."` |
-| Fill-in-the-blank | Inline `TextInput` within `Text` | Narrow width, inline |
-
-### Answer Checking
-
-```tsx
-function checkAnswer(questionId: string, userAnswer: string, correct: string | string[]): boolean {
-  const normalized = userAnswer.trim().toLowerCase();
-  if (Array.isArray(correct)) {
-    return correct.some(c => normalized === c.toLowerCase());
-  }
-  return normalized === correct.toLowerCase();
+interface QuizData {
+  title: string;
+  subtitle: string;
+  description: string;
+  source: string;
+  questions: Question[];
+  topics: string[];
+  yodaMessages: {
+    analysis: string[];
+    correct: string[];
+    incorrect: string[];
+    streak: string[];
+    completion: string[];
+    hint: string[];
+  };
 }
 ```
 
-For multiple choice and true/false, exact match on the option value. For short answer and fill-in-the-blank, case-insensitive trimmed match against acceptable answers.
+## Multi-Screen Canvas Spec
 
-### Feedback Display
+Read the canvas skill at `~/.cursor/skills-cursor/canvas/SKILL.md` before writing the canvas file. Import only from `cursor/canvas`. Embed all quiz data inline.
 
-After submission, beneath each question's answer input:
+### Screen Flow
+
+The canvas uses a single state variable to drive which screen is visible:
 
 ```tsx
-<Callout tone={isCorrect ? "success" : "danger"} title={isCorrect ? "Correct" : "Incorrect"}>
-  {explanation}
-  {!isCorrect && <Text weight="semibold">Answer: {correctAnswer}</Text>}
-</Callout>
+type Screen = "entry" | "analysis" | "levelSelect" | "styleSelect" | "quiz" | "results" | "review";
+const [screen, setScreen] = useCanvasState<Screen>("screen", "entry");
 ```
+
+Flow: entry -> analysis -> levelSelect -> styleSelect -> quiz -> results -> review
+
+See `examples.md` for the complete reference implementation.
 
 ## Quality Rules
 
-- Questions must test understanding, not trivial recall (no "what color is the logo?")
+- Questions must test understanding, not trivial recall
 - Every distractor must be plausible — never use joke answers
 - Mix difficulty: ~30% easy, ~50% medium, ~20% hard
-- Tag each question with difficulty via a `Pill`
 - Default to 10 questions; respect user-specified count
-- Every question must have an explanation (shown post-submission)
+- Every question must have all three explanation levels filled
+- Every question must have at least 1 hint
 - For code content: test logic comprehension, output prediction, API usage — not syntax trivia
 - For images: test observable facts, relationships, or concepts depicted
 - Short answer accept lists should be generous (include common synonyms/abbreviations)
+- Topics must accurately group related questions for the results breakdown
 
 ## Customization
 
 If the user specifies:
 - **Topic focus**: weight questions toward that subtopic
-- **Difficulty**: shift the distribution (e.g., "hard quiz" → 20/40/40 easy/med/hard)
+- **Difficulty**: shift the distribution (e.g., "hard quiz" -> 20/40/40 easy/med/hard)
 - **Question count**: use their number instead of 10
 - **Question types**: restrict to only those types
 - **Language**: generate questions in the specified language
