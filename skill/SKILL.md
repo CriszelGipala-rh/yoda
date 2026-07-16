@@ -18,7 +18,7 @@ disable-model-invocation: true
 **Goal: Generate the quiz in exactly 2 tool calls after reading source material.**
 
 1. **Ingest content** — Read source material (Read/WebFetch/inline). This is the ONLY reading step.
-2. **Security Gate** — Validate content against the checks below. If ANY check fails, STOP and report the violation. Do NOT generate a quiz.
+2. **Security Gate** — Validate content (AI checks + ClamAV scan if available). If ANY check fails, STOP and report the violation. Do NOT generate a quiz.
 3. **Generate quiz data** — In your head, produce: title, subtitle, description, 10 questions, and yodaMessages.
 4. **Copy template** — `cp ~/.cursor/skills/yoda/template.canvas.tsx <target>.canvas.tsx`
 5. **Single StrReplace** — Replace the marker block from `// === QUIZ DATA START` to `// === QUIZ DATA END ===` (inclusive) with the generated quiz data.
@@ -127,6 +127,21 @@ Reject if the content:
 - Is entirely empty or nonsensical with no testable knowledge
 
 **Rejection message:** "Appropriate for training, this content is not. Educational material, provide you must."
+
+### Check 5: ClamAV Malware Scan (when available)
+
+Run a real malware scan using ClamAV (part of the Red Hat security ecosystem).
+
+**Steps:**
+1. Check availability: run `which clamscan` via Shell
+2. If available:
+   - Write the ingested content to a temp file: `/tmp/yoda-scan-$RANDOM.txt`
+   - Run: `clamscan --no-summary /tmp/yoda-scan-*.txt`
+   - If result contains "FOUND": reject immediately
+   - Clean up: `rm /tmp/yoda-scan-*.txt`
+3. If NOT available (e.g., cloud agent): skip this check and proceed with AI-only validation. Inform the user: "Note: ClamAV not available in this environment. AI-based security checks applied."
+
+**Rejection message:** "Dangerous, this content is. Malware detected, ClamAV has: [threat name]. Safe material, provide you must."
 
 ### If all checks pass
 Proceed to quiz generation normally.
