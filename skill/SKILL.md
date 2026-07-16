@@ -1,134 +1,91 @@
 ---
 name: yoda
 description: >-
-  "Teach you, I will." Generate an interactive, source-grounded quiz from text,
-  links, documentation, PDFs, screenshots, photos, code, or notes. Render a
-  polished Cursor Canvas training journey with Yoda ASCII art, difficulty and
-  quiz-style selection, optional settings, one-question-at-a-time interaction,
-  Force Meter, streaks, hints, adaptive difficulty, explanations, a training
-  report, mistake review, retesting, and weak-topic practice. Use when the user
-  asks to be quizzed, tested, or given practice questions from supplied material.
+  "Teach you, I will." — Generate interactive quizzes from any content — courses,
+  documentation, photos, links, PDFs, code, or plain text. Outputs a Cursor Canvas
+  with a multi-screen training journey: analysis, difficulty/style selection,
+  one-question-at-a-time quiz with Yoda reactions, Force Meter, streaks, hints,
+  tiered explanations, completion report, and review-mistakes mode.
+  Use when the user asks to create a quiz, test, practice questions, study material,
+  flashcards, or knowledge check from provided content.
 disable-model-invocation: true
 ---
 
 # Yoda — Teach You, I Will
 
-Create a complete interactive quiz canvas. Do not return only a list of questions.
+## SPEED PROTOCOL (follow exactly)
 
-## Authoritative implementation
+**Goal: Generate the quiz in exactly 2 tool calls after reading source material.**
 
-Before generating a quiz, read:
+1. **Ingest content** — Read source material (Read/WebFetch/inline). This is the ONLY reading step.
+2. **Generate quiz data** — In your head, produce: title, subtitle, description, 10 questions, and yodaMessages.
+3. **Copy template** — `cp ~/.cursor/skills/yoda/template.canvas.tsx <target>.canvas.tsx`
+4. **Single StrReplace** — Replace the marker block from `// === QUIZ DATA START` to `// === QUIZ DATA END ===` (inclusive) with the generated quiz data.
 
-1. `template.canvas.tsx` — the copy-ready UI and state engine.
-2. `examples.md` — generation and validation rules.
-3. The Cursor Canvas skill at `~/.cursor/skills-cursor/canvas/SKILL.md`.
+**DO NOT:**
+- Read the template file (you already know its structure)
+- Read SKILL.md again
+- Use Grep to find line numbers
+- Do multiple StrReplace calls
+- Rename the export function (it's already generic: `YodaTraining`)
 
-Copy `template.canvas.tsx` and replace the quiz-specific data. Preserve the screen
-components and interaction engine unless the user explicitly requests a different
-experience.
+**The marker block to replace (old_string must match exactly):**
+```
+// === QUIZ DATA START (replace this entire block including markers) ===
+const QUIZ_TITLE = "REPLACE_TITLE";
+const QUIZ_SUBTITLE = "REPLACE_SUBTITLE";
+const QUIZ_DESCRIPTION = "REPLACE_DESCRIPTION";
 
-## Workflow
+const questions: Question[] = [
+  // REPLACE_WITH_GENERATED_QUESTIONS
+];
 
-### 1. Read the source
+const YODA_MESSAGES = {
+  // REPLACE_WITH_GENERATED_MESSAGES
+};
 
-Use the source supplied in the conversation:
-
-- Files and documents: read the file.
-- Links: fetch the page.
-- Screenshots and photos: inspect visible content and relationships.
-- Code: inspect logic, APIs, edge cases, commands, and expected behaviour.
-- Pasted text or notes: use them directly.
-
-The canvas starts directly at the analysis screen. There is no entry/landing screen.
-The quiz is generated immediately from the source content.
-
-If the source cannot be accessed, explain what failed and ask for pasted text or a
-screenshot instead of inventing a quiz.
-
-### 2. Extract testable concepts
-
-Identify 10–25 source-grounded concepts, grouped by topic. Prioritise:
-
-- Core ideas over trivia
-- Cause and effect
-- Procedures and command interpretation
-- Common misconceptions
-- Troubleshooting and practical scenarios
-- Relationships between concepts
-
-### 3. Generate the question bank
-
-Default to 15–20 questions in the bank so the UI can create fresh mixes. The
-training settings default to 10 active questions.
-
-Recommended bank distribution:
-
-- 30% easy
-- 50% medium
-- 20% hard
-- 40% multiple choice
-- 20% true/false
-- 20% short answer
-- 20% fill in the blank
-
-For each question provide:
-
-- `id`
-- `type`
-- `difficulty`
-- `topic`
-- `stem`
-- Plausible options when required
-- Accepted correct answer or answer variants
-- Normal explanation
-- Plain-language explanation
-- Practical example
-- One or two progressive hints
-
-### 4. Replace only the template data
-
-In `template.canvas.tsx`, replace:
-
-- `QUIZ_TITLE`
-- `QUIZ_SUBTITLE`
-- `QUIZ_DESCRIPTION`
-- `questions`
-- Topic-specific `YODA_MESSAGES` when helpful
-
-Keep the canonical full and compact Yoda ASCII constants unchanged.
-
-### 5. Preserve the complete screen flow
-
-```text
-analysis
-  -> levelSelect
-  -> styleSelect
-  -> settings
-  -> quiz
-  -> results
-  -> review
-  -> continue
+const ANALYSIS_STAGES = [
+  "Reading the material",
+  "Identifying main concepts",
+  "Choosing useful questions",
+  "Detecting topic difficulty",
+  "Preparing explanations",
+  "Building the quiz",
+];
+// === QUIZ DATA END ===
 ```
 
-Required experiences:
+**Replace with (no markers in the output):**
+```tsx
+const QUIZ_TITLE = "Your Generated Title";
+const QUIZ_SUBTITLE = "Topic · Context";
+const QUIZ_DESCRIPTION = "One sentence describing what the quiz covers.";
 
-- **Analysis:** Yoda ASCII art, visible stages rather than a generic spinner.
-- **Level:** Youngling, Padawan, Jedi Master.
-- **Style:** Quick Wisdom, Truth Test, Speak You Must, Real Battle, Balance.
-- **Settings:** 5/10/15 questions, hints, immediate explanations.
-- **Quiz:** one question at a time, Force Meter, Jedi Focus streak, hints, skip,
-  feedback, three explanation depths, and adaptive next-question difficulty.
-- **Results:** score, correct/incorrect/skipped, rank, best streak, hints used,
-  strongest topic, weakest topic, and topic mastery.
-- **Review:** incorrect/skipped filters, correct answer, explanations, retest mistakes.
-- **Continue:** fresh quiz or weak-topic mini training.
+const questions: Question[] = [
+  { id: "q1", type: "mcq", difficulty: "easy", topic: "...", stem: "...", options: [...], correct: "a", explanation: "...", simpleExplanation: "...", example: "...", hints: ["...", "..."] },
+  // ... 9 more questions
+];
 
-### 6. Present the result
+const YODA_MESSAGES = {
+  analysis: ["...", "...", "...", "...", "...", "..."],
+  correct: ["...", "...", "...", "..."],
+  incorrect: ["...", "...", "...", "..."],
+  streak: ["...", "...", "..."],
+  completion: ["...", "...", "..."],
+  hint: ["...", "..."],
+};
 
-Create a descriptive `.canvas.tsx` filename. Tell the user to open the generated
-canvas beside the chat.
+const ANALYSIS_STAGES = [
+  "Reading the material",
+  "Identifying main concepts",
+  "Choosing useful questions",
+  "Detecting topic difficulty",
+  "Preparing explanations",
+  "Building the quiz",
+];
+```
 
-## Data model
+## Data Model
 
 ```tsx
 interface Question {
@@ -146,29 +103,51 @@ interface Question {
 }
 ```
 
-## Quality rules
+## Question Generation Rules
 
-- Remain faithful to the source. Never invent unsupported facts.
-- Avoid duplicate or trivially reworded questions.
-- Do not reveal the answer through the question wording.
-- Distractors must be plausible and educational.
-- Short-answer accept lists should include common spelling, spacing, and
-  abbreviation variants.
-- Every question must contain all explanation fields and at least one hint.
-- Use understandable Yoda-style wording. Personality must never obscure meaning.
-- Preserve keyboard behaviour, visible feedback, and the accessible label on the
-  ASCII art.
-- Do not import UI libraries. Import Canvas components only from `cursor/canvas`.
-- Keep all quiz data inline so the canvas works without external services.
+- Default 10 questions with balanced mix: ~40% mcq, ~20% truefalse, ~20% short, ~20% fillinblank
+- Difficulty: ~30% easy, ~50% medium, ~20% hard
+- For mcq: options array with `{ value: "a"|"b"|"c"|"d", label: "A) ..." }`, correct is the value letter
+- For truefalse: no options, correct is `"true"` or `"false"` (string)
+- For short: no options, correct is array of accepted answers `["answer1", "synonym", "abbreviation"]`
+- For fillinblank: same as short
+- Every question MUST have: explanation, simpleExplanation, example, and at least 1 hint
+- Questions test understanding, not trivial recall
+- Every distractor must be plausible
+- Group questions into 3-5 topics
 
-## Source-specific guidance
+## YODA_MESSAGES Rules
 
-- **Code:** test output prediction, control flow, API use, failure modes, and design
-  reasoning rather than punctuation or syntax trivia.
-- **Technical documentation:** include command interpretation, troubleshooting,
-  best practices, and real-world scenarios.
-- **Images and diagrams:** test visible facts and relationships only.
-- **Short source:** generate fewer high-quality questions rather than padding with
-  invented content.
-- **Requested language:** generate the complete quiz UI and content in that
-  language while keeping code identifiers stable.
+Generate topic-specific messages in Yoda's speech pattern (inverted syntax):
+- analysis: 6 messages tracking the analysis progress, ending with "ready" message
+- correct: 4 positive reaction variants
+- incorrect: 4 encouraging "try again" variants
+- streak: 3 milestone messages
+- completion: 3 score-dependent messages (high/mid/low)
+- hint: 2 hint-giving messages
+
+## Content Ingestion
+
+- Files/docs: use Read tool
+- URLs/links: use WebFetch
+- Images/photos: use Read tool (image support) and describe testable content
+- Inline text: use directly from conversation
+- Code: read and identify APIs, logic, patterns, edge cases
+
+## Customization
+
+If the user specifies:
+- **Topic focus**: weight questions toward that subtopic
+- **Difficulty**: shift distribution (e.g., "hard quiz" → 20/40/40 easy/med/hard)
+- **Question count**: use their number instead of 10
+- **Question types**: restrict to only those types
+- **Language**: generate questions in the specified language
+
+## Canvas File Naming
+
+Name the output file descriptively: `<topic-slug>-training.canvas.tsx`
+Place it in the canvases directory of the current project.
+
+## After Generation
+
+Tell the user the canvas is ready and they can open it beside the chat.
