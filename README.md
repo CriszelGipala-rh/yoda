@@ -61,6 +61,46 @@ Features include:
 - Topic mastery and weak-area detection
 - Mistake filters and targeted retesting
 
+## Security
+
+Yoda includes a built-in **Security Gate** that validates all user-submitted content before generating a quiz. It uses a two-layer approach:
+
+| Layer | What it does | Availability |
+|-------|-------------|-------------|
+| AI-based checks (1–4) | Credential/secret scan, URL safety, confidential content detection, content policy | Always active |
+| ClamAV malware scan (5) | Real signature-based virus/trojan/phishing detection | When ClamAV is installed |
+
+### Full protection (local Fedora/RHEL)
+
+For complete security coverage including real malware scanning, install ClamAV:
+
+```bash
+sudo dnf install clamav clamav-update
+sudo freshclam
+```
+
+This gives you all 5 checks: AI judgment + ClamAV signature-based scanning.
+
+### Cloud / environments without ClamAV
+
+No setup needed. The security gate automatically falls back to AI-only validation (checks 1–4). You'll see a note:
+
+> "Note: ClamAV not available in this environment. AI-based security checks applied."
+
+The 4 AI checks still catch:
+- Exposed credentials and secrets
+- Malicious/phishing URLs
+- Confidential/classified content
+- Inappropriate or empty content
+
+### What gets blocked
+
+- Passwords, API keys, SSH keys, database connection strings
+- Phishing links and credential-harvesting URLs
+- Documents marked CONFIDENTIAL, INTERNAL ONLY, NDA, etc.
+- Login forms, hate speech, prompt injection attempts
+- Known malware signatures (when ClamAV is available)
+
 ## Installation
 
 Clone the repository:
