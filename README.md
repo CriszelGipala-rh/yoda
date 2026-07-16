@@ -39,6 +39,22 @@
 Yoda is a Cursor Agent Skill that transforms supplied learning material into a
 complete interactive Cursor Canvas quiz.
 
+## Security
+
+Every piece of content submitted to Yoda passes through a **Security Gate** before a quiz is generated:
+
+| Check | What it does | Requires |
+|-------|-------------|----------|
+| 1. Credential & Secret Scan | Detects passwords, API keys, SSH keys, database strings | Nothing (AI-based) |
+| 2. URL Safety | Blocks phishing links, suspicious domains, credential harvesting | Nothing (AI-based) |
+| 3. Confidential Content | Rejects documents marked CONFIDENTIAL, INTERNAL ONLY, NDA | Nothing (AI-based) |
+| 4. Content Policy | Blocks login forms, hate speech, prompt injection, empty content | Nothing (AI-based) |
+| 5. ClamAV Malware Scan | Real signature-based malware/virus/trojan detection | `sudo dnf install clamav clamav-update && sudo freshclam` |
+
+If any check fails, Yoda rejects the content with a Yoda-style message and does not generate a quiz.
+
+Checks 1–4 are always active (AI-based). Check 5 requires ClamAV from the Red Hat/Fedora security ecosystem — see the Installation section below to enable it.
+
 ## Supported source material
 
 - Links and documentation
@@ -102,7 +118,7 @@ ln -s "$(pwd)/skill" ~/.cursor/skills/yoda
 
 ### 3. Enable full security (optional but recommended)
 
-Yoda has a built-in Security Gate with 5 checks. Checks 1–4 are AI-based and always active. For **full protection** including real malware scanning, install ClamAV:
+For **full protection** including real malware scanning, install ClamAV:
 
 ```bash
 sudo dnf install clamav clamav-update
@@ -118,20 +134,6 @@ This enables Check 5 (ClamAV) which provides signature-based virus, trojan, and 
 ### 4. Restart Cursor
 
 Restart Cursor or open a new chat to activate the skill.
-
-## Security
-
-Every piece of content submitted to Yoda passes through the Security Gate before a quiz is generated:
-
-| Check | What it does | Requires |
-|-------|-------------|----------|
-| 1. Credential & Secret Scan | Detects passwords, API keys, SSH keys, database strings | Nothing (AI-based) |
-| 2. URL Safety | Blocks phishing links, suspicious domains, credential harvesting | Nothing (AI-based) |
-| 3. Confidential Content | Rejects documents marked CONFIDENTIAL, INTERNAL ONLY, NDA | Nothing (AI-based) |
-| 4. Content Policy | Blocks login forms, hate speech, prompt injection, empty content | Nothing (AI-based) |
-| 5. ClamAV Malware Scan | Real signature-based malware/virus/trojan detection | `sudo dnf install clamav clamav-update && sudo freshclam` |
-
-If any check fails, Yoda rejects the content with a Yoda-style message and does not generate a quiz.
 
 ## Usage
 
