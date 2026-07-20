@@ -45,5 +45,13 @@ const ANALYSIS_STAGES = [
 // NOTE: The full template with all UI components (PALETTE, screens, state management)
 // is maintained locally at ~/.cursor/skills/yoda/template.canvas.tsx
 // This GitHub version contains the data markers and a note about the local file.
-// The ResultsScreen includes a 'Send Feedback' link that opens the GitHub feedback form.
+//
+// FEATURES:
+// - Quiz screen: Lightsaber-styled report link with golden glow
+//   "Wrong, something feels? Report to the Council" - pre-fills GitHub issue
+// - Results screen: Green lightsaber-styled feedback link
+//   "Thoughts, share you must" - opens GitHub feedback form
+// - Force Meter scales with question count (100% achievable on perfect run)
+// - Streak bonus displayed when earned
+//
 // See the local file for the authoritative copy.
