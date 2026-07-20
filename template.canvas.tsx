@@ -810,7 +810,11 @@ function CouncilHomeButton({ onClick, label = "COUNCIL" }: { onClick: () => void
         textTransform: "uppercase",
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: 13, lineHeight: 1 }}>☰</span>
+      <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "flex-end", gap: 2, lineHeight: 1 }}>
+        <span style={{ width: 5, height: 8, borderRadius: 2, background: "currentColor", opacity: 0.85 }} />
+        <span style={{ width: 5, height: 11, borderRadius: 2, background: "currentColor" }} />
+        <span style={{ width: 5, height: 8, borderRadius: 2, background: "currentColor", opacity: 0.85 }} />
+      </span>
       <span>{label}</span>
     </button>
   );
@@ -840,9 +844,11 @@ function ScreenShell({
         borderRadius: 26,
         border: `1px solid ${PALETTE.borderStrong}`,
         background: mist
-          ? `radial-gradient(ellipse at 50% 10%, rgba(55,110,60,0.5), transparent 50%), radial-gradient(circle at 15% 85%, rgba(25,70,35,0.4), transparent 42%), radial-gradient(circle at 85% 70%, rgba(15,45,25,0.35), transparent 40%), linear-gradient(180deg, #07140c, ${PALETTE.bg})`
+          ? `radial-gradient(ellipse at 50% 0%, rgba(70,130,70,0.42), transparent 48%), radial-gradient(ellipse at 18% 95%, rgba(28,72,38,0.5), transparent 46%), radial-gradient(ellipse at 88% 75%, rgba(12,40,22,0.45), transparent 42%), radial-gradient(circle at 50% 60%, rgba(4,16,8,0.2), transparent 55%), linear-gradient(180deg, #0a1a10 0%, #040c08 45%, ${PALETTE.bg} 100%)`
           : `radial-gradient(circle at top, rgba(30,80,45,0.55), rgba(2,8,5,0.98) 50%), linear-gradient(180deg, ${PALETTE.bgSoft}, ${PALETTE.bg})`,
-        boxShadow: `0 0 0 1px rgba(77,255,0,0.14), 0 0 40px rgba(77,255,0,0.08), 0 24px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)`,
+        boxShadow: mist
+          ? `0 0 0 1px rgba(77,255,0,0.28), 0 0 0 3px rgba(77,255,0,0.08), 0 0 48px rgba(77,255,0,0.1), 0 24px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(77,255,0,0.12)`
+          : `0 0 0 1px rgba(77,255,0,0.14), 0 0 40px rgba(77,255,0,0.08), 0 24px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)`,
         color: PALETTE.text,
         fontFamily: UI_FONT,
       }}
@@ -2027,16 +2033,30 @@ function QuizScreenView({
       : `Battle · Q ${currentQ + 1} of ${qs.length}`)
     : trialMode
       ? (unlimitedSession
-        ? `Trial of Focus · Q ${currentQ + 1} · Unlimited · Streak ${streak}`
-        : `Trial of Focus · Streak ${streak}`)
-      : `Question ${currentQ + 1} of ${qs.length}`;
+        ? `Trial · Q ${currentQ + 1} · Unlimited`
+        : `Trial · Q ${currentQ + 1} of ${qs.length}`)
+      : (unlimitedSession
+        ? `Training · Q ${currentQ + 1} · Unlimited`
+        : `Training · Q ${currentQ + 1} of ${qs.length}`);
   const focusProgressHint = unlimitedSession
     ? `Q ${currentQ + (showFeedback ? 1 : 0)} · Unlimited · Streak ${streak}`
     : `${currentQ + (showFeedback ? 1 : 0)}/${qs.length} · Streak ${streak}`;
-  const battleProgressHint = unlimitedSession
+  const progressHint = unlimitedSession
     ? `${progress}% · Unlimited`
     : `${progress}%`;
   const sessionFinished = battleDefeated || trialEnded || trialCleared || (isLast && !unlimitedSession);
+  const primaryActionLabel = battleMode ? "⚔  Strike" : "Submit";
+  const secondaryActionLabel = battleMode
+    ? "Flee (−1 shield)"
+    : trialMode
+      ? "Break focus"
+      : "Skip";
+  const endSessionLabel = battleMode
+    ? "End battle · claim results"
+    : trialMode
+      ? "End trial · keep streak"
+      : "End training · claim results";
+  const timerEnabled = timerSeconds > 0;
 
   let reaction = battleMode
     ? "Ready for battle, are you?"
@@ -2075,29 +2095,48 @@ function QuizScreenView({
               : "Not quite";
 
   return (
-    <ScreenShell eyebrow={modeEyebrow} onCouncilHome={onRequestExit} mist={battleMode || trialMode} mark={battleMode || trialMode}>
+    <ScreenShell eyebrow={modeEyebrow} onCouncilHome={onRequestExit} mist mark>
+      {/* Status strip — Focus Progress + Shields (Battle) / streak side panel */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: battleMode ? "1.2fr 1fr 0.6fr" : "1fr auto",
-        gap: 16,
+        gridTemplateColumns: battleMode || trialMode ? "1.4fr 1fr" : "1fr",
+        gap: 18,
         alignItems: "center",
-        padding: "14px 16px",
-        borderRadius: 14,
-        border: `1px solid ${PALETTE.border}`,
-        background: "rgba(4,14,8,0.72)",
+        padding: "16px 18px",
+        borderRadius: 16,
+        border: `1px solid ${PALETTE.borderStrong}`,
+        background: "linear-gradient(180deg, rgba(6,22,12,0.92), rgba(2,10,6,0.88))",
+        boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.08), 0 0 24px rgba(77,255,0,0.06)`,
       }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <span style={{ color: PALETTE.greenBright, fontSize: 11, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
             Focus Progress
           </span>
-          <Chip active={(streak > 0) || trialMode || battleMode}>{streakLabel}</Chip>
+          <Chip active={(streak > 0) || trialMode || battleMode}>
+            <span
+              aria-hidden="true"
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: PALETTE.greenBright,
+                boxShadow: `0 0 10px ${PALETTE.greenBright}`,
+                display: "inline-block",
+              }}
+            />
+            {streakLabel}
+          </Chip>
         </div>
         {battleMode ? (
           <LivesDisplay lives={lives} />
-        ) : (
-          <div />
-        )}
-        {!battleMode && <div />}
+        ) : trialMode ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <span style={{ color: PALETTE.greenBright, fontSize: 11, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
+              Focus Streak
+            </span>
+            <Chip tone="warning" active={streak > 0}>{`Streak ${streak}`}</Chip>
+          </div>
+        ) : null}
       </div>
 
       {confirmExit && (
@@ -2112,24 +2151,23 @@ function QuizScreenView({
         </InfoBox>
       )}
 
+      {/* Three lightsaber meters — Progress / Force / Time */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: battleMode || trialMode ? "repeat(3, minmax(0, 1fr))" : "1fr",
+        gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
         gap: 16,
         alignItems: "start",
       }}>
         <LightsaberBar
           label={trialMode ? "Focus Blade" : "Progress Blade"}
           value={progress}
-          hint={trialMode ? focusProgressHint : battleMode ? battleProgressHint : `${progress}%`}
+          hint={trialMode ? focusProgressHint : progressHint}
           bladeColor={trialMode ? PALETTE.warning : PALETTE.greenBright}
           danger={trialEnded}
-          hintBelow={battleMode || trialMode}
+          hintBelow
         />
-        {(battleMode || trialMode) && (
-          <ForceMeterBar value={forceMeter} battleMode hintBelow />
-        )}
-        {(battleMode || trialMode) ? (
+        <ForceMeterBar value={forceMeter} battleMode hintBelow />
+        {timerEnabled ? (
           <LiveCountdown
             deadlineMs={questionDeadline}
             timerSeconds={timerSeconds}
@@ -2137,15 +2175,13 @@ function QuizScreenView({
             onExpire={onTimeout}
           />
         ) : (
-          <>
-            <ForceMeterBar value={forceMeter} battleMode={false} />
-            <LiveCountdown
-              deadlineMs={questionDeadline}
-              timerSeconds={timerSeconds}
-              active={timerActive}
-              onExpire={onTimeout}
-            />
-          </>
+          <LightsaberBar
+            label="Time Remaining"
+            value={0}
+            hint="Off"
+            bladeColor={PALETTE.textSoft}
+            hintBelow
+          />
         )}
       </div>
 
@@ -2155,17 +2191,22 @@ function QuizScreenView({
           color: showFeedback && !isCorrect && !isSkipped ? PALETTE.danger : PALETTE.greenBright,
           fontSize: 18,
           fontWeight: 700,
-          fontFamily: DISPLAY_FONT,
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
           textShadow: `0 0 14px ${PALETTE.glow}`,
         }}>{reaction}</div>
       </div>
 
-      <Panel>
+      {/* Challenge panel */}
+      <Panel style={{
+        background: "linear-gradient(180deg, rgba(4,14,8,0.96), rgba(1,6,3,0.98))",
+        boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.12), 0 0 28px rgba(0,0,0,0.45)`,
+        border: `1px solid ${PALETTE.borderStrong}`,
+      }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
           <Chip tone={question.difficulty === "hard" ? "danger" : question.difficulty === "medium" ? "warning" : "success"}>
             {labelCase(question.difficulty)}
           </Chip>
-          <Chip tone="info">{question.topic}</Chip>
+          <Chip tone="success">{question.topic}</Chip>
         </div>
         <div style={{ color: PALETTE.white, fontSize: 22, fontWeight: 800, lineHeight: 1.35, marginBottom: 16 }}>{question.stem}</div>
 
@@ -2222,11 +2263,11 @@ function QuizScreenView({
               padding: "14px 16px",
               borderRadius: 12,
               border: `1px solid ${PALETTE.borderStrong}`,
-              background: "rgba(0,0,0,0.35)",
+              background: "rgba(0,0,0,0.45)",
               color: PALETTE.text,
               fontSize: 16,
               outline: "none",
-              boxShadow: "inset 0 0 0 1px rgba(77,255,0,0.08)",
+              boxShadow: "inset 0 2px 10px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(77,255,0,0.08)",
             }}
           />
         )}
@@ -2241,18 +2282,21 @@ function QuizScreenView({
 
         {!showFeedback && !confirmExit && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: battleMode ? "1.5fr 1fr" : (canUseHints && hintsAvailable > 0 ? "1.4fr 1fr 1fr" : "1.6fr 1fr"), gap: 10 }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: canUseHints && hintsAvailable > 0 ? "1.5fr 1fr 1fr" : "1.5fr 1fr",
+              gap: 10,
+            }}>
               <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()} fullWidth>
-                {battleMode ? "⚔  Strike" : "Submit Answer"}
+                {primaryActionLabel}
               </ActionButton>
-              {!battleMode && canUseHints && hintsAvailable > 0 && (
+              {canUseHints && hintsAvailable > 0 && (
                 <ActionButton variant="secondary" onClick={onHint} fullWidth>Use the Force · {hintsAvailable}</ActionButton>
               )}
               <ActionButton variant="secondary" onClick={onSkip} fullWidth>
-                {battleMode ? "Flee (−1 shield)" : trialMode ? "Break focus" : "Skip for now"}
+                {secondaryActionLabel}
               </ActionButton>
             </div>
-            {!battleMode && canUseHints && hintsAvailable > 0 ? null : null}
           </div>
         )}
       </Panel>
@@ -2265,7 +2309,7 @@ function QuizScreenView({
             style={{
               background: "transparent",
               border: "none",
-              color: PALETTE.textSoft,
+              color: PALETTE.greenBright,
               cursor: "pointer",
               fontSize: 12,
               fontWeight: 800,
@@ -2273,15 +2317,25 @@ function QuizScreenView({
               textTransform: "uppercase",
               display: "inline-flex",
               alignItems: "center",
-              gap: 8,
+              gap: 10,
+              textShadow: `0 0 12px ${PALETTE.glow}`,
             }}
           >
-            <span aria-hidden="true">⚙</span>
-            {battleMode
-              ? "End battle · claim results"
-              : trialMode
-                ? "End trial · keep streak"
-                : "End training · claim results"}
+            <span
+              aria-hidden="true"
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
+                border: `1.5px solid ${PALETTE.greenBright}`,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                boxShadow: `0 0 12px rgba(77,255,0,0.35)`,
+              }}
+            >✦</span>
+            {endSessionLabel}
           </button>
         </div>
       )}
@@ -2352,11 +2406,7 @@ function QuizScreenView({
 
           {unlimitedSession && !trialEnded && !battleDefeated && (
             <ActionButton variant="ghost" onClick={onEndSession} fullWidth>
-              {battleMode
-                ? "◆ End battle · claim results"
-                : trialMode
-                  ? "◆ End trial · keep streak"
-                  : "◆ End training · claim results"}
+              {`◆ ${endSessionLabel}`}
             </ActionButton>
           )}
 
