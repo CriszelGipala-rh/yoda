@@ -36,26 +36,11 @@
 
 > **Teach you, I will. Quiz you, I must.**
 
-Yoda is a Cursor Agent Skill that transforms supplied learning material into a
-complete interactive Cursor Canvas quiz.
+Yoda is a Cursor Agent Skill that turns supplied learning material into an
+interactive Cursor Canvas quiz with adaptive questions, hints, explanations,
+progress tracking, and targeted review.
 
-## Security
-
-Every piece of content submitted to Yoda passes through a **Security Gate** before a quiz is generated:
-
-| Check | What it does | Requires |
-|-------|-------------|----------|
-| 1. Credential & Secret Scan | Detects passwords, API keys, SSH keys, database strings | Nothing (AI-based) |
-| 2. URL Safety | Blocks phishing links, suspicious domains, credential harvesting | Nothing (AI-based) |
-| 3. Confidential Content | Rejects documents marked CONFIDENTIAL, INTERNAL ONLY, NDA | Nothing (AI-based) |
-| 4. Content Policy | Blocks login forms, hate speech, prompt injection, empty content | Nothing (AI-based) |
-| 5. ClamAV Malware Scan | Real signature-based malware/virus/trojan detection | `sudo dnf install clamav clamav-update && sudo freshclam` |
-
-If any check fails, Yoda rejects the content with a Yoda-style message and does not generate a quiz.
-
-Checks 1–4 are always active (AI-based). Check 5 requires ClamAV from the Red Hat/Fedora security ecosystem — see the Installation section below to enable it.
-
-## Supported source material
+## What Yoda can use
 
 - Links and documentation
 - Pasted text and notes
@@ -63,35 +48,7 @@ Checks 1–4 are always active (AI-based). Check 5 requires ClamAV from the Red 
 - Screenshots and photos
 - Code and technical material
 
-## Training journey
-
-The updated canvas follows this flow:
-
-```text
-Source ready
-  → Material analysis
-  → Youngling / Padawan / Jedi Master
-  → Quiz-style selection
-  → Optional settings
-  → One-question-at-a-time quiz
-  → Training report
-  → Review and retest mistakes
-  → Fresh quiz or weak-topic practice
-```
-
-Features include:
-
-- Canonical full and compact Yoda ASCII art
-- Five quiz styles
-- Force Meter and Jedi Focus streaks
-- Progressive hints and skip support
-- Three explanation depths
-- Adaptive next-question difficulty
-- Correct, incorrect, and skipped tracking
-- Topic mastery and weak-area detection
-- Mistake filters and targeted retesting
-
-## Installation
+## Quick start
 
 ### 1. Clone the repository
 
@@ -102,49 +59,102 @@ cd yoda
 
 ### 2. Install the skill
 
-Copy or symlink the `skill/` directory:
+Copy the `skill/` directory into your Cursor skills folder:
 
 ```bash
 mkdir -p ~/.cursor/skills
 cp -r skill/ ~/.cursor/skills/yoda/
 ```
 
-Or:
+For local development, you can use a symbolic link instead:
 
 ```bash
 mkdir -p ~/.cursor/skills
 ln -s "$(pwd)/skill" ~/.cursor/skills/yoda
 ```
 
-### 3. Enable full security (optional but recommended)
+### 3. Enable file malware scanning (optional but recommended)
 
-For **full protection** including real malware scanning, install ClamAV:
+Yoda can use ClamAV to scan local or uploaded files before reading them.
+
+On Fedora or Red Hat-based systems:
 
 ```bash
 sudo dnf install clamav clamav-update
 sudo freshclam
 ```
 
-This enables Check 5 (ClamAV) which provides signature-based virus, trojan, and phishing detection from the Red Hat/Fedora security ecosystem.
-
-**If you skip this step** (e.g., running in Cursor Cloud or a system without `dnf`), the Security Gate still works — it automatically falls back to AI-only validation and lets you know:
-
-> "Note: ClamAV not available in this environment. AI-based security checks applied."
+ClamAV adds signature-based malware scanning for files. The other Security Gate
+checks remain active when ClamAV is unavailable, but Yoda must clearly state
+that a signature-based malware scan was not performed.
 
 ### 4. Restart Cursor
 
-Restart Cursor or open a new chat to activate the skill.
+Restart Cursor or open a new chat so Cursor can load the skill.
 
 ## Usage
 
-Supply material and ask for a quiz:
+Supply learning material and ask Yoda to create a quiz:
 
 ```text
 Quiz me on this: <link, text, file, screenshot, photo, PDF, or code>
 ```
 
-Yoda reads the source first and then generates the canvas. The canvas entry screen
-shows the source as ready rather than displaying non-functional upload controls.
+Yoda validates and reads the source, generates the quiz data, and opens the
+interactive Canvas. Because the source was already supplied in chat, the Canvas
+shows it as ready instead of presenting non-functional upload controls.
+
+## Security Gate
+
+Yoda treats supplied material as untrusted content. Before quiz generation, it
+applies the relevant checks in a fixed order:
+
+| Check | Purpose | Availability |
+|---|---|---|
+| File malware scan | Scans the original local or uploaded file for known malware signatures | Requires ClamAV |
+| URL safety | Validates the URL before fetching and blocks unsafe or unsupported destinations | Built in |
+| Credential and secret scan | Detects exposed passwords, tokens, API keys, private keys, and credential-bearing connection strings | Built in |
+| Confidential-content check | Rejects material marked with restrictions such as `CONFIDENTIAL`, `INTERNAL ONLY`, or `DO NOT DISTRIBUTE` | Built in |
+| Prompt-injection and content check | Treats embedded instructions as data and blocks unsafe, unreadable, or unsuitable material | Built in |
+
+When a required check fails, Yoda stops and does not generate a quiz. It must
+not quote detected secrets, confidential content, or malicious instructions in
+the warning.
+
+When ClamAV is unavailable, Yoda may continue only after the built-in checks
+pass and must disclose:
+
+> Note: ClamAV is not available in this environment. AI-based security checks
+> were applied, but a signature-based malware scan was not performed.
+
+The detailed enforcement rules live in [`skill/SKILL.md`](skill/SKILL.md).
+
+## Training experience
+
+```text
+Source validation
+  → Material analysis
+  → Youngling / Padawan / Jedi Master
+  → Quiz-style selection
+  → Optional settings
+  → One-question-at-a-time quiz
+  → Training report
+  → Review and retest mistakes
+  → Fresh quiz or weak-topic practice
+```
+
+### Included features
+
+- Five quiz styles
+- Youngling, Padawan, and Jedi Master difficulty paths
+- Force Meter and Jedi Focus streaks
+- Progressive hints and question skipping
+- Three explanation depths
+- Adaptive next-question difficulty
+- Correct, incorrect, and skipped-answer tracking
+- Topic mastery and weak-area detection
+- Mistake filters and targeted retesting
+- Full and compact Yoda guide visuals
 
 ## Project structure
 
@@ -160,10 +170,16 @@ yoda/
     └── do180-ch03-quiz.canvas.tsx
 ```
 
-- `skill/template.canvas.tsx` is the authoritative copy-ready UI engine.
-- `demo/do180-yoda-training.canvas.tsx` is the full updated DO180 example.
-- `demo/do180-ch03-quiz.canvas.tsx` is the earlier single-page quiz retained for
-  comparison.
+- [`skill/SKILL.md`](skill/SKILL.md) defines Yoda's behaviour, security rules,
+  source-processing order, and quiz-generation protocol.
+- [`skill/template.canvas.tsx`](skill/template.canvas.tsx) is the reusable
+  Canvas UI engine.
+- [`skill/examples.md`](skill/examples.md) contains usage and validation
+  examples.
+- [`demo/do180-yoda-training.canvas.tsx`](demo/do180-yoda-training.canvas.tsx)
+  is the complete DO180 training example.
+- [`demo/do180-ch03-quiz.canvas.tsx`](demo/do180-ch03-quiz.canvas.tsx) is the
+  earlier single-page version retained for comparison.
 
 ## License
 
