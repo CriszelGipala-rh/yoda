@@ -1474,22 +1474,32 @@ function SettingsScreen({
 
         {!modeSetup && (
           <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 14 }}>
-            <SelectableCard
-              title="Use the Force"
-              description={hintsEnabled ? "Hints are available" : "Hints are disabled"}
-              detail="Hints guide the learner without revealing the answer directly."
-              icon="💡"
-              isSelected={hintsEnabled}
-              onSelect={onToggleHints}
-            />
-            <SelectableCard
-              title="Immediate explanations"
-              description={instantExplanations ? "Show after each answer" : "Save explanations for review"}
-              detail="The learner can still review every mistake after the quiz."
-              icon="📚"
-              isSelected={instantExplanations}
-              onSelect={onToggleExplanations}
-            />
+            <Panel>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ color: PALETTE.text, fontWeight: 700 }}>Use the Force</div>
+                  <div style={{ color: PALETTE.textSoft, fontSize: 14 }}>
+                    {hintsEnabled ? "Hints are available during Training." : "Hints are off for this Training session."}
+                  </div>
+                </div>
+                <ActionButton variant={hintsEnabled ? "primary" : "secondary"} onClick={onToggleHints}>
+                  {hintsEnabled ? "Hints on" : "Hints off"}
+                </ActionButton>
+              </div>
+            </Panel>
+            <Panel>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ color: PALETTE.text, fontWeight: 700 }}>Immediate explanations</div>
+                  <div style={{ color: PALETTE.textSoft, fontSize: 14 }}>
+                    {instantExplanations ? "Show after each answer" : "Save explanations for review"}
+                  </div>
+                </div>
+                <ActionButton variant={instantExplanations ? "primary" : "secondary"} onClick={onToggleExplanations}>
+                  {instantExplanations ? "On" : "Off"}
+                </ActionButton>
+              </div>
+            </Panel>
           </div>
         )}
       </div>
@@ -2000,7 +2010,8 @@ function QuizScreenView({
   const answer = answers[question.id] || "";
   const isLast = currentQ === qs.length - 1;
   const hintCount = hintsUsed[question.id] || 0;
-  const hintsAvailable = Math.max(0, question.hints.length - hintCount);
+  const questionHintCount = question.hints?.length ?? 0;
+  const hintsAvailable = Math.max(0, questionHintCount - hintCount);
   const isCorrect = outcomes[question.id] ?? checkAnswer(answer, question.correct);
   const isSkipped = Boolean(skipped[question.id]);
   const isTimedOut = Boolean(timedOut[question.id]);
@@ -2026,7 +2037,11 @@ function QuizScreenView({
   const battleDefeated = battleMode && lives <= 0;
   const trialEnded = trialMode && showFeedback && (!isCorrect || isSkipped || isTimedOut);
   const trialCleared = trialMode && showFeedback && isCorrect && isLast && !unlimitedSession;
-  const canUseHints = hintsEnabled && playMode === "training";
+  const trainingMode = playMode === "training";
+  const canUseHints = hintsEnabled && trainingMode;
+  const showHintsOff = trainingMode && !hintsEnabled;
+  const showHintButton = canUseHints && hintsAvailable > 0;
+  const actionColumns = showHintButton || showHintsOff ? "1.5fr 1fr 1fr" : "1.5fr 1fr";
   const modeEyebrow = battleMode
     ? (unlimitedSession
       ? `Battle · Q ${currentQ + 1} · Unlimited`
@@ -2050,7 +2065,7 @@ function QuizScreenView({
     ? "Flee (−1 shield)"
     : trialMode
       ? "Break focus"
-      : "Skip";
+      : "Skip for now";
   const endSessionLabel = battleMode
     ? "End battle · claim results"
     : trialMode
@@ -2279,27 +2294,38 @@ function QuizScreenView({
             </InfoBox>
           </div>
         )}
-
-        {!showFeedback && !confirmExit && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: canUseHints && hintsAvailable > 0 ? "1.5fr 1fr 1fr" : "1.5fr 1fr",
-              gap: 10,
-            }}>
-              <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()} fullWidth>
-                {primaryActionLabel}
-              </ActionButton>
-              {canUseHints && hintsAvailable > 0 && (
-                <ActionButton variant="secondary" onClick={onHint} fullWidth>Use the Force · {hintsAvailable}</ActionButton>
-              )}
-              <ActionButton variant="secondary" onClick={onSkip} fullWidth>
-                {secondaryActionLabel}
-              </ActionButton>
-            </div>
-          </div>
-        )}
       </Panel>
+
+      {/* Actions sit outside the recessed panel so Training Submit / Skip / Hint stay visible after Battle chrome */}
+      {!showFeedback && !confirmExit && (
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: actionColumns,
+          gap: 10,
+          padding: "14px 16px",
+          borderRadius: 16,
+          border: `1px solid ${PALETTE.borderStrong}`,
+          background: "linear-gradient(180deg, rgba(8,28,14,0.95), rgba(3,12,7,0.92))",
+          boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.10), 0 0 20px rgba(77,255,0,0.06)`,
+        }}>
+          <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()} fullWidth>
+            {primaryActionLabel}
+          </ActionButton>
+          {showHintButton && (
+            <ActionButton variant="secondary" onClick={onHint} fullWidth>
+              Use the Force · {hintsAvailable} remaining
+            </ActionButton>
+          )}
+          {showHintsOff && (
+            <ActionButton variant="ghost" disabled fullWidth>
+              Hints off
+            </ActionButton>
+          )}
+          <ActionButton variant="secondary" onClick={onSkip} fullWidth>
+            {secondaryActionLabel}
+          </ActionButton>
+        </div>
+      )}
 
       {!showFeedback && !confirmExit && unlimitedSession && !battleDefeated && (
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -3019,9 +3045,10 @@ export default function YodaTraining() {
 
   const handleHint = () => {
     const question = activeQuestions[currentQ];
-    if (!question) return;
+    if (!question || !hintsEnabled || playMode !== "training") return;
     const used = hintsUsed[question.id] || 0;
-    if (used < question.hints.length) {
+    const available = question.hints?.length ?? 0;
+    if (used < available) {
       setHintsUsed(previous => ({ ...previous, [question.id]: used + 1 }));
       setForceMeter(clamp(forceMeter - 2, 0, 100));
     }
