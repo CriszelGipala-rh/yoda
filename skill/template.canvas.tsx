@@ -44,5 +44,6 @@ const ANALYSIS_STAGES = [
 
 // NOTE: The full template with all UI components (PALETTE, screens, state management)
 // is maintained locally at ~/.cursor/skills/yoda/template.canvas.tsx
-// This GitHub version contains the complete working canvas.
+// This GitHub version contains the data markers and a note about the local file.
+// The ResultsScreen includes a 'Send Feedback' link that opens the GitHub feedback form.
 // See the local file for the authoritative copy.
