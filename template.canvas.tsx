@@ -593,6 +593,7 @@ function LightsaberBar({
   danger = false,
   hintBelow = false,
   showHint = true,
+  hideLabel = false,
 }: {
   label: string;
   value: number;
@@ -601,30 +602,36 @@ function LightsaberBar({
   danger?: boolean;
   hintBelow?: boolean;
   showHint?: boolean;
+  hideLabel?: boolean;
 }) {
   const pct = clamp(value, 0, 100);
   const blade = danger ? PALETTE.danger : bladeColor;
   const glow = danger ? "rgba(255,75,75,0.6)" : `${blade}99`;
   const hintText = hint || `${pct}%`;
+  const showLabelRow = !hideLabel || (showHint && !hintBelow);
 
   return (
     <div style={{ width: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, gap: 12 }}>
-        <div style={{ color: PALETTE.greenBright, fontSize: 11, fontWeight: 800, letterSpacing: 1.6, textTransform: "uppercase" }}>{label}</div>
-        {showHint && !hintBelow && (
-          <div style={{ color: danger ? PALETTE.danger : PALETTE.textMuted, fontSize: 13, fontWeight: 800 }}>{hintText}</div>
-        )}
-      </div>
+      {showLabelRow && (
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: hideLabel ? 0 : 10, gap: 12 }}>
+          {!hideLabel && (
+            <div style={{ color: PALETTE.greenBright, fontSize: 11, fontWeight: 800, letterSpacing: 1.6, textTransform: "uppercase" }}>{label}</div>
+          )}
+          {showHint && !hintBelow && (
+            <div style={{ color: danger ? PALETTE.danger : PALETTE.textMuted, fontSize: 13, fontWeight: 800, marginLeft: "auto" }}>{hintText}</div>
+          )}
+        </div>
+      )}
       <div style={{ display: "flex", alignItems: "center", gap: 0, width: "100%" }}>
         <div
           aria-hidden="true"
           style={{
-            width: 34,
-            height: 18,
-            borderRadius: "7px 3px 3px 7px",
-            background: "linear-gradient(180deg, #8a929a, #3a4148 40%, #12161a 70%, #0a0c0e)",
-            border: "1px solid rgba(255,255,255,0.35)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 0 10px rgba(0,0,0,0.5)",
+            width: 42,
+            height: 20,
+            borderRadius: "8px 3px 3px 8px",
+            background: "linear-gradient(180deg, #c5ccd3 0%, #8a929a 18%, #4a525a 42%, #1c2126 72%, #0a0c0e 100%)",
+            border: "1px solid rgba(255,255,255,0.4)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 4px rgba(0,0,0,0.55), 0 0 12px rgba(0,0,0,0.55)",
             flexShrink: 0,
             zIndex: 1,
             position: "relative",
@@ -632,35 +639,56 @@ function LightsaberBar({
         >
           <div style={{
             position: "absolute",
-            left: 5,
-            top: 5,
-            width: 8,
-            height: 8,
+            left: 4,
+            top: 3,
+            bottom: 3,
+            width: 10,
             borderRadius: 2,
-            background: "linear-gradient(180deg, #555, #222)",
-            border: "1px solid rgba(255,255,255,0.2)",
+            background: "linear-gradient(180deg, #6a727a, #2a3036)",
+            border: "1px solid rgba(255,255,255,0.22)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25)",
           }} />
           <div style={{
             position: "absolute",
-            right: 4,
+            left: 16,
+            top: 2,
+            bottom: 2,
+            width: 3,
+            borderRadius: 1,
+            background: "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(0,0,0,0.5))",
+          }} />
+          <div style={{
+            position: "absolute",
+            left: 22,
+            top: 2,
+            bottom: 2,
+            width: 3,
+            borderRadius: 1,
+            background: "linear-gradient(180deg, rgba(255,255,255,0.28), rgba(0,0,0,0.45))",
+          }} />
+          <div style={{
+            position: "absolute",
+            right: 5,
             top: 5,
-            width: 7,
-            height: 7,
+            width: 9,
+            height: 9,
             borderRadius: "50%",
-            background: blade,
-            boxShadow: `0 0 10px ${glow}`,
+            background: `radial-gradient(circle at 35% 30%, #fff8, ${blade})`,
+            boxShadow: `0 0 10px ${glow}, 0 0 18px ${glow}`,
+            border: "1px solid rgba(255,255,255,0.35)",
           }} />
         </div>
         <div
           style={{
             flex: 1,
-            height: 8,
+            height: 10,
             borderRadius: "0 999px 999px 0",
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.1)",
             borderLeft: "none",
             overflow: "hidden",
             position: "relative",
+            boxShadow: "inset 0 0 8px rgba(0,0,0,0.35)",
           }}
         >
           <div
@@ -668,8 +696,8 @@ function LightsaberBar({
               width: `${pct}%`,
               height: "100%",
               borderRadius: "0 999px 999px 0",
-              background: `linear-gradient(90deg, ${blade}55, ${blade}, #fff8)`,
-              boxShadow: pct > 0 ? `0 0 18px ${glow}, 0 0 36px ${glow}` : "none",
+              background: `linear-gradient(90deg, ${blade}66, ${blade}, #e8ffe0, ${blade})`,
+              boxShadow: pct > 0 ? `0 0 16px ${glow}, 0 0 32px ${glow}, inset 0 0 6px rgba(255,255,255,0.35)` : "none",
               transition: "width 0.35s ease",
             }}
           />
@@ -1605,13 +1633,12 @@ function HolocronScreen({
 }) {
   const question = qs[currentIndex];
   if (!question) return null;
-  const knownCount = Object.values(knownIds).filter(Boolean).length;
   const progress = unlimited
     ? clamp(((currentIndex % 10) + 1) * 10, 10, 100)
     : Math.round(((currentIndex + 1) / qs.length) * 100);
   const isKnown = Boolean(knownIds[question.id]);
   const isLast = currentIndex >= qs.length - 1;
-  const progressHint = unlimited ? `${currentIndex + 1} · Unlimited` : `${currentIndex + 1}/${qs.length}`;
+  const progressHint = unlimited ? `${currentIndex + 1} · Unlimited` : `${currentIndex + 1} / ${qs.length}`;
   const eyebrow = unlimited
     ? `Holocron · Card ${currentIndex + 1} · Unlimited`
     : `Holocron · Card ${currentIndex + 1} of ${qs.length}`;
@@ -1900,23 +1927,50 @@ function HolocronScreen({
         )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 16 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <LightsaberBar
-            label="Archive progress"
-            value={progress}
-            showHint={false}
-            bladeColor={PALETTE.greenBright}
-          />
+      <div style={{ width: "100%", maxWidth: 720, margin: "0 auto" }}>
+        <div style={{
+          color: PALETTE.textSoft,
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: 0.5,
+          marginBottom: 10,
+        }}>
+          Archive progress
         </div>
-        <div style={{ textAlign: "right", flexShrink: 0 }}>
-          <div style={{ color: PALETTE.greenBright, fontSize: 28, fontWeight: 900, lineHeight: 1, textShadow: `0 0 14px ${PALETTE.glow}` }}>{progress}%</div>
-          <div style={{ color: PALETTE.textSoft, fontSize: 12, fontWeight: 700, marginTop: 4 }}>{progressHint}</div>
-          <div style={{ color: PALETTE.textSoft, fontSize: 11, marginTop: 2 }}>{knownCount} known</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <LightsaberBar
+              label="Archive progress"
+              value={progress}
+              showHint={false}
+              hideLabel
+              bladeColor={PALETTE.greenBright}
+            />
+          </div>
+          <div style={{ textAlign: "right", flexShrink: 0, minWidth: 76 }}>
+            <div style={{
+              color: PALETTE.greenBright,
+              fontSize: 32,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: -0.5,
+              textShadow: `0 0 16px ${PALETTE.glow}`,
+            }}>{progress}%</div>
+            <div style={{ color: PALETTE.textSoft, fontSize: 13, fontWeight: 700, marginTop: 5 }}>
+              {progressHint}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+        gap: 10,
+        width: "100%",
+        maxWidth: 720,
+        margin: "0 auto",
+      }}>
         <ActionButton variant="secondary" onClick={onPrev} disabled={currentIndex === 0}>← Previous</ActionButton>
         <ActionButton variant={isKnown ? "primary" : "secondary"} onClick={onToggleKnown}>
           {isKnown ? "★ Known" : "☆ Mark as known"}
