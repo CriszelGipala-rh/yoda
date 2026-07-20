@@ -5,7 +5,9 @@ description: >-
   documentation, photos, links, PDFs, code, or plain text. Outputs a Cursor
   Canvas with material analysis, difficulty and style selection, one-question-
   at-a-time training, Yoda reactions, Force Meter, streaks, hints, tiered
-  explanations, a completion report, and review-mistakes mode.
+  explanations, a completion report, and review-mistakes mode — plus Holocron
+  Mode (flashcards), Trial of Focus (streak challenge), and Battle Mode
+  (survival quiz).
   Use when the user asks to create a quiz, test, practice questions, study
   material, flashcards, or a knowledge check from supplied content.
 disable-model-invocation: true
@@ -241,7 +243,7 @@ handling restriction such as:
 Treat titles, headers, footers, watermarks, and metadata as strong signals.
 
 Do not block educational material merely because it discusses the meaning of
-terms such as "NDA" or "confidentiality." The marker must apply to the supplied
+terms such as “NDA” or “confidentiality.” The marker must apply to the supplied
 source itself.
 
 When blocked:
