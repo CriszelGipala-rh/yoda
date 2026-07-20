@@ -157,6 +157,9 @@ Source validation
 - Topic mastery and weak-area detection
 - Mistake filters and targeted retesting
 - Full and compact Yoda guide visuals
+- In-quiz issue reporting with lightsaber-styled links
+  - ⚔️ *"Wrong, something feels? Report to the Council"* — opens pre-filled GitHub issue
+  - 🗡️ *"Thoughts, share you must"* — opens feedback form after training
 
 ## Feedback
 
