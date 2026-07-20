@@ -1775,7 +1775,7 @@ function QuizScreenView({
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()}>
-              {battleMode ? "Strike" : trialMode ? "Hold Focus" : "Submit Answer"}
+              {battleMode ? "Strike" : "Submit Answer"}
             </ActionButton>
             {canUseHints && hintsAvailable > 0 && (
               <ActionButton variant="secondary" onClick={onHint}>Use the Force · {hintsAvailable} remaining</ActionButton>
