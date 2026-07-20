@@ -147,7 +147,7 @@ The detailed enforcement rules live in [`skill/SKILL.md`](skill/SKILL.md).
 Source validation
   → Material analysis
   → Youngling / Padawan / Jedi Master
-  → Quiz-style selection
+  → Special modes or normal quiz-style selection
   → Optional settings
   → One-question-at-a-time quiz
   → Training report
@@ -159,6 +159,11 @@ Source validation
 
 - Five quiz styles
 - Youngling, Padawan, and Jedi Master difficulty paths
+- Lightsaber progress and Force blades
+- Special training modes (left to right):
+  - Holocron Mode — flashcard study, no pressure
+  - Trial of Focus — streak until you miss
+  - Battle Mode — 5 questions, 3 shields, survive
 - Force Meter and Jedi Focus streaks
 - Progressive hints and question skipping
 - Three explanation depths
@@ -168,8 +173,8 @@ Source validation
 - Mistake filters and targeted retesting
 - Full and compact Yoda guide visuals
 - In-quiz issue reporting with lightsaber-styled links
-  - ⚔️ *"Wrong, something feels? Report to the Council"* — opens pre-filled GitHub issue
-  - 🗡️ *"Thoughts, share you must"* — opens feedback form after training
+  - *"Wrong, something feels? Report to the Council"* — opens pre-filled GitHub issue
+  - *"Thoughts, share you must"* — opens feedback form after training
 
 ## Feedback
 
