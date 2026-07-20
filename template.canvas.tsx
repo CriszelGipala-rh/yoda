@@ -971,6 +971,102 @@ function ForceMeterBar({ value, battleMode = false, hintBelow = false }: { value
   );
 }
 
+function TimerClockMeter({
+  remaining = 0,
+  pct = 0,
+  inactive = false,
+}: {
+  remaining?: number;
+  pct?: number;
+  inactive?: boolean;
+}) {
+  const expired = !inactive && remaining <= 0;
+  const urgent = !inactive && remaining > 0 && remaining <= 10;
+  const color = inactive ? PALETTE.textSoft : (urgent || expired) ? PALETTE.danger : PALETTE.warning;
+  const fillPct = inactive ? 0 : clamp(pct, 0, 100);
+  const sweep = fillPct * 3.6;
+  const label = inactive ? "Time Remaining" : expired ? "Time Expired" : "Time Remaining";
+  const display = inactive ? "Off" : `${Math.max(0, remaining)}s`;
+
+  return (
+    <div style={{ width: "100%" }}>
+      <div style={{
+        color: PALETTE.greenBright,
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: 1.6,
+        textTransform: "uppercase",
+        marginBottom: 10,
+      }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width: 54,
+            height: 54,
+            borderRadius: "50%",
+            background: inactive
+              ? "conic-gradient(rgba(127,168,136,0.28) 0deg, rgba(127,168,136,0.12) 360deg)"
+              : `conic-gradient(${color} ${sweep}deg, rgba(255,255,255,0.06) ${sweep}deg)`,
+            boxShadow: inactive ? "none" : `0 0 16px ${color}66, inset 0 0 8px rgba(0,0,0,0.35)`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            border: `1px solid ${color}44`,
+          }}
+        >
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 40% 35%, #16301e, #06140c)",
+            border: `1px solid ${color}55`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color,
+            fontSize: 17,
+            fontWeight: 700,
+            boxShadow: urgent ? `0 0 12px ${color}88` : "inset 0 0 6px rgba(0,0,0,0.45)",
+          }}>⏱</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+          <div style={{
+            color,
+            fontSize: 28,
+            fontWeight: 800,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+            letterSpacing: 0.5,
+            textShadow: inactive ? "none" : `0 0 14px ${color}99`,
+            lineHeight: 1,
+          }}>{display}</div>
+          {!inactive && (
+            <div style={{
+              height: 4,
+              width: "100%",
+              minWidth: 72,
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.06)",
+              overflow: "hidden",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}>
+              <div style={{
+                width: `${fillPct}%`,
+                height: "100%",
+                borderRadius: 999,
+                background: color,
+                boxShadow: `0 0 8px ${color}88`,
+                transition: "width 0.25s linear",
+              }} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LiveCountdown({
   deadlineMs,
   timerSeconds,
@@ -999,17 +1095,7 @@ function LiveCountdown({
 
   if (!active || deadlineMs <= 0 || timerSeconds <= 0) return null;
 
-  const urgent = remaining <= 10;
-  return (
-    <LightsaberBar
-      label={remaining > 0 ? "Time Remaining" : "Time Expired"}
-      value={pct}
-      hint={remaining > 0 ? `${remaining}s` : "0s"}
-      bladeColor={urgent ? PALETTE.danger : PALETTE.warning}
-      danger={urgent}
-      hintBelow
-    />
-  );
+  return <TimerClockMeter remaining={remaining} pct={pct} />;
 }
 
 function isCouncilIconKind(value: any): value is CouncilIconKind {
@@ -2220,7 +2306,7 @@ function QuizScreenView({
         </InfoBox>
       )}
 
-      {/* Three lightsaber meters — Progress / Force / Time */}
+      {/* Progress Blade / Force Blade / clock timer */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
@@ -2244,13 +2330,7 @@ function QuizScreenView({
             onExpire={onTimeout}
           />
         ) : (
-          <LightsaberBar
-            label="Time Remaining"
-            value={0}
-            hint="Off"
-            bladeColor={PALETTE.textSoft}
-            hintBelow
-          />
+          <TimerClockMeter inactive />
         )}
       </div>
 
