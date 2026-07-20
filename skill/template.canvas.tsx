@@ -1,7 +1,7 @@
 import {
   Stack, Row, Grid, Card, CardHeader, CardBody,
   H1, H2, Text, Divider, Button, Stat, Callout, Pill, Spacer,
-  TextInput, UsageBar, useCanvasState, useHostTheme,
+  TextInput, UsageBar, useCanvasState, useHostTheme, Link,
 } from "cursor/canvas";
 
 interface Question {
@@ -43,50 +43,68 @@ const ANALYSIS_STAGES = [
 // === QUIZ DATA END ===
 
 const FULL_YODA_ASCII = [
-  "                                 .;=+#%&@&@&%%@&%@@%@#==:                                     ",
-  "                               .~*%%%*+*%##=*#**####=+%%#+;,                                  ",
-  "                          :...~+#%&#~=**&&&&##%&&&&*+~#%*%#+~. ..                             ",
-  "                         :-,~*#%#*%#+~#&@&@0#*#&&8@%==%%**%#*=;~~.                            ",
-  "#++;,                   ~---+#+*%08@8@++=+*+#*=###*##0@&&%&@&#+--~.,                 ,;-=+++: ",
-  "+##+####*#-;:.       .,~~==-#+##*****%=#+&@@=-#&%@#-+*&%%%***%#==*-;           .;#&*==*#+*;=:.",
-  " ,=-,.;~-=+%@@0&+;;,. ;~===+*#@0&80@00@0&@#&&*#&&#*0088@88@0&+=%==+;:... ;~#%&&%*=-;::~-:,    ",
-  "   :-=,    ..:~=%00&@&+*=+#+%@&%*====**%*&#%#*+#%**#+---~=*&0&&#*#+=%*@@&@@%=:,.   ,-+;       ",
-  "     -*=;,.      ,-+&@@&=#*@#~,..,:::: ,,~--~;:;~~:  ,:;~:..:=*&#*#&&&&#=:       ;+++,        ",
-  "      ;+#-:.,,.     :~*%+#*;..:+&@8@8@-,.  :=#+~. .~*00080&*;  ~#####+:,    ...;-*+~.         ",
-  "        ;+*+-;;:..    ,~+%+,:++=-~~~-+--:.:=%&&#~.:=~+~--~=---;;+%++~.   ..,;;-+*~            ",
-  "         .:*#*=;~;,..,.~-%#+~;;;=-,:-%-;~=&00@0@&+-:-#-::+*;:~;-%#+~  ,::::~=+*-:             ",
-  "           .:-*&&%+-+--;;=%&%-;:-+=-~~-+==~--==;~=++~~--~~~=-+#&%=-,~=+==+*#*~:               ",
-  "              .:~+#*+-~-;~==%%#+-;~~~=+-@%~::..,;*&%+=;:~~-+*%%#+~::-==++*-,.                 ",
-  "                  . .;,,,--~~=--+~~*+~#@@&0%#+#%&0@&&+#+~~-==---~~~..:                        ",
-  "                         :~~;;;::~==+%#*##&@@@%%&%#*#*+**=~:::;;~~.                           ",
-  "                         .=~,::;~-~=~:,;~==~--;~-;;;~~:~~~-~~~;--                             ",
-  "                      ,~+&@: :;::~~;.~-~-=-=--~-=-==~=~:-;-;:;.;@%=:.                         ",
-  "                    :-&&%+:,. .,,:;:~;:~;;;;:;;;:;~~--;;~:;:. ..,+&@#=;,                      ",
-  "               :-==*@%+=~, =-.   .:.::;;--====-==-==;~:::,   .--..;=##%%*-=;:                 ",
-  "            .~+#@%%#+==-:. ,=-.      ,.::;-=+#+*+-~~,,..   ..=-, .:~~--*##&%#=;:              ",
-  "         .,=*+*+====-==-~,  .--.       . .:;;~~~;;:..      .~+,  .;~;~+-=+=-=*#+-,.           ",
-  "        .-==---~-~~~;:;~~~:   ~-,          .,,::, .       .;=,  ,;~;~~-~~~~;~---=~~;,         ",
-  "      .;~~~;;;;:~~,,:,,:::;,.  :;.                       .;;, .::;~;:::::,~:;~:;;;;~:,        ",
+  "                                                      Y7xxJvjn1#jiiuvjft7l                                                      ",
+  "                                                  =,1a3C534Cw4hu3XbkoXaZ224**+                                                  ",
+  "                                                Yx42uLjnnC#j2ff1nnxvu#j1uXo124c7                                                ",
+  "                                              l#4n4#I#jJzuz1z=J4xvxu1fxu1lJjXII#X*                                              ",
+  "                                            jzIIU3Xviiu1nCIXu2#C32C2oo4#JYt14oo3k1Jf                                            ",
+  "                                      kc 7icCI3Iixx  r3xiXjIC3flxxj#1o2Y4X x1z  o#I#1L  f:                                      ",
+  "                                     o = u#ofCzLuojkv #aZZX2aanjkfa4CUZ2j z4nX42z4v1#zI 4Y=                                     ",
+  "*LC#u#4,                           1cY1xv#1fffu5dUCZpUj=7+JYxlvh=cvoxvYo44Uao33#CXXajuJuttj  r                         ,Yj142uf;",
+  "i1#h2oCXCUxtt=c+r                 +tL2tz=Ciz1InozxxtuI7Y1 ovI3iLiv1fJ#n *Yxf1zzJzz12j3jvYi4vtx                  cY+ttnUX24Iu141Y",
+  "    xf1=+n#6bkww52#nf   ,       7cjctj1Yu4co5z:xixvxf2iXCjwkhbf+33woXbufcxz2o3oC2JclvnICfcfILx                z4q%5b1c fllnl r  ",
+  "     rfo      ,7rzk0Um$bUt;t     +l1zzcj#xv4jZk0OaZbw#4h2I2vljC#71zu2r p20Ubk3d6kX0X3= J37;Cl Y      Ytt65&8p03x      =Cxt      ",
+  "        of3           *tXOppUXhanijzrI#l CaU3Z41njIzuankn2Xnvhnk3#4hknjh2nfY1irYCk4w5khXYI2fiiXnn66U5dmw5L+        rIua         ",
+  "        : Xuz ~*:          ouXaUCCox=XiX6h1iL          ii=nooItl  =11vj            ;j44hkif#1u3CCako#i          77vo#Y          ",
+  "          r1#Xv :            tjICCXIl3J23+    tJz1cfzf    *  ~:i=;;,      uzcvI11    ~:iCo1ofk#3nuvr         ;  fXfu7;          ",
+  "           txuaYv~l~*         r,xza1Y31t    1XZk0Uk0dUn=     tY#Czi7   *ICbdab95dwC#    Jj##zoIoJ,           txn4#lv            ",
+  "              ojCx=lniYJ        *Ytt#4Y* l#CuuxfzvJx1J1#n   Jjj3oC1z   hfLJYJxJilfnI21: Y13jt1j;        ;Ji*Iix4v               ",
+  "               7f2Uo  +crtl       jYfZiit1xv l+      Cr  L, czI34ooC:*t   5     lc  +11cJz#fJ2       JL=7=xLjkuj                ",
+  "                  jowwj:t: ;rr;~+7JtYknI#   lx10i1joXZx ++26pphhaa55wn2 cz#431Iz9#i l ~ n4nnl~   r*l7 *;junk2                   ",
+  "                  ,  jn65a3C:LI1vj r~#oC43L* =rrtYvl,  n#z7+ clvxtL it14r *;tYc:  viLvXohCtuY:ffznxic2jkanz ~                   ",
+  "                       lvn2k3koIYxll fzfjUu3ui*,Y7, *iU;,dc          =x2jf#  ~L=7cv=433kuIj **voI#C44ajI :*                     ",
+  "                           Iii7v=cYl 1clLnu#jC2v+;tI1ItcCkUknI#x YJoCZdXuznLi ctxIonofi1ciJ:lr;Jt+Yt7c                          ",
+  "                               v= :* 3tiirLL*inzrvCC  XhX#xoZj1fuXnC24fv2aYIXCl*YtczztLvvl:Cl   t                               ",
+  "                                     fcYv=rYc: ~zxJL#Z5n2a2uZb5aZCh25h3X23331C#uJ,   = J 7a                                     ",
+  "                                      it~==*+rtu=cu1v=    t#Ltz11;ti: r      jt72vxi7lt+n,                                      ",
+  "                                     t2j =cJ;7lJvcu   ttzuvvt7 ~*,~1xtt7fv1* lxt~xi7vYi 2jL                                     ",
+  "                                  x#2b5j  *j*r i1YJ +v#iJi1xJ2fIxfz#jzvuY~1jf JY=1l tr  C06nt                                   ",
+  "                               ,fbaZuf*     Lrrt:=*=Jx *rl r * +L  ~ 7tL*vJl7=+ ~1cI      24pdhx*                               ",
+  "                            ,LaU#2Yif  ,5       IL*z= JJzfr1ivLLlYY1:JcjvfvlJ*#iJ      b   t+x3ZXUut~                           ",
+  "                       *42hh3kXnYrI:   r3v~     :   rLl*=#tIxujjutvnfJz2r 1*;r  ,    t k    7Ixzvv35a4wCfl*                     ",
+  "                     on2bConI1xYxIv :   *Ct,        ~*+rrrLvJnzo2vu#zclJr==, ;      :4zx    *ciLvcJz1f4ukC4icL                  ",
+  "                  j21XuzfYYvIJzfvj1=i    1#2           , ,+*tJLJxc1cLct,*l          z3LL   lllvYYn1cfzjL1zu3o#vl                ",
+  "               *cf#2jizxzY1izJYvlijlix    7fu               L7Lr+lrl;*z            zxj     tJnL +fJi1xfcYxJfj1IC7c+             ",
+  "              tznvzLxYi:nlrjLvt:~fYvt1l*    2zx               *r*L=t             7tuj    rj7crJjxY1+cci7LYciL1tiJxxu~           ",
+  "           ,+xJYYYcYYcLltii*:;*7===*+tYl:    ct;                                =YLt   ;l7tciclr=lr=L;tcrtcY*ittJcti+,          ",
 ].join("\n");
 
 const COMPACT_YODA_ASCII = [
-  "                       .~+*#&&&%%&%&&%#+-,                         ",
-  "                   . .~+&#=+*%%###%%%+-%##-:                       ",
-  "                  ;;~*%%%%+*%&&&*#&@&*+&##&#-~;                 .. ",
-  "##=-~;;:.       .;=-+**#&%@*=+%#++#%*+%&&%%%#==~:         ;-;~=+++~",
-  ",-=~-=++#%#+~:,.;-==*&0&@&@&@&&@*%@%#&@@@@@&**=+~,.,:~+**+++~~=~, .",
-  "  .~~.  .,;=#&@@#++#&%+-~~~-+*#*+-*+=-;;;~=%%&***%@@%#=;,. .~=,    ",
-  "    ~*=:     .~+&**+~.;+##%~..,:=-,..:*#&#=;,-##%%+~.    :=+~.     ",
-  "      -++-;..   :+%~,==+--*+~,;*@@*:;=#=-++~;:*#=:   .,~=*-        ",
-  "       .-+**+~;;;;#%+;:-~;=-~-*%%%*+-~=~;--;-*%+:,~~~=++-,         ",
-  "          :-+*+=~;-+##+---~-*&-:,,,+&*-~~~=*%%+;:-+++=;.           ",
-  "               ,..~~~---~++*&&@@%%&0&&#*=-~~~~~~...                ",
-  "                  :-:::;-=-~~=++*=+=~--~--~;;~-                    ",
-  "               .-+%= ::;~;:;~~~~~;~~-~-;;~~:,,#*-:                 ",
-  "           ,::+##*::;  .::;:~~~-~~~~=-~:;:. .~.-%%*=;:,            ",
-  "        .;=%%##+=; ,-;    .,,;-+*++-~:,.   .=; .;-=##%#+~,         ",
-  "      .~+++=--~~-~:  ~;       .::;;,.     .-; .:~;-----=*+~:.      ",
-  "     :~-~~;;~::,::;:. ;:         .       .;: .:~;;;::;:~;~~~;.     ",
+  "          ,#l4ixXtj= J4*j4ru#lhzlCrI7o;  :t   2zt3xJ3Y1XL2zfo  v#r31i3L22  31xk*4=#o~     ",
+  "                                     if4##k3C43X2Xuz;                                     ",
+  "                                  =n#oo33oCnI#oI222a2nI~                                  ",
+  "                                l4aX#fzvjjxLofzjj1jlcX4XXl                                ",
+  "                           v ~r#4nux +#f4#X3zI##oC1n jzlouIl  L                           ",
+  "                          xt~2oouzC#4Yu3Xo32nI#C3kCijCCun2u#1*u~                          ",
+  "L3wkh1z                  z1Jx#xvnhhuaZ7+ xJif*xzxxljC#uIIoXoo1tu=t                rnu2XXkl",
+  "~ *f#xuoUXwanov+       tiijinzfCcxiYxjJ31aXh*Ih#hutc12oCuicxfnvvnL         =ri3p52Yv#Jz 7,",
+  "    YL     :YC3065Cu*: rJzvxinhaw9d565aa42c33IoX#l0b65kwU69XcfftI,J *=*CX6bahu=   ~vi     ",
+  "      1Xx        x2wU9wonluIXhuv       jx3onxrY##f7       JX5ZnIj1hk09UXIt      L#27      ",
+  "       rCkx         :f#kXc#u2   LxIx#z   ,  l:      u1jof,   YCIn43Cft       ;;XCf        ",
+  "         tXul*t=*      1112r  1ChkwXwhnv   c43f;  ##khaZX53i  iCffuc      = tv3f          ",
+  "           jCXct=       Yj3t*zz Y    #L*,+nokXh4**~=n   =Y Y1 xoz1     + :xzCoi           ",
+  "             ICknnx7,lrt7tCC#+  12xjIu YlCZ53XX4Cnlrv#fJ21, clXun~  l7r7vC2nv             ",
+  "               *#CZa43jv+ 1u4aIJr L; =viX        z2Lt :r txfaaCz+:nC43Ca4vt               ",
+  "                   Yt7Jlc:zltn#n3x:z1tv#hhuzt:inXZ22vxr=in#4zzJtc*,J:Lr=                  ",
+  "                      :   niY:7;llxu1zZh3#w5a5ZXU42a2X3ft;*=,c*fY                         ",
+  "                           x*rr==Jcf1x  *jJvIxlJ7r l, vvfxlrlrc                           ",
+  "                         lCh ;1=rxzJ ;Yxz1cYl7rjvtJYJl J,z*xt w4                          ",
+  "                      :3ZZ2t  ,r=Lt*;ztt===L7t*rriccvv,7*zc    XUUI;                      ",
+  "                    JZX#zc  2     i:i,LxzixiltLJlzfxxllxr    2  *Ikh32Y                   ",
+  "               luw5k3uJYc   nu       l=liv1u2#f2vJ1 L,:     Iz   YYJi2XkU3#               ",
+  "             2nXufixzJzIJl   j#        ~ :cxJJvJcc *       Io:  rYcr1iJ1J1oX4j+           ",
+  "          ,fIuzYcxYvvc=xzxJ   Jn+          ,7;L7 +        1I   LtzitzxizilYv1jIiY;        ",
+  "        ~tiJiYYcliYr=r=lrrct,  7Y,                      :tY* ~rcccLLLl7rYrYclYciic~       ",
 ].join("\n");
 
 type Screen =
@@ -775,9 +793,9 @@ function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
           margin: 0,
           whiteSpace: "pre",
           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-          fontSize: variant === "full" ? 7.4 : 6.1,
-          lineHeight: 1.08,
-          letterSpacing: 0.2,
+          fontSize: variant === "full" ? 7.4 : 6.2,
+          lineHeight: 1.05,
+          letterSpacing: 0.15,
           color: PALETTE.greenBright,
           textAlign: "center",
           userSelect: "none",
@@ -810,6 +828,73 @@ function JediMark({ size = 22, color = PALETTE.greenBright }: { size?: number; c
         flexShrink: 0,
       }}
     >✝</span>
+  );
+}
+
+const FEEDBACK_ISSUE_URL = "https://github.com/CriszelGipala-rh/yoda/issues/new?template=feedback.yml";
+
+function questionReportUrl(stem?: string): string {
+  if (!stem) return FEEDBACK_ISSUE_URL;
+  return `${FEEDBACK_ISSUE_URL}&title=${encodeURIComponent(`[Question]: ${stem.slice(0, 50)}...`)}&labels=question-report`;
+}
+
+/** GitHub question/report affordance — use canvas Link so it survives the host renderer. */
+function ReportQuestionLink({
+  stem,
+  label = "Report question",
+  compact = false,
+}: {
+  stem?: string;
+  label?: string;
+  compact?: boolean;
+}) {
+  return (
+    <Link
+      href={questionReportUrl(stem)}
+      style={{
+        color: PALETTE.warning,
+        fontSize: compact ? 12 : 13,
+        fontWeight: 700,
+        textDecoration: "none",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        padding: compact ? "8px 12px" : "10px 16px",
+        borderRadius: 12,
+        background: "rgba(255, 213, 109, 0.08)",
+        border: "1px solid rgba(255, 213, 109, 0.35)",
+        boxShadow: "0 0 12px rgba(255, 213, 109, 0.18), inset 0 0 20px rgba(255, 213, 109, 0.05)",
+        letterSpacing: 0.3,
+      }}
+    >
+      <span aria-hidden="true" style={{ fontSize: compact ? 14 : 16, color: PALETTE.warning }}>⚔</span>
+      <span>{label}</span>
+    </Link>
+  );
+}
+
+function FeedbackThoughtsLink({ label = "Thoughts, share you must" }: { label?: string }) {
+  return (
+    <Link
+      href={FEEDBACK_ISSUE_URL}
+      style={{
+        color: PALETTE.greenBright,
+        fontSize: 13,
+        fontWeight: 700,
+        textDecoration: "none",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "10px 16px",
+        borderRadius: 12,
+        background: "rgba(125, 255, 123, 0.08)",
+        border: "1px solid rgba(125, 255, 123, 0.28)",
+        boxShadow: "0 0 12px rgba(125, 255, 123, 0.15), inset 0 0 20px rgba(125, 255, 123, 0.05)",
+      }}
+    >
+      <span aria-hidden="true" style={{ fontSize: 18 }}>🗡️</span>
+      <span>{label}</span>
+    </Link>
   );
 }
 
@@ -848,6 +933,29 @@ function CouncilHomeButton({ onClick, label = "COUNCIL" }: { onClick: () => void
   );
 }
 
+function HolocronMark({ size = 22 }: { size?: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+        border: `1.5px solid ${PALETTE.greenBright}`,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: PALETTE.greenBright,
+        fontSize: size * 0.42,
+        fontWeight: 900,
+        boxShadow: `0 0 14px ${PALETTE.glow}`,
+        background: "rgba(4,16,10,0.95)",
+        flexShrink: 0,
+      }}
+    >⬡</span>
+  );
+}
+
 function ScreenShell({
   children,
   eyebrow,
@@ -855,6 +963,7 @@ function ScreenShell({
   mist = false,
   centerEyebrow = false,
   mark = false,
+  markKind = "jedi",
 }: {
   children: any;
   eyebrow?: string;
@@ -862,6 +971,7 @@ function ScreenShell({
   mist?: boolean;
   centerEyebrow?: boolean;
   mark?: boolean;
+  markKind?: "jedi" | "holocron";
 }) {
   return (
     <div
@@ -890,7 +1000,7 @@ function ScreenShell({
           ) : (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                {mark && <JediMark />}
+                {mark && (markKind === "holocron" ? <HolocronMark /> : <JediMark />)}
                 {eyebrow ? <SmallCaps>{eyebrow}</SmallCaps> : <span />}
               </div>
               {onCouncilHome && <CouncilHomeButton onClick={onCouncilHome} />}
@@ -1727,7 +1837,7 @@ function HolocronScreen({
   const progressHint = unlimited ? `${currentIndex + 1} · Unlimited` : `${currentIndex + 1} / ${qs.length}`;
   const eyebrow = unlimited
     ? `Holocron · Card ${currentIndex + 1} · Unlimited`
-    : `Holocron · Card ${currentIndex + 1} of ${qs.length}`;
+    : `Holocron · Card ${currentIndex + 1} · ${qs.length}`;
   const draft = drafts[question.id] || "";
   const submitted = guesses[question.id] || "";
   const hasSubmitted = submitted.trim().length > 0;
@@ -1753,7 +1863,7 @@ function HolocronScreen({
   };
 
   return (
-    <ScreenShell eyebrow={eyebrow} onCouncilHome={onCouncilHome} mark>
+    <ScreenShell eyebrow={eyebrow} onCouncilHome={onCouncilHome} mark markKind="holocron">
       <div style={{
         perspective: 1400,
         WebkitPerspective: 1400,
@@ -1805,24 +1915,39 @@ function HolocronScreen({
               }}
             >
               <div style={{
-                width: 58,
-                height: 58,
+                width: 64,
+                height: 64,
                 clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-                border: `2px solid ${PALETTE.green}`,
-                boxShadow: `0 0 24px rgba(77,255,0,0.55), inset 0 0 18px rgba(77,255,0,0.25)`,
+                border: `2px solid ${PALETTE.greenBright}`,
+                boxShadow: `0 0 28px rgba(77,255,0,0.65), 0 0 48px rgba(77,255,0,0.25), inset 0 0 22px rgba(77,255,0,0.35)`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: PALETTE.greenBright,
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: 900,
-                background: "rgba(4,16,10,0.9)",
+                background: "radial-gradient(circle at 40% 35%, rgba(77,255,0,0.35), rgba(4,16,10,0.95))",
                 flexShrink: 0,
-              }}>⬡</div>
-              <div style={{ color: PALETTE.greenBright, fontSize: 12, fontWeight: 800, letterSpacing: 2.2, textTransform: "uppercase" }}>
+              }}>
+                <span style={{
+                  width: 22,
+                  height: 22,
+                  border: `1.5px solid ${PALETTE.greenBright}`,
+                  transform: "rotate(45deg)",
+                  boxShadow: `0 0 10px ${PALETTE.glow}`,
+                }} />
+              </div>
+              <div style={{ color: PALETTE.greenBright, fontSize: 12, fontWeight: 800, letterSpacing: 2.2, textTransform: "uppercase", textShadow: `0 0 12px ${PALETTE.glow}` }}>
                 Holocron sealed
               </div>
-              <div style={{ color: PALETTE.textSoft, fontSize: 11, letterSpacing: 4 }}>◆ ◇ ◆ ◇ ◆</div>
+              <div style={{
+                color: PALETTE.green,
+                fontSize: 13,
+                letterSpacing: 3.5,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                textShadow: `0 0 10px ${PALETTE.glow}`,
+                opacity: 0.9,
+              }}>ᐅ ᐉ ᐊ ᐈ ᐃ · ᚠ ᚢ ᚦ ᚨ ᚱ</div>
               <div style={{
                 width: "100%",
                 marginTop: 4,
@@ -1946,7 +2071,19 @@ function HolocronScreen({
                     flexShrink: 0,
                   }} />
                   <span style={{ flex: 1, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 13 }}>{option.label}</span>
-                  <span style={{ color: PALETTE.textSoft, fontWeight: 800, fontSize: 13 }}>{index + 1}</span>
+                  <span style={{
+                    minWidth: 22,
+                    height: 22,
+                    borderRadius: 6,
+                    border: `1px solid ${selected ? PALETTE.greenBright : "rgba(255,255,255,0.18)"}`,
+                    color: selected ? PALETTE.greenBright : PALETTE.textSoft,
+                    fontWeight: 800,
+                    fontSize: 12,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: selected ? "rgba(77,255,0,0.12)" : "rgba(0,0,0,0.25)",
+                  }}>{index + 1}</span>
                 </button>
               );
             })}
@@ -2061,12 +2198,16 @@ function HolocronScreen({
         <ActionButton variant={isKnown ? "primary" : "secondary"} onClick={onToggleKnown}>
           {isKnown ? "★ Known" : "☆ Mark as known"}
         </ActionButton>
-        <ActionButton variant="secondary" onClick={onNext} disabled={!unlimited && isLast}>
+        <ActionButton variant="primary" onClick={onNext} disabled={!unlimited && isLast}>
           Next →
         </ActionButton>
         <ActionButton variant="danger" onClick={onBack}>
-          ■ End session
+          ▢ End session
         </ActionButton>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <ReportQuestionLink stem={question.stem} label="Wrong, something feels? Report to the Council" />
       </div>
     </ScreenShell>
   );
@@ -2184,15 +2325,15 @@ function QuizScreenView({
   const actionColumns = showHintButton || showHintsOff ? "1.5fr 1fr 1fr" : "1.5fr 1fr";
   const modeEyebrow = battleMode
     ? (unlimitedSession
-      ? `Battle · Q ${currentQ + 1} · Unlimited`
-      : `Battle · Q ${currentQ + 1} of ${qs.length}`)
+      ? `Battle • Q ${currentQ + 1} • Unlimited`
+      : `Battle • Q ${currentQ + 1} • ${qs.length}`)
     : trialMode
       ? (unlimitedSession
-        ? `Trial · Q ${currentQ + 1} · Unlimited`
-        : `Trial · Q ${currentQ + 1} of ${qs.length}`)
+        ? `Trial • Q ${currentQ + 1} • Unlimited`
+        : `Trial • Q ${currentQ + 1} • ${qs.length}`)
       : (unlimitedSession
-        ? `Training · Q ${currentQ + 1} · Unlimited`
-        : `Training · Q ${currentQ + 1} of ${qs.length}`);
+        ? `Training • Q ${currentQ + 1} • Unlimited`
+        : `Training • Q ${currentQ + 1} • ${qs.length}`);
   const focusProgressHint = unlimitedSession
     ? `Q ${currentQ + (showFeedback ? 1 : 0)} · Unlimited · Streak ${streak}`
     : `${currentQ + (showFeedback ? 1 : 0)}/${qs.length} · Streak ${streak}`;
@@ -2200,7 +2341,7 @@ function QuizScreenView({
     ? `${progress}% · Unlimited`
     : `${progress}%`;
   const sessionFinished = battleDefeated || trialEnded || trialCleared || (isLast && !unlimitedSession);
-  const primaryActionLabel = battleMode ? "⚔  Strike" : "Submit";
+  const primaryActionLabel = battleMode ? "⚔  Strike" : trialMode ? "Hold focus" : "Submit";
   const secondaryActionLabel = battleMode
     ? "Flee (−1 shield)"
     : trialMode
@@ -2461,42 +2602,46 @@ function QuizScreenView({
         </div>
       )}
 
-      {!showFeedback && !confirmExit && unlimitedSession && !battleDefeated && (
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-            type="button"
-            onClick={onEndSession}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: PALETTE.greenBright,
-              cursor: "pointer",
-              fontSize: 12,
-              fontWeight: 800,
-              letterSpacing: 1.6,
-              textTransform: "uppercase",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              textShadow: `0 0 12px ${PALETTE.glow}`,
-            }}
-          >
-            <span
-              aria-hidden="true"
+      {!showFeedback && !confirmExit && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <ReportQuestionLink stem={question.stem} label="Report question" compact />
+          {unlimitedSession && !battleDefeated ? (
+            <button
+              type="button"
+              onClick={onEndSession}
               style={{
-                width: 22,
-                height: 22,
-                borderRadius: "50%",
-                border: `1.5px solid ${PALETTE.greenBright}`,
+                background: "transparent",
+                border: "none",
+                color: PALETTE.greenBright,
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: 1.6,
+                textTransform: "uppercase",
                 display: "inline-flex",
                 alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                boxShadow: `0 0 12px rgba(77,255,0,0.35)`,
+                gap: 10,
+                textShadow: `0 0 12px ${PALETTE.glow}`,
+                marginLeft: "auto",
               }}
-            >✦</span>
-            {endSessionLabel}
-          </button>
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  border: `1.5px solid ${PALETTE.greenBright}`,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 11,
+                  boxShadow: `0 0 12px rgba(77,255,0,0.35)`,
+                }}
+              >✦</span>
+              {endSessionLabel}
+            </button>
+          ) : <span />}
         </div>
       )}
 
@@ -2571,32 +2716,7 @@ function QuizScreenView({
           )}
 
           <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
-            <a
-              href={`https://github.com/CriszelGipala-rh/yoda/issues/new?template=feedback.yml&title=${encodeURIComponent(`[Question]: ${question.stem.slice(0, 50)}...`)}&labels=question-report`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: PALETTE.warning,
-                fontSize: 13,
-                fontWeight: 600,
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "10px 16px",
-                borderRadius: 12,
-                background: "rgba(255, 213, 109, 0.08)",
-                border: "1px solid rgba(255, 213, 109, 0.25)",
-                boxShadow: "0 0 12px rgba(255, 213, 109, 0.15), inset 0 0 20px rgba(255, 213, 109, 0.05)",
-                transition: "all 0.2s ease",
-              }}
-            >
-              <span style={{ 
-                fontSize: 18,
-                filter: "drop-shadow(0 0 4px rgba(255, 213, 109, 0.6))",
-              }}>⚔️</span>
-              <span>Wrong, something feels? Report to the Council</span>
-            </a>
+            <ReportQuestionLink stem={question.stem} label="Wrong, something feels? Report to the Council" />
           </div>
         </div>
       )}
@@ -2736,31 +2856,7 @@ function ResultsScreen({
       </div>
 
       <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
-        <a
-          href="https://github.com/CriszelGipala-rh/yoda/issues/new?template=feedback.yml"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: PALETTE.greenBright,
-            fontSize: 13,
-            fontWeight: 600,
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 16px",
-            borderRadius: 12,
-            background: "rgba(125, 255, 123, 0.08)",
-            border: "1px solid rgba(125, 255, 123, 0.25)",
-            boxShadow: "0 0 12px rgba(125, 255, 123, 0.15), inset 0 0 20px rgba(125, 255, 123, 0.05)",
-          }}
-        >
-          <span style={{ 
-            fontSize: 20,
-            filter: "drop-shadow(0 0 6px rgba(125, 255, 123, 0.8))",
-          }}>🗡️</span>
-          <span>Thoughts, share you must</span>
-        </a>
+        <FeedbackThoughtsLink />
       </div>
     </ScreenShell>
   );
