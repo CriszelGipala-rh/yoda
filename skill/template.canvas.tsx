@@ -112,6 +112,25 @@ type TrainingStyle = "mcq" | "truefalse" | "short" | "realBattle" | "mixed";
 type ExplanationMode = "why" | "simple" | "example";
 type PlayMode = "training" | "battle" | "holocron" | "trial";
 
+/** Sentinel for Holocron / Trial sessions that continue until the learner stops. */
+const UNLIMITED_COUNT = 0;
+
+function isUnlimitedCount(count: number): boolean {
+  return count <= UNLIMITED_COUNT;
+}
+
+const MODE_TIMER_SECONDS: Record<PlayMode, number> = {
+  training: 0,
+  holocron: 0,
+  trial: 60,
+  battle: 45,
+};
+
+function defaultTimerForMode(mode: PlayMode, trainingTimerEnabled: boolean, trainingTimerSeconds: number): number {
+  if (mode === "training") return trainingTimerEnabled ? trainingTimerSeconds : 0;
+  return MODE_TIMER_SECONDS[mode];
+}
+
 const LEVELS: Array<{
   id: TrainingLevel;
   title: string;
@@ -161,7 +180,7 @@ function normalizeAnswer(value: string): string {
 
 function checkAnswer(userAnswer: string, correct: string | string[]): boolean {
   const normalized = normalizeAnswer(userAnswer);
-  if (!normalized || normalized === "__skipped__") return false;
+  if (!normalized || normalized === "__skipped__" || normalized === "__timeout__") return false;
   if (Array.isArray(correct)) {
     return correct.some(candidate => normalized === normalizeAnswer(candidate));
   }
@@ -223,9 +242,11 @@ function buildQuestionSet({
   seed: number;
   focusTopics?: string[];
 }): string[] {
+  const unlimited = isUnlimitedCount(count);
   const preferred = questions.filter(question => matchesLevel(question, level) && matchesStyle(question, style));
   const levelFallback = questions.filter(question => matchesLevel(question, level));
-  const pool = preferred.length >= Math.min(5, count) ? preferred : levelFallback;
+  const poolFloor = unlimited ? 1 : Math.min(5, count);
+  const pool = preferred.length >= poolFloor ? preferred : levelFallback;
   const shuffled = seededShuffle(pool, seed);
 
   const weighted = focusTopics.length === 0
@@ -243,7 +264,8 @@ function buildQuestionSet({
   weighted.forEach(addUnique);
   seededShuffle(questions, seed + 31).forEach(addUnique);
 
-  return selected.slice(0, Math.min(count, questions.length)).map(question => question.id);
+  const limit = unlimited ? selected.length : Math.min(count, questions.length);
+  return selected.slice(0, limit).map(question => question.id);
 }
 
 function getTopicScores(qs: Question[], answers: Record<string, string>) {
@@ -566,7 +588,43 @@ function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
   );
 }
 
-function ScreenShell({ children, eyebrow }: { children: any; eyebrow?: string }) {
+function CouncilHomeButton({ onClick, label = "Council" }: { onClick: () => void; label?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Return to Council — choose your training path"
+      title="Return to Council"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        borderRadius: 999,
+        border: `1px solid rgba(125,255,123,0.35)`,
+        background: "rgba(8,28,18,0.85)",
+        color: PALETTE.greenBright,
+        padding: "8px 14px",
+        cursor: "pointer",
+        fontWeight: 700,
+        fontSize: 13,
+        boxShadow: "0 0 14px rgba(125,255,123,0.12)",
+      }}
+    >
+      <span aria-hidden="true" style={{ fontSize: 15, lineHeight: 1 }}>⌂</span>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function ScreenShell({
+  children,
+  eyebrow,
+  onCouncilHome,
+}: {
+  children: any;
+  eyebrow?: string;
+  onCouncilHome?: () => void;
+}) {
   return (
     <div
       style={{
@@ -581,7 +639,12 @@ function ScreenShell({ children, eyebrow }: { children: any; eyebrow?: string })
       }}
     >
       <Stack gap={22}>
-        {eyebrow && <SmallCaps>{eyebrow}</SmallCaps>}
+        {(eyebrow || onCouncilHome) && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            {eyebrow ? <SmallCaps>{eyebrow}</SmallCaps> : <span />}
+            {onCouncilHome && <CouncilHomeButton onClick={onCouncilHome} />}
+          </div>
+        )}
         {children}
       </Stack>
     </div>
@@ -651,6 +714,46 @@ function ForceMeterBar({ value, battleMode = false }: { value: number; battleMod
       hint={`${value}%`}
       bladeColor={value < 30 ? PALETTE.warning : PALETTE.greenBright}
       danger={value < 15}
+    />
+  );
+}
+
+function LiveCountdown({
+  deadlineMs,
+  timerSeconds,
+  active,
+  onExpire,
+}: {
+  deadlineMs: number;
+  timerSeconds: number;
+  active: boolean;
+  onExpire: () => void;
+}) {
+  const [now, setNow] = useCanvasState<number>("countdownNow", Date.now());
+  const remainingMs = deadlineMs - now;
+  const remaining = Math.max(0, Math.ceil(remainingMs / 1000));
+  const pct = timerSeconds > 0 ? clamp(Math.round((remaining / timerSeconds) * 100), 0, 100) : 0;
+
+  if (active && deadlineMs > 0 && now < deadlineMs) {
+    const g = globalThis as any;
+    if (g.__yodaCountdown) clearTimeout(g.__yodaCountdown);
+    g.__yodaCountdown = setTimeout(() => {
+      const t = Date.now();
+      setNow(t);
+      if (t >= deadlineMs) onExpire();
+    }, 250);
+  }
+
+  if (!active || deadlineMs <= 0 || timerSeconds <= 0) return null;
+
+  const urgent = remaining <= 10;
+  return (
+    <LightsaberBar
+      label={remaining > 0 ? "Time remaining" : "Time expired"}
+      value={pct}
+      hint={remaining > 0 ? `${remaining}s` : "0s"}
+      bladeColor={urgent ? PALETTE.danger : PALETTE.warning}
+      danger={urgent}
     />
   );
 }
@@ -810,10 +913,10 @@ function LevelSelectScreen({
   const chosen = LEVELS.find(item => item.id === selected);
 
   return (
-    <ScreenShell eyebrow="Training level">
+    <ScreenShell eyebrow="Jedi Council · Choose your path">
       <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
         <YodaArt variant="compact" />
-        <HeadingBlock title="Choose your path, you must." subtitle="Pick a difficulty, then train normally — or enter a special mode." />
+        <HeadingBlock title="Choose your path, you must." subtitle="Return here anytime with Council. Pick a difficulty, then train normally — or enter a special mode." />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
@@ -835,8 +938,8 @@ function LevelSelectScreen({
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
           <SpecialModeCard
             title="Holocron Mode"
-            description="Flashcards · no pressure"
-            detail="Study concepts first. Flip to reveal wisdom."
+            description="Your count or unlimited · flashcards"
+            detail="Choose how many cards — or go unlimited and stop anytime. Flip to reveal wisdom. No timer."
             icon="📜"
             badge="Study"
             accent={PALETTE.info}
@@ -844,8 +947,8 @@ function LevelSelectScreen({
           />
           <SpecialModeCard
             title="Trial of Focus"
-            description="Streak until you miss"
-            detail="One mistake ends the trial. Focus, you must."
+            description="Your count or unlimited · 60s each"
+            detail="One mistake or timeout ends the trial. Pick a length — or unlimited, and end when you choose."
             icon="🌀"
             badge="Streak"
             accent={PALETTE.warning}
@@ -853,8 +956,8 @@ function LevelSelectScreen({
           />
           <SpecialModeCard
             title="Battle Mode"
-            description="5 questions · 3 shields"
-            detail={`Survive wrong answers. Path: ${chosen?.title || "Padawan"}.`}
+            description="Your count or unlimited · 3 shields · 45s"
+            detail={`Survive wrong answers and timeouts. Pick a length — or unlimited, and end when you choose. Path: ${chosen?.title || "Padawan"}.`}
             icon="⚔️"
             badge="Survive"
             accent={PALETTE.greenBright}
@@ -879,15 +982,17 @@ function StyleSelectScreen({
   initialStyle,
   onSelect,
   onBack,
+  onCouncilHome,
 }: {
   initialStyle: TrainingStyle;
   onSelect: (style: TrainingStyle) => void;
   onBack: () => void;
+  onCouncilHome: () => void;
 }) {
   const [selected, setSelected] = useCanvasState<TrainingStyle>("styleChoice", initialStyle);
 
   return (
-    <ScreenShell eyebrow="Quiz style">
+    <ScreenShell eyebrow="Quiz style" onCouncilHome={onCouncilHome}>
       <HeadingBlock title="Choose your training style." subtitle="Quick Wisdom, Truth Test, Speak, You Must, Real Battle, or a balanced mixed challenge." />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14 }}>
@@ -925,34 +1030,92 @@ function SettingsScreen({
   questionCount,
   hintsEnabled,
   instantExplanations,
+  timerEnabled,
+  timerSeconds,
+  playMode,
   onQuestionCount,
   onToggleHints,
   onToggleExplanations,
+  onToggleTimer,
+  onTimerSeconds,
   onStart,
   onBack,
+  onCouncilHome,
 }: {
   questionCount: number;
   hintsEnabled: boolean;
   instantExplanations: boolean;
+  timerEnabled: boolean;
+  timerSeconds: number;
+  playMode: PlayMode;
   onQuestionCount: (value: number) => void;
   onToggleHints: () => void;
   onToggleExplanations: () => void;
+  onToggleTimer: () => void;
+  onTimerSeconds: (value: number) => void;
   onStart: () => void;
   onBack: () => void;
+  onCouncilHome: () => void;
 }) {
-  return (
-    <ScreenShell eyebrow="Optional settings">
-      <HeadingBlock title="Shape your training, you may." subtitle="Keep the defaults for a balanced experience, or tune the session before the quiz begins." />
+  const battleSetup = playMode === "battle";
+  const holocronSetup = playMode === "holocron";
+  const trialSetup = playMode === "trial";
+  const modeSetup = battleSetup || holocronSetup || trialSetup;
+  const allowsUnlimited = battleSetup || holocronSetup || trialSetup;
+  const unlimitedSelected = isUnlimitedCount(questionCount);
+  const eyebrow = battleSetup
+    ? "Battle settings"
+    : holocronSetup
+      ? "Holocron settings"
+      : trialSetup
+        ? "Trial settings"
+        : "Optional settings";
+  const title = battleSetup
+    ? "Ready for battle, are you?"
+    : holocronSetup
+      ? "Open the holocron, you may."
+      : trialSetup
+        ? "Begin the trial, you will?"
+        : "Shape your training, you may.";
+  const subtitle = battleSetup
+    ? "Choose how many challenges you face — or unlimited survival. Three shields, 45 seconds each. End the battle anytime."
+    : holocronSetup
+      ? "Choose how many cards to study — or unlimited, and stop anytime. No score, no timer — only wisdom."
+      : trialSetup
+        ? "Choose a streak length — or unlimited focus. One mistake ends the trial; you may also stop anytime."
+        : "Keep the defaults for a balanced experience, or tune the session before the quiz begins.";
+  const startLabel = battleSetup
+    ? "Begin Battle"
+    : holocronSetup
+      ? "Open Holocron"
+      : trialSetup
+        ? "Begin Trial"
+        : "Begin Quiz";
+  const countLabel = holocronSetup ? "Number of cards" : "Number of questions";
+  const countOptions = allowsUnlimited ? [5, 10, 15, UNLIMITED_COUNT] : [5, 10, 15];
+  const countColumns = allowsUnlimited ? "repeat(4, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))";
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 14 }}>
+  return (
+    <ScreenShell eyebrow={eyebrow} onCouncilHome={onCouncilHome}>
+      <HeadingBlock title={title} subtitle={subtitle} />
+
+      <div style={{ display: "grid", gridTemplateColumns: modeSetup ? "1fr" : "1.1fr 1fr", gap: 14 }}>
         <Panel>
-          <div style={{ color: PALETTE.text, fontWeight: 700, marginBottom: 14 }}>Number of questions</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
-            {[5, 10, 15].map(count => (
+          <div style={{ color: PALETTE.text, fontWeight: 700, marginBottom: 14 }}>{countLabel}</div>
+          <div style={{ display: "grid", gridTemplateColumns: countColumns, gap: 10 }}>
+            {countOptions.map(count => (
               <SelectableCard
-                key={count}
-                title={`${count}`}
-                description={count === 5 ? "Quick session" : count === 10 ? "Balanced session" : "Deep training"}
+                key={count === UNLIMITED_COUNT ? "unlimited" : count}
+                title={count === UNLIMITED_COUNT ? "∞" : `${count}`}
+                description={
+                  count === UNLIMITED_COUNT
+                    ? "Until you stop"
+                    : count === 5
+                      ? "Quick session"
+                      : count === 10
+                        ? "Balanced session"
+                        : "Deep training"
+                }
                 isSelected={questionCount === count}
                 onSelect={() => onQuestionCount(count)}
               />
@@ -960,32 +1123,92 @@ function SettingsScreen({
           </div>
         </Panel>
 
-        <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 14 }}>
-          <SelectableCard
-            title="Use the Force"
-            description={hintsEnabled ? "Hints are available" : "Hints are disabled"}
-            detail="Hints guide the learner without revealing the answer directly."
-            icon="💡"
-            isSelected={hintsEnabled}
-            onSelect={onToggleHints}
-          />
-          <SelectableCard
-            title="Immediate explanations"
-            description={instantExplanations ? "Show after each answer" : "Save explanations for review"}
-            detail="The learner can still review every mistake after the quiz."
-            icon="📚"
-            isSelected={instantExplanations}
-            onSelect={onToggleExplanations}
-          />
-        </div>
+        {!modeSetup && (
+          <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 14 }}>
+            <SelectableCard
+              title="Use the Force"
+              description={hintsEnabled ? "Hints are available" : "Hints are disabled"}
+              detail="Hints guide the learner without revealing the answer directly."
+              icon="💡"
+              isSelected={hintsEnabled}
+              onSelect={onToggleHints}
+            />
+            <SelectableCard
+              title="Immediate explanations"
+              description={instantExplanations ? "Show after each answer" : "Save explanations for review"}
+              detail="The learner can still review every mistake after the quiz."
+              icon="📚"
+              isSelected={instantExplanations}
+              onSelect={onToggleExplanations}
+            />
+          </div>
+        )}
       </div>
+
+      {battleSetup ? (
+        <InfoBox title="Battle rules" tone="warning">
+          {unlimitedSelected
+            ? "Unlimited battle · 3 shields · 45 seconds each · end anytime to claim your results. Hints, there are none."
+            : `${questionCount} questions · 3 shields · 45 seconds each. Hints, there are none.`}
+        </InfoBox>
+      ) : holocronSetup ? (
+        <InfoBox title="Holocron rules" tone="info">
+          {unlimitedSelected
+            ? "Unlimited cards · flip to reveal · stop anytime · no timer · no score pressure."
+            : `${questionCount} cards · flip to reveal · no timer · no score pressure.`}
+        </InfoBox>
+      ) : trialSetup ? (
+        <InfoBox title="Trial rules" tone="warning">
+          {unlimitedSelected
+            ? "Unlimited focus · 60 seconds each · one miss ends it · end the trial anytime to keep your streak."
+            : `${questionCount} questions · 60 seconds each · one miss or timeout ends the trial.`}
+        </InfoBox>
+      ) : (
+        <Panel>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+            <div>
+              <div style={{ color: PALETTE.text, fontWeight: 700 }}>Question timer</div>
+              <div style={{ color: PALETTE.textSoft, fontSize: 14 }}>
+                Optional for training. Battle uses 45s and Trial uses 60s automatically.
+              </div>
+            </div>
+            <ActionButton variant={timerEnabled ? "primary" : "secondary"} onClick={onToggleTimer}>
+              {timerEnabled ? "Timer on" : "Timer off"}
+            </ActionButton>
+          </div>
+          {timerEnabled && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+              {[30, 45, 60].map(seconds => (
+                <SelectableCard
+                  key={seconds}
+                  title={`${seconds}s`}
+                  description={seconds === 30 ? "Quick pace" : seconds === 45 ? "Balanced" : "Thoughtful"}
+                  isSelected={timerSeconds === seconds}
+                  onSelect={() => onTimerSeconds(seconds)}
+                />
+              ))}
+            </div>
+          )}
+        </Panel>
+      )}
 
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <ActionButton variant="secondary" onClick={onBack}>Back</ActionButton>
-        <ActionButton variant="primary" onClick={onStart}>Begin Quiz</ActionButton>
+        <ActionButton variant="primary" onClick={onStart}>{startLabel}</ActionButton>
       </div>
     </ScreenShell>
   );
+}
+
+function HolocronGuessLabel(question: Question, guess: string): string {
+  if (!guess.trim()) return "";
+  if (question.type === "mcq" && question.options) {
+    return question.options.find(option => option.value === guess)?.label || guess;
+  }
+  if (question.type === "truefalse") {
+    return guess === "true" ? "True" : guess === "false" ? "False" : guess;
+  }
+  return guess;
 }
 
 function HolocronScreen({
@@ -993,77 +1216,358 @@ function HolocronScreen({
   currentIndex,
   revealed,
   knownIds,
-  onReveal,
+  guesses,
+  drafts,
+  unlimited,
+  onDraft,
+  onSubmitGuess,
+  onToggleFlip,
   onNext,
   onPrev,
   onToggleKnown,
-  onStartQuiz,
   onBack,
+  onCouncilHome,
 }: {
   qs: Question[];
   currentIndex: number;
   revealed: boolean;
   knownIds: Record<string, boolean>;
-  onReveal: () => void;
+  guesses: Record<string, string>;
+  drafts: Record<string, string>;
+  unlimited: boolean;
+  onDraft: (value: string) => void;
+  onSubmitGuess: () => void;
+  onToggleFlip: () => void;
   onNext: () => void;
   onPrev: () => void;
   onToggleKnown: () => void;
-  onStartQuiz: () => void;
   onBack: () => void;
+  onCouncilHome: () => void;
 }) {
   const question = qs[currentIndex];
   if (!question) return null;
   const knownCount = Object.values(knownIds).filter(Boolean).length;
-  const progress = Math.round(((currentIndex + 1) / qs.length) * 100);
+  const progress = unlimited
+    ? clamp(((currentIndex % 10) + 1) * 10, 10, 100)
+    : Math.round(((currentIndex + 1) / qs.length) * 100);
   const isKnown = Boolean(knownIds[question.id]);
+  const isLast = currentIndex >= qs.length - 1;
+  const progressHint = unlimited ? `${currentIndex + 1} · Unlimited` : `${currentIndex + 1}/${qs.length}`;
+  const eyebrow = unlimited
+    ? `Holocron · Card ${currentIndex + 1} · Unlimited`
+    : `Holocron · Card ${currentIndex + 1} of ${qs.length}`;
+  const draft = drafts[question.id] || "";
+  const submitted = guesses[question.id] || "";
+  const hasSubmitted = submitted.trim().length > 0;
+  const guessCorrect = hasSubmitted && checkAnswer(submitted, question.correct);
+  const guessLabel = HolocronGuessLabel(question, submitted);
+  const canSubmit = draft.trim().length > 0;
+
+  const faceBase: any = {
+    position: "absolute",
+    inset: 0,
+    borderRadius: 22,
+    padding: "28px 24px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
+    textAlign: "center",
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden",
+    border: `1px solid ${PALETTE.borderStrong}`,
+    boxShadow: `0 0 0 1px ${PALETTE.glow}, 0 18px 48px rgba(0,0,0,0.4)`,
+    boxSizing: "border-box",
+    overflow: "auto",
+  };
 
   return (
-    <ScreenShell eyebrow={`Holocron · Card ${currentIndex + 1} of ${qs.length}`}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" }}>
-        <YodaArt variant="compact" />
-        <HeadingBlock
-          title="Open the holocron, you may."
-          subtitle="Study first. Flip for the answer. No score, only wisdom."
-        />
-      </div>
+    <ScreenShell eyebrow={eyebrow} onCouncilHome={onCouncilHome}>
+      <HeadingBlock
+        title="Open the holocron, you may."
+        subtitle={
+          unlimited
+            ? "Tap the card to flip and reveal the answer. Study as long as you wish — end the session anytime."
+            : "Tap the card to flip and reveal the answer. Answering below is optional."
+        }
+      />
 
-      <LightsaberBar label="Archive progress" value={progress} hint={`${currentIndex + 1}/${qs.length}`} bladeColor={PALETTE.info} />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+      <LightsaberBar label="Archive progress" value={progress} hint={progressHint} bladeColor={PALETTE.info} />
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <Chip tone="info">{knownCount} marked known</Chip>
         <Chip>{labelCase(question.difficulty)}</Chip>
         <Chip>{question.topic}</Chip>
+        {hasSubmitted && <Chip tone="success" active>Answer sealed</Chip>}
       </div>
 
-      <Panel selected={revealed}>
-        <div style={{ color: PALETTE.info, fontWeight: 700, marginBottom: 10 }}>
-          {revealed ? "Holocron opened" : "Holocron sealed"}
-        </div>
-        <div style={{ color: PALETTE.white, fontSize: 22, fontWeight: 800, lineHeight: 1.35, marginBottom: 16 }}>
-          {question.stem}
-        </div>
+      <div style={{ perspective: 1400, WebkitPerspective: 1400, width: "100%", maxWidth: 640, margin: "0 auto" }}>
+        <button
+          type="button"
+          onClick={onToggleFlip}
+          aria-label={revealed ? "Flip card back to question" : "Flip card to reveal answer"}
+          aria-pressed={revealed}
+          style={{
+            width: "100%",
+            height: 400,
+            border: "none",
+            padding: 0,
+            background: "transparent",
+            cursor: "pointer",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              transformStyle: "preserve-3d",
+              WebkitTransformStyle: "preserve-3d",
+              transition: "transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1)",
+              transform: revealed ? "rotateY(180deg)" : "rotateY(0deg)",
+            }}
+          >
+            {/* Front — question only */}
+            <div
+              style={{
+                ...faceBase,
+                background: `radial-gradient(circle at top, rgba(26,60,39,0.9), rgba(4,17,11,0.98) 55%), linear-gradient(180deg, ${PALETTE.panelRaised}, ${PALETTE.bg})`,
+                transform: "rotateY(0deg)",
+              }}
+            >
+              <YodaArt variant="compact" />
+              <div style={{ color: PALETTE.info, fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>
+                Holocron sealed
+              </div>
+              <div style={{ color: PALETTE.white, fontSize: 22, fontWeight: 800, lineHeight: 1.35, maxWidth: 520 }}>
+                {question.stem}
+              </div>
+              <div style={{ color: PALETTE.greenBright, fontSize: 14, fontWeight: 700 }}>
+                Tap to flip · reveal the answer, you will
+              </div>
+            </div>
 
-        {!revealed ? (
-          <ActionButton variant="primary" onClick={onReveal} fullWidth>Reveal Wisdom</ActionButton>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <InfoBox title="Answer" tone="success">{getCorrectAnswerLabel(question)}</InfoBox>
-            <InfoBox title="Why" tone="info">{question.explanation}</InfoBox>
-            <InfoBox title="Simpler, make it" tone="info">{question.simpleExplanation}</InfoBox>
+            {/* Back — answer */}
+            <div
+              style={{
+                ...faceBase,
+                background: `radial-gradient(circle at top, rgba(40,80,50,0.95), rgba(6,22,14,0.98) 55%), linear-gradient(180deg, ${PALETTE.greenFill}, ${PALETTE.bg})`,
+                border: `1px solid ${hasSubmitted ? (guessCorrect ? "rgba(125,255,123,0.65)" : "rgba(255,213,109,0.55)") : "rgba(125,255,123,0.55)"}`,
+                boxShadow: hasSubmitted && guessCorrect
+                  ? "0 0 28px rgba(125,255,123,0.28), 0 18px 48px rgba(0,0,0,0.4)"
+                  : "0 0 28px rgba(125,255,123,0.18), 0 18px 48px rgba(0,0,0,0.4)",
+                transform: "rotateY(180deg)",
+                justifyContent: "flex-start",
+                gap: 14,
+              }}
+            >
+              <YodaArt variant="compact" />
+              <div style={{ color: PALETTE.greenBright, fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>
+                Holocron opened
+              </div>
+
+              {hasSubmitted && (
+                <div
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px",
+                    borderRadius: 14,
+                    border: `1px solid ${guessCorrect ? "rgba(125,255,123,0.4)" : "rgba(255,213,109,0.4)"}`,
+                    background: guessCorrect ? "rgba(125,255,123,0.1)" : "rgba(255,213,109,0.1)",
+                    color: guessCorrect ? PALETTE.greenBright : PALETTE.warning,
+                    fontWeight: 800,
+                    fontSize: 15,
+                  }}
+                >
+                  {guessCorrect ? "Strong, your memory is." : "Not quite — learn from it, you will."}
+                </div>
+              )}
+
+              <div style={{ width: "100%", textAlign: "left", display: "flex", flexDirection: "column", gap: 12 }}>
+                {hasSubmitted ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div
+                      style={{
+                        padding: 12,
+                        borderRadius: 12,
+                        background: "rgba(255,255,255,0.04)",
+                        border: `1px solid ${guessCorrect ? "rgba(125,255,123,0.35)" : "rgba(255,143,145,0.35)"}`,
+                      }}
+                    >
+                      <div style={{ color: PALETTE.textSoft, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Your answer</div>
+                      <div style={{ color: guessCorrect ? PALETTE.greenBright : PALETTE.danger, fontWeight: 800, fontSize: 15, lineHeight: 1.35 }}>
+                        {guessLabel}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        padding: 12,
+                        borderRadius: 12,
+                        background: "rgba(125,255,123,0.08)",
+                        border: "1px solid rgba(125,255,123,0.35)",
+                      }}
+                    >
+                      <div style={{ color: PALETTE.textSoft, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Correct answer</div>
+                      <div style={{ color: PALETTE.greenBright, fontWeight: 800, fontSize: 15, lineHeight: 1.35 }}>
+                        {getCorrectAnswerLabel(question)}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ color: PALETTE.textSoft, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Answer</div>
+                    <div style={{ color: PALETTE.greenBright, fontSize: 22, fontWeight: 800, lineHeight: 1.3 }}>
+                      {getCorrectAnswerLabel(question)}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <div style={{ color: PALETTE.textSoft, fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Why</div>
+                  <div style={{ color: PALETTE.textMuted, fontSize: 14, lineHeight: 1.55 }}>
+                    {question.explanation}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ color: PALETTE.textSoft, fontSize: 13, fontWeight: 600, marginTop: "auto" }}>
+                Tap again to flip back
+              </div>
+            </div>
           </div>
-        )}
-      </Panel>
+        </button>
+      </div>
+
+      {!revealed && (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 640,
+            margin: "0 auto",
+            padding: 16,
+            borderRadius: 18,
+            border: "1px solid rgba(147,215,255,0.22)",
+            background: "linear-gradient(180deg, rgba(147,215,255,0.07), rgba(8,28,18,0.45))",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
+            <div style={{ color: PALETTE.info, fontSize: 13, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase" }}>
+              Your answer · optional
+            </div>
+            <div style={{ color: PALETTE.textSoft, fontSize: 13 }}>
+              Submit if you wish — then tap the card to flip
+            </div>
+          </div>
+
+          {question.type === "mcq" && question.options && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+              {question.options.map(option => {
+                const selected = draft === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onDraft(option.value)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "11px 14px",
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      border: `1px solid ${selected ? "rgba(125,255,123,0.65)" : "rgba(255,255,255,0.12)"}`,
+                      background: selected
+                        ? "linear-gradient(90deg, rgba(125,255,123,0.18), rgba(125,255,123,0.05))"
+                        : "rgba(255,255,255,0.03)",
+                      color: selected ? PALETTE.greenBright : PALETTE.text,
+                      fontWeight: selected ? 800 : 600,
+                      fontSize: 14,
+                      boxShadow: selected ? "0 0 16px rgba(125,255,123,0.2)" : "none",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {question.type === "truefalse" && (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+              {["true", "false"].map(value => {
+                const selected = draft === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => onDraft(value)}
+                    style={{
+                      padding: "14px 12px",
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      border: `1px solid ${selected ? "rgba(125,255,123,0.65)" : "rgba(255,255,255,0.12)"}`,
+                      background: selected
+                        ? "linear-gradient(180deg, rgba(125,255,123,0.22), rgba(125,255,123,0.06))"
+                        : "rgba(255,255,255,0.03)",
+                      color: selected ? PALETTE.greenBright : PALETTE.text,
+                      fontWeight: 800,
+                      fontSize: 15,
+                      boxShadow: selected ? "0 0 16px rgba(125,255,123,0.2)" : "none",
+                    }}
+                  >
+                    {value === "true" ? "True" : "False"}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {(question.type === "short" || question.type === "fillinblank") && (
+            <input
+              value={draft}
+              onChange={(event: any) => onDraft(event.target.value)}
+              placeholder="Type what you remember..."
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                padding: "13px 14px",
+                borderRadius: 12,
+                border: "1px solid rgba(125,255,123,0.35)",
+                background: "rgba(0,0,0,0.28)",
+                color: PALETTE.text,
+                fontSize: 15,
+                fontWeight: 600,
+                outline: "none",
+                boxShadow: "0 0 18px rgba(125,255,123,0.12)",
+                marginBottom: 12,
+              }}
+            />
+          )}
+
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <ActionButton variant="primary" onClick={onSubmitGuess} disabled={!canSubmit}>
+              {hasSubmitted ? "Update answer" : "Submit answer"}
+            </ActionButton>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
         <ActionButton variant="secondary" onClick={onPrev} disabled={currentIndex === 0}>Previous</ActionButton>
         <ActionButton variant={isKnown ? "primary" : "secondary"} onClick={onToggleKnown}>
           {isKnown ? "Known, this is" : "Mark as known"}
         </ActionButton>
-        <ActionButton variant="secondary" onClick={onNext} disabled={currentIndex >= qs.length - 1}>Next</ActionButton>
+        <ActionButton variant="secondary" onClick={onNext} disabled={!unlimited && isLast}>
+          {unlimited && isLast ? "Next · keep studying" : "Next"}
+        </ActionButton>
       </div>
 
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <ActionButton variant="ghost" onClick={onBack}>Back to Path</ActionButton>
-        <ActionButton variant="primary" onClick={onStartQuiz}>Ready, I am — Begin Quiz</ActionButton>
+        {(isLast || unlimited) && (
+          <ActionButton variant="primary" onClick={onBack}>
+            {unlimited ? "End session · Return to Council" : "Done studying · Return to Council"}
+          </ActionButton>
+        )}
       </div>
     </ScreenShell>
   );
@@ -1075,6 +1579,7 @@ function QuizScreenView({
   answers,
   outcomes,
   skipped,
+  timedOut,
   showFeedback,
   streak,
   maxStreak,
@@ -1086,6 +1591,10 @@ function QuizScreenView({
   adaptationMessage,
   playMode,
   lives,
+  timerSeconds,
+  questionDeadline,
+  confirmExit,
+  unlimitedSession,
   onAnswer,
   onSubmitAnswer,
   onSkip,
@@ -1093,12 +1602,18 @@ function QuizScreenView({
   onHint,
   onExplanation,
   onFinish,
+  onTimeout,
+  onRequestExit,
+  onCancelExit,
+  onConfirmExit,
+  onEndSession,
 }: {
   qs: Question[];
   currentQ: number;
   answers: Record<string, string>;
   outcomes: Record<string, boolean>;
   skipped: Record<string, boolean>;
+  timedOut: Record<string, boolean>;
   showFeedback: boolean;
   streak: number;
   maxStreak: number;
@@ -1110,6 +1625,10 @@ function QuizScreenView({
   adaptationMessage: string;
   playMode: PlayMode;
   lives: number;
+  timerSeconds: number;
+  questionDeadline: number;
+  confirmExit: boolean;
+  unlimitedSession: boolean;
   onAnswer: (value: string) => void;
   onSubmitAnswer: () => void;
   onSkip: () => void;
@@ -1117,9 +1636,15 @@ function QuizScreenView({
   onHint: () => void;
   onExplanation: (mode: ExplanationMode) => void;
   onFinish: () => void;
+  onTimeout: () => void;
+  onRequestExit: () => void;
+  onCancelExit: () => void;
+  onConfirmExit: () => void;
+  onEndSession: () => void;
 }) {
   const battleMode = playMode === "battle";
   const trialMode = playMode === "trial";
+  const timerActive = timerSeconds > 0 && !showFeedback && !confirmExit;
   const question = qs[currentQ];
   if (!question) return null;
 
@@ -1129,12 +1654,19 @@ function QuizScreenView({
   const hintsAvailable = Math.max(0, question.hints.length - hintCount);
   const isCorrect = outcomes[question.id] ?? checkAnswer(answer, question.correct);
   const isSkipped = Boolean(skipped[question.id]);
+  const isTimedOut = Boolean(timedOut[question.id]);
   const explanation = explanationMode[question.id] || "why";
-  const progress = Math.round(((currentQ + (showFeedback ? 1 : 0)) / qs.length) * 100);
+  const progress = unlimitedSession
+    ? clamp(Math.max(streak, currentQ + (showFeedback && isCorrect ? 1 : 0)) * 10, 5, 100)
+    : Math.round(((currentQ + (showFeedback ? 1 : 0)) / qs.length) * 100);
   const currentStreak = isCorrect ? streak + 1 : 0;
-  const baseIncrement = Math.round(100 / qs.length);
+  const baseIncrement = Math.round(100 / Math.max(1, unlimitedSession ? 10 : qs.length));
   const streakBonusVisible = isCorrect && currentStreak > 0 && currentStreak % 3 === 0 ? Math.round(baseIncrement * 0.3) : 0;
-  const forceChange = isSkipped ? -Math.round(baseIncrement * 0.2) : isCorrect ? baseIncrement + streakBonusVisible : -Math.round(baseIncrement * 0.4);
+  const forceChange = isSkipped || isTimedOut
+    ? -Math.round(baseIncrement * 0.2)
+    : isCorrect
+      ? baseIncrement + streakBonusVisible
+      : -Math.round(baseIncrement * 0.4);
   const forceLabel = forceChange > 0
     ? streakBonusVisible > 0
       ? `Force +${forceChange}% (streak bonus!)`
@@ -1143,14 +1675,28 @@ function QuizScreenView({
       ? ""
       : `Force ${forceChange}%`;
   const battleDefeated = battleMode && lives <= 0;
-  const trialEnded = trialMode && showFeedback && (!isCorrect || isSkipped);
-  const trialCleared = trialMode && showFeedback && isCorrect && isLast;
+  const trialEnded = trialMode && showFeedback && (!isCorrect || isSkipped || isTimedOut);
+  const trialCleared = trialMode && showFeedback && isCorrect && isLast && !unlimitedSession;
   const canUseHints = hintsEnabled && playMode === "training";
   const modeEyebrow = battleMode
-    ? `Battle · Question ${currentQ + 1} of ${qs.length}`
+    ? (unlimitedSession
+      ? `Battle · Q ${currentQ + 1} · Unlimited`
+      : `Battle · Question ${currentQ + 1} of ${qs.length}`)
     : trialMode
-      ? `Trial of Focus · Streak ${streak}`
+      ? (unlimitedSession
+        ? `Trial of Focus · Q ${currentQ + 1} · Unlimited · Streak ${streak}`
+        : `Trial of Focus · Streak ${streak}`)
       : `Question ${currentQ + 1} of ${qs.length}`;
+  const focusProgressHint = unlimitedSession
+    ? `Q ${currentQ + (showFeedback ? 1 : 0)} · Unlimited · Streak ${streak}`
+    : `${currentQ + (showFeedback ? 1 : 0)}/${qs.length} · Streak ${streak}`;
+  const battleProgressHint = unlimitedSession
+    ? `Q ${currentQ + (showFeedback ? 1 : 0)} · Unlimited`
+    : `${progress}%`;
+  const sessionFinished = battleDefeated || trialEnded || trialCleared || (isLast && !unlimitedSession);
+  const endSessionLabel = battleMode
+    ? "End battle · claim results"
+    : "End trial · keep streak";
 
   let reaction = battleMode
     ? "Ready for battle, are you?"
@@ -1160,6 +1706,7 @@ function QuizScreenView({
   if (showFeedback && battleDefeated) reaction = "Fallen, your shields have. Stronger return, you will.";
   else if (showFeedback && trialEnded) reaction = "Broken, the streak is. Focus again, you will.";
   else if (showFeedback && trialCleared) reaction = "Unbroken focus. Complete the trial, you have.";
+  else if (showFeedback && isTimedOut) reaction = "Too slow, the Force waits for no one.";
   else if (showFeedback && isSkipped) reaction = "Skipped, this question was. Learn from it, you still can.";
   else if (showFeedback && isCorrect) reaction = YODA_MESSAGES.correct[currentQ % YODA_MESSAGES.correct.length];
   else if (showFeedback) reaction = YODA_MESSAGES.incorrect[currentQ % YODA_MESSAGES.incorrect.length];
@@ -1172,21 +1719,23 @@ function QuizScreenView({
         ? "Focused Padawan"
         : `Jedi Focus: ${streak}`;
 
-  const feedbackTone = battleDefeated || trialEnded ? "danger" : isSkipped ? "warning" : isCorrect ? "success" : "danger";
+  const feedbackTone = battleDefeated || trialEnded || isTimedOut ? "danger" : isSkipped ? "warning" : isCorrect ? "success" : "danger";
   const feedbackTitle = battleDefeated
     ? "Defeated, you are."
     : trialEnded
       ? "Trial ended."
       : trialCleared
         ? "Trial complete."
-        : isSkipped
-          ? "Question skipped"
-          : isCorrect
-            ? "Correct, you are."
-            : "Not quite";
+        : isTimedOut
+          ? "Time expired."
+          : isSkipped
+            ? "Question skipped"
+            : isCorrect
+              ? "Correct, you are."
+              : "Not quite";
 
   return (
-    <ScreenShell eyebrow={modeEyebrow}>
+    <ScreenShell eyebrow={modeEyebrow} onCouncilHome={onRequestExit}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <div style={{ color: PALETTE.textSoft, fontSize: 14 }}>
           {battleMode ? "Battle progress" : trialMode ? "Focus progress" : "Training progress"}
@@ -1197,14 +1746,38 @@ function QuizScreenView({
         </div>
       </div>
 
+      {confirmExit && (
+        <InfoBox title="Return to the Council, you will?" tone="warning">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>Progress for this attempt, lost it will be. Choose your path again at the Council, you may.</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <ActionButton variant="secondary" onClick={onCancelExit}>Stay and continue</ActionButton>
+              <ActionButton variant="primary" onClick={onConfirmExit}>Yes, to the Council</ActionButton>
+            </div>
+          </div>
+        </InfoBox>
+      )}
+
       <LightsaberBar
         label={trialMode ? "Focus Blade" : "Progress Blade"}
         value={progress}
-        hint={trialMode ? `${currentQ + (showFeedback ? 1 : 0)}/${qs.length} · Streak ${streak}` : `${progress}%`}
+        hint={trialMode ? focusProgressHint : battleMode ? battleProgressHint : `${progress}%`}
         bladeColor={trialMode ? PALETTE.warning : PALETTE.greenBright}
         danger={trialEnded}
       />
       <ForceMeterBar value={forceMeter} battleMode={battleMode || trialMode} />
+      <LiveCountdown
+        deadlineMs={questionDeadline}
+        timerSeconds={timerSeconds}
+        active={timerActive}
+        onExpire={onTimeout}
+      />
+
+      {(battleMode || trialMode) && unlimitedSession && !showFeedback && !confirmExit && !battleDefeated && (
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <ActionButton variant="secondary" onClick={onEndSession}>{endSessionLabel}</ActionButton>
+        </div>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}>
         <YodaArt variant="compact" />
@@ -1233,7 +1806,7 @@ function QuizScreenView({
                   selected={answer === option.value}
                   correct={optionIsCorrect || undefined}
                   wrong={optionIsWrong || undefined}
-                  disabled={showFeedback}
+                  disabled={showFeedback || confirmExit}
                   onClick={() => onAnswer(option.value)}
                 />
               );
@@ -1248,7 +1821,7 @@ function QuizScreenView({
               selected={answer === "true"}
               correct={showFeedback && question.correct === "true" ? true : undefined}
               wrong={showFeedback && answer === "true" && question.correct !== "true" ? true : undefined}
-              disabled={showFeedback}
+              disabled={showFeedback || confirmExit}
               onClick={() => onAnswer("true")}
             />
             <OptionButton
@@ -1256,7 +1829,7 @@ function QuizScreenView({
               selected={answer === "false"}
               correct={showFeedback && question.correct === "false" ? true : undefined}
               wrong={showFeedback && answer === "false" && question.correct !== "false" ? true : undefined}
-              disabled={showFeedback}
+              disabled={showFeedback || confirmExit}
               onClick={() => onAnswer("false")}
             />
           </div>
@@ -1264,10 +1837,10 @@ function QuizScreenView({
 
         {(question.type === "short" || question.type === "fillinblank") && (
           <input
-            value={isSkipped ? "" : answer}
+            value={isSkipped || isTimedOut ? "" : answer}
             onChange={(event: any) => onAnswer(event.target.value)}
             placeholder={question.type === "short" ? "Type your answer..." : "Fill in the blank..."}
-            disabled={showFeedback}
+            disabled={showFeedback || confirmExit}
             style={{
               width: "100%",
               boxSizing: "border-box",
@@ -1289,11 +1862,11 @@ function QuizScreenView({
         </InfoBox>
       )}
 
-      {!showFeedback && (
+      {!showFeedback && !confirmExit && (
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()}>
-              {battleMode ? "Strike" : trialMode ? "Hold Focus" : "Submit Answer"}
+              {battleMode ? "Strike" : "Submit Answer"}
             </ActionButton>
             {canUseHints && hintsAvailable > 0 && (
               <ActionButton variant="secondary" onClick={onHint}>Use the Force · {hintsAvailable} remaining</ActionButton>
@@ -1312,19 +1885,21 @@ function QuizScreenView({
               <div>
                 {battleDefeated
                   ? "All shields lost. Study the correct answer, then return stronger."
-                  : trialEnded
-                    ? `Your focus streak ended at ${Math.max(maxStreak, streak)}. Study the answer, then try again.`
-                    : trialCleared
-                      ? `Perfect focus. Streak of ${streak} — unbroken, the trial is.`
-                      : instantExplanations
-                        ? explanation === "simple"
-                          ? question.simpleExplanation
-                          : explanation === "example"
-                            ? question.example
-                            : question.explanation
-                        : "Your detailed explanation will be available in the review screen."}
+                  : isTimedOut
+                    ? "The timer ran out before an answer was given."
+                    : trialEnded
+                      ? `Your focus streak ended at ${Math.max(maxStreak, streak)}. Study the answer, then try again.`
+                      : trialCleared
+                        ? `Perfect focus. Streak of ${streak} — unbroken, the trial is.`
+                        : instantExplanations
+                          ? explanation === "simple"
+                            ? question.simpleExplanation
+                            : explanation === "example"
+                              ? question.example
+                              : question.explanation
+                          : "Your detailed explanation will be available in the review screen."}
               </div>
-              {(!isCorrect || isSkipped) && <div style={{ color: PALETTE.white, fontWeight: 700 }}>Correct answer: {getCorrectAnswerLabel(question)}</div>}
+              {(!isCorrect || isSkipped || isTimedOut) && <div style={{ color: PALETTE.white, fontWeight: 700 }}>Correct answer: {getCorrectAnswerLabel(question)}</div>}
               {battleMode && !isCorrect && lives > 0 && (
                 <div style={{ color: PALETTE.warning, fontWeight: 700 }}>Shield lost. {lives} remaining.</div>
               )}
@@ -1349,17 +1924,25 @@ function QuizScreenView({
             <InfoBox title="Adaptive training" tone="info">{adaptationMessage}</InfoBox>
           )}
 
-          <ActionButton variant="primary" onClick={battleDefeated || trialEnded || trialCleared || isLast ? onFinish : onNext} fullWidth>
+          <ActionButton variant="primary" onClick={sessionFinished ? onFinish : onNext} fullWidth>
             {battleDefeated
               ? "Accept Defeat"
               : trialEnded
                 ? "End Trial"
                 : trialCleared
                   ? "Claim Focus Rank"
-                  : isLast
+                  : isLast && !unlimitedSession
                     ? (battleMode ? "Claim Victory" : "Finish Training")
-                    : "Next Question"}
+                    : unlimitedSession && isLast && (battleMode || trialMode)
+                      ? (battleMode ? "Next Question · keep fighting" : "Next Question · keep focus")
+                      : "Next Question"}
           </ActionButton>
+
+          {(battleMode || trialMode) && unlimitedSession && !trialEnded && !battleDefeated && (
+            <ActionButton variant="secondary" onClick={onEndSession} fullWidth>
+              {endSessionLabel}
+            </ActionButton>
+          )}
 
           <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
             <a
@@ -1408,6 +1991,7 @@ function ResultsScreen({
   onHarder,
   onContinue,
   onReplayMode,
+  onCouncilHome,
 }: {
   qs: Question[];
   answers: Record<string, string>;
@@ -1421,6 +2005,7 @@ function ResultsScreen({
   onHarder: () => void;
   onContinue: (weakestTopic: string) => void;
   onReplayMode: () => void;
+  onCouncilHome: () => void;
 }) {
   const battleMode = playMode === "battle";
   const trialMode = playMode === "trial";
@@ -1474,7 +2059,7 @@ function ResultsScreen({
   const replayLabel = battleMode ? "Battle Again" : trialMode ? "Retry Trial" : "Train Me Again";
 
   return (
-    <ScreenShell eyebrow={eyebrow}>
+    <ScreenShell eyebrow={eyebrow} onCouncilHome={onCouncilHome}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
         <YodaArt variant="full" />
         <HeadingBlock title={title} subtitle={completion} />
@@ -1563,6 +2148,7 @@ function ReviewScreen({
   onExplanation,
   onRetest,
   onBack,
+  onCouncilHome,
 }: {
   qs: Question[];
   answers: Record<string, string>;
@@ -1571,6 +2157,7 @@ function ReviewScreen({
   onExplanation: (questionId: string, mode: ExplanationMode) => void;
   onRetest: (questionIds: string[]) => void;
   onBack: () => void;
+  onCouncilHome: () => void;
 }) {
   const [filter, setFilter] = useCanvasState<"all" | "incorrect" | "skipped">("reviewFilter", "all");
   const mistakes = qs.filter(question => !checkAnswer(answers[question.id] || "", question.correct));
@@ -1583,7 +2170,7 @@ function ReviewScreen({
   const skippedCount = mistakes.filter(question => skipped[question.id]).length;
 
   return (
-    <ScreenShell eyebrow="Review mistakes">
+    <ScreenShell eyebrow="Review mistakes" onCouncilHome={onCouncilHome}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" }}>
         <YodaArt variant="compact" />
         <HeadingBlock title="Mistakes, teachers they are." subtitle="Study them, then face them again." />
@@ -1645,7 +2232,7 @@ function ContinueTrainingScreen({
   onHome: () => void;
 }) {
   return (
-    <ScreenShell eyebrow="Continue training">
+    <ScreenShell eyebrow="Continue training" onCouncilHome={onHome}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
         <YodaArt variant="compact" />
         <HeadingBlock title="Continue your training, you will?" subtitle="The Force grows stronger with focused practice." />
@@ -1670,7 +2257,7 @@ function ContinueTrainingScreen({
         />
       </div>
 
-      <ActionButton variant="secondary" onClick={onHome} fullWidth>Back to Home</ActionButton>
+      <ActionButton variant="secondary" onClick={onHome} fullWidth>Return to Council</ActionButton>
     </ScreenShell>
   );
 }
@@ -1682,12 +2269,18 @@ export default function YodaTraining() {
   const [questionCount, setQuestionCount] = useCanvasState<number>("questionCount", 10);
   const [hintsEnabled, setHintsEnabled] = useCanvasState<boolean>("hintsEnabled", true);
   const [instantExplanations, setInstantExplanations] = useCanvasState<boolean>("instantExplanations", true);
+  const [trainingTimerEnabled, setTrainingTimerEnabled] = useCanvasState<boolean>("trainingTimerEnabled", false);
+  const [trainingTimerSeconds, setTrainingTimerSeconds] = useCanvasState<number>("trainingTimerSeconds", 45);
+  const [activeTimerSeconds, setActiveTimerSeconds] = useCanvasState<number>("activeTimerSeconds", 0);
+  const [questionDeadline, setQuestionDeadline] = useCanvasState<number>("questionDeadline", 0);
+  const [confirmExit, setConfirmExit] = useCanvasState<boolean>("confirmExit", false);
   const [seed, setSeed] = useCanvasState<number>("seed", 42);
   const [questionIds, setQuestionIds] = useCanvasState<string[]>("questionIds", []);
   const [currentQ, setCurrentQ] = useCanvasState<number>("currentQ", 0);
   const [answers, setAnswers] = useCanvasState<Record<string, string>>("answers", {});
   const [outcomes, setOutcomes] = useCanvasState<Record<string, boolean>>("outcomes", {});
   const [skipped, setSkipped] = useCanvasState<Record<string, boolean>>("skipped", {});
+  const [timedOut, setTimedOut] = useCanvasState<Record<string, boolean>>("timedOut", {});
   const [showFeedback, setShowFeedback] = useCanvasState<boolean>("showFeedback", false);
   const [streak, setStreak] = useCanvasState<number>("streak", 0);
   const [maxStreak, setMaxStreak] = useCanvasState<number>("maxStreak", 0);
@@ -1701,16 +2294,28 @@ export default function YodaTraining() {
   const [holocronIndex, setHolocronIndex] = useCanvasState<number>("holocronIndex", 0);
   const [holocronRevealed, setHolocronRevealed] = useCanvasState<boolean>("holocronRevealed", false);
   const [knownIds, setKnownIds] = useCanvasState<Record<string, boolean>>("knownIds", {});
+  const [holocronGuesses, setHolocronGuesses] = useCanvasState<Record<string, string>>("holocronGuesses", {});
+  const [holocronDrafts, setHolocronDrafts] = useCanvasState<Record<string, string>>("holocronDrafts", {});
 
   const activeQuestions = questionIds
     .map(id => questions.find(question => question.id === id))
     .filter((question): question is Question => Boolean(question));
+
+  const armQuestionTimer = (seconds: number) => {
+    setActiveTimerSeconds(seconds);
+    if (seconds > 0) {
+      setQuestionDeadline(Date.now() + seconds * 1000);
+    } else {
+      setQuestionDeadline(0);
+    }
+  };
 
   const resetAttempt = () => {
     setCurrentQ(0);
     setAnswers({});
     setOutcomes({});
     setSkipped({});
+    setTimedOut({});
     setShowFeedback(false);
     setStreak(0);
     setMaxStreak(0);
@@ -1719,6 +2324,8 @@ export default function YodaTraining() {
     setExplanationMode({});
     setAdaptationMessage("");
     setLives(3);
+    setConfirmExit(false);
+    setQuestionDeadline(0);
   };
 
   const beginQuiz = ({
@@ -1745,6 +2352,7 @@ export default function YodaTraining() {
       setHintsEnabled(false);
       setInstantExplanations(true);
     }
+    const timerSeconds = defaultTimerForMode(nextPlayMode, trainingTimerEnabled, trainingTimerSeconds);
     setQuestionIds(buildQuestionSet({
       level: nextLevel,
       style: nextStyle,
@@ -1753,42 +2361,65 @@ export default function YodaTraining() {
       focusTopics,
     }));
     resetAttempt();
+    armQuestionTimer(timerSeconds);
     setScreen(nextPlayMode === "holocron" ? "holocron" : "quiz");
   };
 
-  const beginBattle = (nextLevel: TrainingLevel = level) => {
+  const unlimitedSession = isUnlimitedCount(questionCount);
+
+  const beginBattle = (nextLevel: TrainingLevel = level, nextCount: number = questionCount) => {
     beginQuiz({
       nextLevel,
       nextStyle: "mixed",
-      nextCount: 5,
+      nextCount: isUnlimitedCount(nextCount) ? UNLIMITED_COUNT : Math.min(nextCount, questions.length),
       nextSeed: seed + 777,
       nextPlayMode: "battle",
     });
   };
 
-  const beginHolocron = (nextLevel: TrainingLevel = level) => {
+  const beginHolocron = (nextLevel: TrainingLevel = level, nextCount: number = questionCount) => {
     setLevel(nextLevel);
+    setQuestionCount(nextCount);
     setPlayMode("holocron");
     setHolocronIndex(0);
     setHolocronRevealed(false);
     setKnownIds({});
+    setHolocronGuesses({});
+    setHolocronDrafts({});
     setQuestionIds(buildQuestionSet({
       level: nextLevel,
       style: "mixed",
-      count: Math.min(10, questions.length),
+      count: isUnlimitedCount(nextCount) ? UNLIMITED_COUNT : Math.min(nextCount, questions.length),
       seed: seed + 4242,
     }));
     setScreen("holocron");
   };
 
-  const beginTrial = (nextLevel: TrainingLevel = level) => {
+  const beginTrial = (nextLevel: TrainingLevel = level, nextCount: number = questionCount) => {
     beginQuiz({
       nextLevel,
       nextStyle: "mixed",
-      nextCount: Math.min(10, questions.length),
+      nextCount: isUnlimitedCount(nextCount) ? UNLIMITED_COUNT : Math.min(nextCount, questions.length),
       nextSeed: seed + 1337,
       nextPlayMode: "trial",
     });
+  };
+
+  const extendUnlimitedPool = () => {
+    const nextSeed = seed + questionIds.length + Date.now() % 97;
+    const more = buildQuestionSet({
+      level,
+      style: playMode === "training" ? style : "mixed",
+      count: UNLIMITED_COUNT,
+      seed: nextSeed,
+    });
+    if (more.length === 0) return;
+    // Rotate so the next card isn't an immediate repeat of the current one when possible.
+    const rotated = more.length > 1
+      ? [...more.slice(1), more[0]]
+      : more;
+    setQuestionIds(previous => [...previous, ...rotated]);
+    setSeed(nextSeed);
   };
 
   const adaptUpcomingQuestion = (currentCorrect: boolean) => {
@@ -1849,13 +2480,15 @@ export default function YodaTraining() {
 
   const handleSubmitAnswer = () => {
     const question = activeQuestions[currentQ];
-    if (!question) return;
+    if (!question || showFeedback) return;
     const isCorrect = checkAnswer(answers[question.id] || "", question.correct);
 
     setOutcomes(previous => ({ ...previous, [question.id]: isCorrect }));
     setSkipped(previous => ({ ...previous, [question.id]: false }));
+    setTimedOut(previous => ({ ...previous, [question.id]: false }));
+    setQuestionDeadline(0);
 
-    const increment = Math.round(100 / activeQuestions.length);
+    const increment = Math.round(100 / Math.max(1, activeQuestions.length));
 
     if (isCorrect) {
       const nextStreak = streak + 1;
@@ -1876,22 +2509,46 @@ export default function YodaTraining() {
 
   const handleSkip = () => {
     const question = activeQuestions[currentQ];
-    if (!question) return;
+    if (!question || showFeedback) return;
     setAnswers(previous => ({ ...previous, [question.id]: "__skipped__" }));
     setOutcomes(previous => ({ ...previous, [question.id]: false }));
     setSkipped(previous => ({ ...previous, [question.id]: true }));
+    setTimedOut(previous => ({ ...previous, [question.id]: false }));
+    setQuestionDeadline(0);
     setMaxStreak(Math.max(maxStreak, streak));
     setStreak(0);
-    setForceMeter(clamp(forceMeter - Math.round(Math.round(100 / activeQuestions.length) * 0.2), 0, 100));
+    setForceMeter(clamp(forceMeter - Math.round(Math.round(100 / Math.max(1, activeQuestions.length)) * 0.2), 0, 100));
+    if (playMode === "battle") setLives(Math.max(0, lives - 1));
+    if (playMode === "training") adaptUpcomingQuestion(false);
+    setShowFeedback(true);
+  };
+
+  const handleTimeout = () => {
+    const question = activeQuestions[currentQ];
+    if (!question || showFeedback || confirmExit) return;
+    setAnswers(previous => ({ ...previous, [question.id]: "__timeout__" }));
+    setOutcomes(previous => ({ ...previous, [question.id]: false }));
+    setSkipped(previous => ({ ...previous, [question.id]: false }));
+    setTimedOut(previous => ({ ...previous, [question.id]: true }));
+    setQuestionDeadline(0);
+    setMaxStreak(Math.max(maxStreak, streak));
+    setStreak(0);
+    setForceMeter(clamp(forceMeter - Math.round(Math.round(100 / Math.max(1, activeQuestions.length)) * 0.2), 0, 100));
     if (playMode === "battle") setLives(Math.max(0, lives - 1));
     if (playMode === "training") adaptUpcomingQuestion(false);
     setShowFeedback(true);
   };
 
   const handleNext = () => {
+    const atEnd = currentQ >= questionIds.length - 1;
+    if (unlimitedSession && atEnd && (playMode === "battle" || playMode === "trial" || playMode === "holocron")) {
+      extendUnlimitedPool();
+    }
     setShowFeedback(false);
     setAdaptationMessage("");
+    setConfirmExit(false);
     setCurrentQ(currentQ + 1);
+    armQuestionTimer(activeTimerSeconds);
   };
 
   const handleHint = () => {
@@ -1915,7 +2572,18 @@ export default function YodaTraining() {
   };
 
   const openResults = () => {
-    const topicScores = getTopicScores(activeQuestions, answers);
+    // Battle/Trial can end mid-run — only score questions faced.
+    const shouldTrimFaced = playMode === "trial" || playMode === "battle";
+    const facedIds = shouldTrimFaced
+      ? questionIds.slice(0, Math.max(1, currentQ + 1))
+      : questionIds;
+    if (shouldTrimFaced && facedIds.length !== questionIds.length) {
+      setQuestionIds(facedIds);
+    }
+    const facedQuestions = facedIds
+      .map(id => questions.find(question => question.id === id))
+      .filter((question): question is Question => Boolean(question));
+    const topicScores = getTopicScores(facedQuestions, answers);
     const sorted = Object.entries(topicScores).sort(
       (left, right) => (left[1].correct / left[1].total) - (right[1].correct / right[1].total)
     );
@@ -1932,9 +2600,19 @@ export default function YodaTraining() {
   const handleHarder = () => {
     const nextSeed = seed + 997;
     if (playMode === "battle") {
-      beginQuiz({ nextLevel: "master", nextSeed, nextPlayMode: "battle", nextCount: 5 });
+      beginQuiz({
+        nextLevel: "master",
+        nextSeed,
+        nextPlayMode: "battle",
+        nextCount: isUnlimitedCount(questionCount) ? UNLIMITED_COUNT : Math.min(questionCount, questions.length),
+      });
     } else if (playMode === "trial") {
-      beginQuiz({ nextLevel: "master", nextSeed, nextPlayMode: "trial", nextCount: Math.min(10, questions.length) });
+      beginQuiz({
+        nextLevel: "master",
+        nextSeed,
+        nextPlayMode: "trial",
+        nextCount: isUnlimitedCount(questionCount) ? UNLIMITED_COUNT : Math.min(questionCount, questions.length),
+      });
     } else {
       beginQuiz({ nextLevel: "master", nextSeed, nextPlayMode: "training" });
     }
@@ -1947,8 +2625,9 @@ export default function YodaTraining() {
 
   const handleWeakArea = () => {
     const nextSeed = seed + 271;
+    const trainingCount = isUnlimitedCount(questionCount) ? 5 : Math.min(5, questionCount);
     beginQuiz({
-      nextCount: Math.min(5, questionCount),
+      nextCount: trainingCount,
       nextSeed,
       focusTopics: weakestTopic === "—" ? [] : [weakestTopic],
       nextPlayMode: "training",
@@ -1959,20 +2638,52 @@ export default function YodaTraining() {
     setPlayMode("training");
     setQuestionIds(ids);
     resetAttempt();
+    const timerSeconds = defaultTimerForMode("training", trainingTimerEnabled, trainingTimerSeconds);
+    armQuestionTimer(timerSeconds);
     setScreen("quiz");
   };
 
-  const handleHome = () => {
+  const handleCouncilHome = () => {
+    const g = globalThis as any;
+    if (g.__yodaCountdown) clearTimeout(g.__yodaCountdown);
+    setConfirmExit(false);
     setPlayMode("training");
     resetAttempt();
     setQuestionIds([]);
-    setScreen("analysis");
+    setHolocronIndex(0);
+    setHolocronRevealed(false);
+    setKnownIds({});
+    setHolocronGuesses({});
+    setHolocronDrafts({});
+    setScreen("levelSelect");
   };
 
   const handleReplayMode = () => {
-    if (playMode === "battle") beginBattle(level);
-    else if (playMode === "trial") beginTrial(level);
+    if (playMode === "battle") beginBattle(level, questionCount);
+    else if (playMode === "trial") beginTrial(level, questionCount);
     else handleRetakeSetup();
+  };
+
+  const handleEndSpecialSession = () => {
+    const answeredThrough = showFeedback ? currentQ + 1 : currentQ;
+    if (answeredThrough <= 0) {
+      handleCouncilHome();
+      return;
+    }
+    const facedIds = questionIds.slice(0, answeredThrough);
+    const facedQuestions = facedIds
+      .map(id => questions.find(question => question.id === id))
+      .filter((question): question is Question => Boolean(question));
+    const topicScores = getTopicScores(facedQuestions, answers);
+    const sorted = Object.entries(topicScores).sort(
+      (left, right) => (left[1].correct / left[1].total) - (right[1].correct / right[1].total)
+    );
+    setQuestionDeadline(0);
+    setConfirmExit(false);
+    setShowFeedback(false);
+    setQuestionIds(facedIds);
+    setWeakestTopic(sorted[0]?.[0] || "—");
+    setScreen("results");
   };
 
   return (
@@ -1992,15 +2703,18 @@ export default function YodaTraining() {
           }}
           onBattle={selected => {
             setLevel(selected);
-            beginBattle(selected);
+            setPlayMode("battle");
+            setScreen("settings");
           }}
           onHolocron={selected => {
             setLevel(selected);
-            beginHolocron(selected);
+            setPlayMode("holocron");
+            setScreen("settings");
           }}
           onTrial={selected => {
             setLevel(selected);
-            beginTrial(selected);
+            setPlayMode("trial");
+            setScreen("settings");
           }}
         />
       )}
@@ -2009,7 +2723,9 @@ export default function YodaTraining() {
         <StyleSelectScreen
           initialStyle={style}
           onBack={() => setScreen("levelSelect")}
+          onCouncilHome={handleCouncilHome}
           onSelect={selected => {
+            setPlayMode("training");
             setStyle(selected);
             setScreen("settings");
           }}
@@ -2021,11 +2737,22 @@ export default function YodaTraining() {
           questionCount={questionCount}
           hintsEnabled={hintsEnabled}
           instantExplanations={instantExplanations}
+          timerEnabled={trainingTimerEnabled}
+          timerSeconds={trainingTimerSeconds}
+          playMode={playMode}
           onQuestionCount={setQuestionCount}
           onToggleHints={() => setHintsEnabled(!hintsEnabled)}
           onToggleExplanations={() => setInstantExplanations(!instantExplanations)}
-          onBack={() => setScreen("styleSelect")}
-          onStart={() => beginQuiz({ nextPlayMode: "training" })}
+          onToggleTimer={() => setTrainingTimerEnabled(!trainingTimerEnabled)}
+          onTimerSeconds={setTrainingTimerSeconds}
+          onBack={() => setScreen(playMode === "battle" || playMode === "holocron" || playMode === "trial" ? "levelSelect" : "styleSelect")}
+          onCouncilHome={handleCouncilHome}
+          onStart={() => {
+            if (playMode === "battle") beginBattle(level, questionCount);
+            else if (playMode === "holocron") beginHolocron(level, questionCount);
+            else if (playMode === "trial") beginTrial(level, questionCount);
+            else beginQuiz({ nextPlayMode: "training" });
+          }}
         />
       )}
 
@@ -2035,13 +2762,34 @@ export default function YodaTraining() {
           currentIndex={holocronIndex}
           revealed={holocronRevealed}
           knownIds={knownIds}
-          onReveal={() => setHolocronRevealed(true)}
+          guesses={holocronGuesses}
+          drafts={holocronDrafts}
+          unlimited={unlimitedSession}
+          onDraft={value => {
+            const question = activeQuestions[holocronIndex];
+            if (!question) return;
+            setHolocronDrafts(previous => ({ ...previous, [question.id]: value }));
+          }}
+          onSubmitGuess={() => {
+            const question = activeQuestions[holocronIndex];
+            if (!question) return;
+            const draft = (holocronDrafts[question.id] || "").trim();
+            if (!draft) return;
+            setHolocronGuesses(previous => ({ ...previous, [question.id]: draft }));
+          }}
+          onToggleFlip={() => setHolocronRevealed(!holocronRevealed)}
           onPrev={() => {
             setHolocronIndex(Math.max(0, holocronIndex - 1));
             setHolocronRevealed(false);
           }}
           onNext={() => {
-            setHolocronIndex(Math.min(activeQuestions.length - 1, holocronIndex + 1));
+            const atEnd = holocronIndex >= activeQuestions.length - 1;
+            if (unlimitedSession && atEnd) {
+              extendUnlimitedPool();
+              setHolocronIndex(holocronIndex + 1);
+            } else {
+              setHolocronIndex(Math.min(activeQuestions.length - 1, holocronIndex + 1));
+            }
             setHolocronRevealed(false);
           }}
           onToggleKnown={() => {
@@ -2049,17 +2797,11 @@ export default function YodaTraining() {
             if (!question) return;
             setKnownIds(previous => ({ ...previous, [question.id]: !previous[question.id] }));
           }}
-          onStartQuiz={() => beginQuiz({
-            nextLevel: level,
-            nextStyle: "mixed",
-            nextCount: Math.min(10, activeQuestions.length || questionCount),
-            nextSeed: seed + 88,
-            nextPlayMode: "training",
-          })}
           onBack={() => {
             setPlayMode("training");
             setScreen("levelSelect");
           }}
+          onCouncilHome={handleCouncilHome}
         />
       )}
 
@@ -2070,6 +2812,7 @@ export default function YodaTraining() {
           answers={answers}
           outcomes={outcomes}
           skipped={skipped}
+          timedOut={timedOut}
           showFeedback={showFeedback}
           streak={streak}
           maxStreak={maxStreak}
@@ -2081,6 +2824,10 @@ export default function YodaTraining() {
           adaptationMessage={adaptationMessage}
           playMode={playMode}
           lives={lives}
+          timerSeconds={activeTimerSeconds}
+          questionDeadline={questionDeadline}
+          confirmExit={confirmExit}
+          unlimitedSession={unlimitedSession && (playMode === "trial" || playMode === "battle")}
           onAnswer={handleAnswer}
           onSubmitAnswer={handleSubmitAnswer}
           onSkip={handleSkip}
@@ -2088,6 +2835,11 @@ export default function YodaTraining() {
           onHint={handleHint}
           onExplanation={handleExplanation}
           onFinish={openResults}
+          onTimeout={handleTimeout}
+          onRequestExit={() => setConfirmExit(true)}
+          onCancelExit={() => setConfirmExit(false)}
+          onConfirmExit={handleCouncilHome}
+          onEndSession={handleEndSpecialSession}
         />
       )}
 
@@ -2104,6 +2856,7 @@ export default function YodaTraining() {
           onRetake={handleRetakeSetup}
           onHarder={handleHarder}
           onReplayMode={handleReplayMode}
+          onCouncilHome={handleCouncilHome}
           onContinue={topic => {
             setWeakestTopic(topic);
             setScreen("continue");
@@ -2120,6 +2873,7 @@ export default function YodaTraining() {
           onExplanation={handleReviewExplanation}
           onRetest={handleRetestMistakes}
           onBack={() => setScreen("results")}
+          onCouncilHome={handleCouncilHome}
         />
       )}
 
@@ -2128,7 +2882,7 @@ export default function YodaTraining() {
           weakestTopic={weakestTopic}
           onNewQuiz={handleNewQuiz}
           onWeakArea={handleWeakArea}
-          onHome={handleHome}
+          onHome={handleCouncilHome}
         />
       )}
     </Stack>
