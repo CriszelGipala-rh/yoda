@@ -52,14 +52,24 @@ progress tracking, and targeted review.
 
 ## Quick start
 
-### 1. Clone the repository
+### 1. Install Cursor
+
+Yoda requires [Cursor](https://www.cursor.com), an AI-powered code editor.
+
+If you don't have Cursor installed, download it from:
+
+👉 **https://www.cursor.com/downloads**
+
+Cursor is available for macOS, Windows, and Linux.
+
+### 2. Clone the repository
 
 ```bash
 git clone https://github.com/CriszelGipala-rh/yoda.git
 cd yoda
 ```
 
-### 2. Install the skill
+### 3. Install the skill
 
 Copy the `skill/` directory into your Cursor skills folder:
 
@@ -75,7 +85,7 @@ mkdir -p ~/.cursor/skills
 ln -s "$(pwd)/skill" ~/.cursor/skills/yoda
 ```
 
-### 3. Enable file malware scanning (optional but recommended)
+### 4. Enable file malware scanning (optional but recommended)
 
 Yoda can use ClamAV to scan local or uploaded files before reading them.
 
@@ -90,7 +100,7 @@ ClamAV adds signature-based malware scanning for files. The other Security Gate
 checks remain active when ClamAV is unavailable, but Yoda must clearly state
 that a signature-based malware scan was not performed.
 
-### 4. Restart Cursor
+### 5. Restart Cursor
 
 Restart Cursor or open a new chat so Cursor can load the skill.
 
