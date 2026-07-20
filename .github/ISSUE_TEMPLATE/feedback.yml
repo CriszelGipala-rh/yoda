@@ -1,0 +1,97 @@
+name: Yoda feedback
+description: Share feedback about the Yoda experience, quiz quality, UI, or future improvements.
+title: "[Feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank you for helping Yoda improve
+
+        Please do not include passwords, API keys, access tokens, private keys,
+        confidential documents, personal information, or private source material.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What is your feedback about?
+      description: Choose the area that best matches your feedback.
+      options:
+        - Overall experience
+        - Quiz questions and answers
+        - Explanations and hints
+        - Yoda personality and wording
+        - User interface and visual design
+        - Accessibility
+        - Security Gate
+        - Installation or documentation
+        - Bug or unexpected behaviour
+        - Feature suggestion
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rating
+    attributes:
+      label: How would you rate your experience?
+      options:
+        - "5 — Excellent"
+        - "4 — Good"
+        - "3 — Okay"
+        - "2 — Needs improvement"
+        - "1 — Poor"
+    validations:
+      required: true
+
+  - type: textarea
+    id: worked-well
+    attributes:
+      label: What worked well?
+      description: Tell us what you found useful, enjoyable, or easy to understand.
+      placeholder: The part I liked most was...
+    validations:
+      required: false
+
+  - type: textarea
+    id: improve
+    attributes:
+      label: What should be improved?
+      description: Describe what felt confusing, difficult, incomplete, or visually wrong.
+      placeholder: I think Yoda would be better if...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+      description: For bugs or confusing behaviour, explain what you expected Yoda to do.
+      placeholder: I expected...
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Cursor and operating-system details
+      description: Optional. This is useful when reporting a technical problem.
+      placeholder: "Example: Cursor version, Fedora 42 / Windows 11 / macOS"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add safe screenshots, examples, or other non-sensitive details.
+      placeholder: Anything else that may help...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I have not included secrets, credentials, confidential material, or personal information.
+          required: true

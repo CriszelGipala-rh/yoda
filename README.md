@@ -40,6 +40,8 @@ Yoda is a Cursor Agent Skill that turns supplied learning material into an
 interactive Cursor Canvas quiz with adaptive questions, hints, explanations,
 progress tracking, and targeted review.
 
+[![Send feedback](https://img.shields.io/badge/Send_Feedback-7DFF7B?style=for-the-badge&logo=github&logoColor=07110B)](https://github.com/CriszelGipala-rh/yoda/issues/new?template=feedback.yml)
+
 ## What Yoda can use
 
 - Links and documentation
@@ -156,10 +158,32 @@ Source validation
 - Mistake filters and targeted retesting
 - Full and compact Yoda guide visuals
 
+## Feedback
+
+Used Yoda? Share what worked, what felt confusing, or what should be built next.
+
+[![Open the feedback form](https://img.shields.io/badge/Open_Feedback_Form-7DFF7B?style=for-the-badge&logo=github&logoColor=07110B)](https://github.com/CriszelGipala-rh/yoda/issues/new?template=feedback.yml)
+
+Feedback is submitted as a GitHub issue in this repository, so it can be
+reviewed, discussed, and tracked alongside the project.
+
+Please do not include:
+
+- Passwords, tokens, API keys, or private keys
+- Confidential workplace or personal information
+- Private learning material
+- Security-vulnerability details that should not be public
+
+The form accepts product feedback, UI and accessibility comments, quiz-quality
+feedback, bug reports, and feature suggestions.
+
 ## Project structure
 
 ```text
 yoda/
+├── .github/
+│   └── ISSUE_TEMPLATE/
+│       └── feedback.yml
 ├── README.md
 ├── skill/
 │   ├── SKILL.md
