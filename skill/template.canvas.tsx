@@ -42,6 +42,8 @@ const ANALYSIS_STAGES = [
 ];
 // === QUIZ DATA END ===
 
+const FOREST_BG = "data:image/jpeg;base64,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";
+
 const FULL_YODA_ASCII = [
   "                                                      Y7xxJvjn1#jiiuvjft7l                                                      ",
   "                                                  =,1a3C534Cw4hu3XbkoXaZ224**+                                                  ",
@@ -106,6 +108,7 @@ const COMPACT_YODA_ASCII = [
   "          ,fIuzYcxYvvc=xzxJ   Jn+          ,7;L7 +        1I   LtzitzxizilYv1jIiY;        ",
   "        ~tiJiYYcliYr=r=lrrct,  7Y,                      :tY* ~rcccLLLl7rYrYclYciic~       ",
 ].join("\n");
+
 
 type Screen =
   | "analysis"
@@ -175,11 +178,10 @@ const LEVELS: Array<{
     id: "master",
     title: "Jedi Master",
     description: "For those who seek true mastery.",
-    detail: "30 Questions",
+    detail: "50 Questions",
     icon: "jedi",
-    count: 30,
-    // Kept lighter than a 50-question grind — focused mastery, not a marathon.
-    countOptions: [20, 30, UNLIMITED_COUNT],
+    count: 50,
+    countOptions: [25, 50, UNLIMITED_COUNT],
   },
 ];
 
@@ -246,6 +248,11 @@ function seededShuffle<T>(items: T[], seed: number): T[] {
     [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
   }
   return result;
+}
+
+/** New shuffle seed for each session so Training/Battle/Holocron/Trial don't replay the same order. */
+function freshSeed(previous = 1): number {
+  return ((Date.now() ^ (previous * 1664525 + 1013904223)) >>> 0) || 1;
 }
 
 function matchesLevel(question: Question, level: TrainingLevel): boolean {
@@ -446,13 +453,13 @@ function labelCase(input: string): string {
 function SmallCaps({ children }: { children: any }) {
   return (
     <div style={{
-      color: PALETTE.greenBright,
-      fontSize: 12,
+      color: "#9dff6a",
+      fontSize: 11,
       fontWeight: 800,
-      letterSpacing: 3.2,
+      letterSpacing: 3.6,
       textTransform: "uppercase",
       fontFamily: UI_FONT,
-      textShadow: `0 0 12px ${PALETTE.glow}`,
+      textShadow: `0 0 10px rgba(124,255,74,0.45), 0 0 22px rgba(77,255,0,0.25)`,
     }}>
       {children}
     </div>
@@ -644,12 +651,12 @@ function LightsaberBar({
         <div
           aria-hidden="true"
           style={{
-            width: 42,
-            height: 20,
-            borderRadius: "8px 3px 3px 8px",
-            background: "linear-gradient(180deg, #c5ccd3 0%, #8a929a 18%, #4a525a 42%, #1c2126 72%, #0a0c0e 100%)",
-            border: "1px solid rgba(255,255,255,0.4)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 4px rgba(0,0,0,0.55), 0 0 12px rgba(0,0,0,0.55)",
+            width: 38,
+            height: 16,
+            borderRadius: "6px 2px 2px 6px",
+            background: "linear-gradient(180deg, #d0d5db 0%, #9aa1a8 16%, #555c64 40%, #22282e 70%, #0b0d10 100%)",
+            border: "1px solid rgba(255,255,255,0.45)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 3px rgba(0,0,0,0.55), 0 0 10px rgba(0,0,0,0.5)",
             flexShrink: 0,
             zIndex: 1,
             position: "relative",
@@ -657,56 +664,53 @@ function LightsaberBar({
         >
           <div style={{
             position: "absolute",
-            left: 4,
-            top: 3,
-            bottom: 3,
-            width: 10,
+            left: 3,
+            top: 2,
+            bottom: 2,
+            width: 8,
             borderRadius: 2,
-            background: "linear-gradient(180deg, #6a727a, #2a3036)",
-            border: "1px solid rgba(255,255,255,0.22)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25)",
+            background: "linear-gradient(180deg, #7a828a, #2e343a)",
+            border: "1px solid rgba(255,255,255,0.25)",
           }} />
           <div style={{
             position: "absolute",
-            left: 16,
+            left: 13,
             top: 2,
             bottom: 2,
-            width: 3,
-            borderRadius: 1,
-            background: "linear-gradient(180deg, rgba(255,255,255,0.35), rgba(0,0,0,0.5))",
+            width: 2,
+            background: "linear-gradient(180deg, rgba(255,255,255,0.4), rgba(0,0,0,0.5))",
           }} />
           <div style={{
             position: "absolute",
-            left: 22,
+            left: 17,
             top: 2,
             bottom: 2,
-            width: 3,
-            borderRadius: 1,
-            background: "linear-gradient(180deg, rgba(255,255,255,0.28), rgba(0,0,0,0.45))",
+            width: 2,
+            background: "linear-gradient(180deg, rgba(255,255,255,0.3), rgba(0,0,0,0.45))",
           }} />
           <div style={{
             position: "absolute",
-            right: 5,
-            top: 5,
-            width: 9,
-            height: 9,
+            right: 4,
+            top: 3,
+            width: 8,
+            height: 8,
             borderRadius: "50%",
-            background: `radial-gradient(circle at 35% 30%, #fff8, ${blade})`,
-            boxShadow: `0 0 10px ${glow}, 0 0 18px ${glow}`,
-            border: "1px solid rgba(255,255,255,0.35)",
+            background: `radial-gradient(circle at 35% 30%, #fff9, ${blade})`,
+            boxShadow: `0 0 8px ${glow}, 0 0 14px ${glow}`,
+            border: "1px solid rgba(255,255,255,0.4)",
           }} />
         </div>
         <div
           style={{
             flex: 1,
-            height: 10,
+            height: 6,
             borderRadius: "0 999px 999px 0",
-            background: "rgba(255,255,255,0.04)",
+            background: "rgba(255,255,255,0.035)",
             border: "1px solid rgba(255,255,255,0.1)",
             borderLeft: "none",
             overflow: "hidden",
             position: "relative",
-            boxShadow: "inset 0 0 8px rgba(0,0,0,0.35)",
+            boxShadow: "inset 0 0 6px rgba(0,0,0,0.4)",
           }}
         >
           <div
@@ -714,8 +718,8 @@ function LightsaberBar({
               width: `${pct}%`,
               height: "100%",
               borderRadius: "0 999px 999px 0",
-              background: `linear-gradient(90deg, ${blade}66, ${blade}, #e8ffe0, ${blade})`,
-              boxShadow: pct > 0 ? `0 0 16px ${glow}, 0 0 32px ${glow}, inset 0 0 6px rgba(255,255,255,0.35)` : "none",
+              background: `linear-gradient(90deg, ${blade}55, ${blade}, #f2ffe8, ${blade})`,
+              boxShadow: pct > 0 ? `0 0 12px ${glow}, 0 0 24px ${glow}, inset 0 0 4px rgba(255,255,255,0.4)` : "none",
               transition: "width 0.35s ease",
             }}
           />
@@ -748,23 +752,23 @@ function LivesDisplay({ lives, maxLives = 3, labeled = true }: { lives: number; 
               key={index}
               aria-label={active ? "Shield intact" : "Shield lost"}
               style={{
-                width: 28,
-                height: 32,
+                width: 30,
+                height: 34,
                 clipPath: "polygon(50% 0%, 92% 18%, 92% 62%, 50% 100%, 8% 62%, 8% 18%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 12,
                 background: active
                   ? `radial-gradient(circle at 40% 30%, ${PALETTE.greenBright}, ${PALETTE.greenDeep})`
-                  : "rgba(255,255,255,0.04)",
-                border: `1px solid ${active ? "rgba(124,255,74,0.9)" : "rgba(255,255,255,0.16)"}`,
-                boxShadow: active ? `0 0 16px rgba(77,255,0,0.55)` : "none",
-                color: active ? "#031005" : PALETTE.textSoft,
-                fontWeight: 900,
+                  : "rgba(255,255,255,0.03)",
+                border: `1.5px solid ${active ? "rgba(124,255,74,0.95)" : "rgba(127,168,136,0.35)"}`,
+                boxShadow: active ? `0 0 14px rgba(77,255,0,0.7), 0 0 28px rgba(77,255,0,0.28)` : "none",
+                overflow: "hidden",
               }}
             >
-              {active ? "✡" : ""}
+              {active ? (
+                <img src={ICON_JEDI_ORDER} alt="" width={16} height={16} style={{ objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.92 }} />
+              ) : null}
             </div>
           );
         })}
@@ -783,8 +787,9 @@ function TinyStat({ label, value, tone = "default" }: { label: string; value: st
   );
 }
 
-function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
-  const art = variant === "compact" ? COMPACT_YODA_ASCII : FULL_YODA_ASCII;
+function YodaArt({ variant = "full" }: { variant?: "full" | "compact" | "council" }) {
+  const art = variant === "full" ? FULL_YODA_ASCII : COMPACT_YODA_ASCII;
+  const size = variant === "full" ? 7.4 : variant === "council" ? 4.6 : 5.8;
   return (
     <div role="img" aria-label="Yoda-style quiz guide" style={{ width: "100%", display: "flex", justifyContent: "center" }}>
       <pre
@@ -793,14 +798,14 @@ function YodaArt({ variant = "full" }: { variant?: "full" | "compact" }) {
           margin: 0,
           whiteSpace: "pre",
           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-          fontSize: variant === "full" ? 7.4 : 6.2,
-          lineHeight: 1.05,
-          letterSpacing: 0.15,
+          fontSize: size,
+          lineHeight: 1.02,
+          letterSpacing: 0.08,
           color: PALETTE.greenBright,
           textAlign: "center",
           userSelect: "none",
-          textShadow: `0 0 8px ${PALETTE.green}, 0 0 22px ${PALETTE.glow}, 0 0 40px rgba(77,255,0,0.3)`,
-          filter: "drop-shadow(0 0 10px rgba(77,255,0,0.4))",
+          textShadow: `0 0 6px ${PALETTE.green}, 0 0 16px ${PALETTE.glow}, 0 0 28px rgba(77,255,0,0.28)`,
+          filter: "drop-shadow(0 0 8px rgba(77,255,0,0.35))",
         }}
       >
         {art}
@@ -940,19 +945,26 @@ function HolocronMark({ size = 22 }: { size?: number }) {
       style={{
         width: size,
         height: size,
-        clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-        border: `1.5px solid ${PALETTE.greenBright}`,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        color: PALETTE.greenBright,
-        fontSize: size * 0.42,
-        fontWeight: 900,
-        boxShadow: `0 0 14px ${PALETTE.glow}`,
-        background: "rgba(4,16,10,0.95)",
         flexShrink: 0,
+        filter: `drop-shadow(0 0 10px ${PALETTE.info}99)`,
       }}
-    >⬡</span>
+    >
+      <svg viewBox="0 0 32 32" width={size} height={size}>
+        <defs>
+          <linearGradient id="holoMarkGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#9eefff" />
+            <stop offset="55%" stopColor="#5ec8ff" />
+            <stop offset="100%" stopColor="#1a7ab0" />
+          </linearGradient>
+        </defs>
+        <path d="M16 2 L28 9 V23 L16 30 L4 23 V9 Z" fill="none" stroke="url(#holoMarkGrad)" strokeWidth="1.6" />
+        <path d="M16 8 L23 12 V20 L16 24 L9 20 V12 Z" fill="rgba(94,200,255,0.12)" stroke="#9eefff" strokeWidth="1.2" />
+        <circle cx="16" cy="16" r="2.2" fill="#c8f7ff" />
+      </svg>
+    </span>
   );
 }
 
@@ -982,11 +994,14 @@ function ScreenShell({
         borderRadius: 26,
         border: `1px solid ${PALETTE.borderStrong}`,
         background: mist
-          ? `radial-gradient(ellipse at 50% 0%, rgba(70,130,70,0.42), transparent 48%), radial-gradient(ellipse at 18% 95%, rgba(28,72,38,0.5), transparent 46%), radial-gradient(ellipse at 88% 75%, rgba(12,40,22,0.45), transparent 42%), radial-gradient(circle at 50% 60%, rgba(4,16,8,0.2), transparent 55%), linear-gradient(180deg, #0a1a10 0%, #040c08 45%, ${PALETTE.bg} 100%)`
-          : `radial-gradient(circle at top, rgba(30,80,45,0.55), rgba(2,8,5,0.98) 50%), linear-gradient(180deg, ${PALETTE.bgSoft}, ${PALETTE.bg})`,
+          ? `linear-gradient(180deg, rgba(2,8,5,0.68) 0%, rgba(2,8,5,0.48) 38%, rgba(2,8,5,0.78) 100%), radial-gradient(ellipse at 50% 18%, rgba(40,90,45,0.35), transparent 52%), url(${FOREST_BG})`
+          : `radial-gradient(ellipse at 50% 0%, rgba(36,90,48,0.48) 0%, rgba(8,24,14,0.2) 28%, transparent 55%), linear-gradient(180deg, ${PALETTE.bgSoft}, ${PALETTE.bg})`,
+        backgroundSize: mist ? "cover, cover, cover" : undefined,
+        backgroundPosition: mist ? "center, center, center 38%" : undefined,
+        backgroundRepeat: mist ? "no-repeat" : undefined,
         boxShadow: mist
-          ? `0 0 0 1px rgba(77,255,0,0.28), 0 0 0 3px rgba(77,255,0,0.08), 0 0 48px rgba(77,255,0,0.1), 0 24px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(77,255,0,0.12)`
-          : `0 0 0 1px rgba(77,255,0,0.14), 0 0 40px rgba(77,255,0,0.08), 0 24px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)`,
+          ? `0 0 0 1px rgba(77,255,0,0.32), 0 0 0 3px rgba(77,255,0,0.08), 0 0 48px rgba(77,255,0,0.12), 0 24px 80px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(77,255,0,0.12)`
+          : `0 0 0 1px rgba(77,255,0,0.22), 0 0 36px rgba(77,255,0,0.1), 0 24px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)`,
         color: PALETTE.text,
         fontFamily: UI_FONT,
       }}
@@ -1233,46 +1248,75 @@ function SelectableCard({
       style={{
         width: "100%",
         textAlign: "left",
-        padding: "20px 18px",
-        borderRadius: 16,
+        padding: "14px 14px 12px",
+        borderRadius: 14,
         cursor: "pointer",
-        minHeight: 148,
+        minHeight: 118,
         display: "flex",
         flexDirection: "column",
-        gap: 10,
-        ...surfaceStyle(isSelected),
+        gap: 8,
+        position: "relative",
+        background: isSelected
+          ? "linear-gradient(180deg, rgba(16,44,24,0.98), rgba(4,14,8,0.99))"
+          : "linear-gradient(180deg, rgba(8,20,12,0.92), rgba(3,10,6,0.96))",
+        border: isSelected
+          ? `2.5px solid ${PALETTE.greenBright}`
+          : `1px solid rgba(77,255,0,0.18)`,
         boxShadow: isSelected
-          ? `0 0 0 2px ${PALETTE.green}, 0 0 36px rgba(77,255,0,0.4), 0 16px 40px rgba(0,0,0,0.45)`
-          : `0 12px 32px rgba(0,0,0,0.35)`,
+          ? `0 0 0 1px rgba(124,255,74,0.55), 0 0 28px rgba(77,255,0,0.55), 0 0 56px rgba(77,255,0,0.22), inset 0 0 24px rgba(77,255,0,0.06)`
+          : `0 8px 20px rgba(0,0,0,0.28)`,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      {isSelected && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            width: 20,
+            height: 20,
+            borderRadius: "50%",
+            background: PALETTE.greenBright,
+            color: "#031005",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 900,
+            fontSize: 12,
+            boxShadow: `0 0 12px rgba(77,255,0,0.75)`,
+            lineHeight: 1,
+          }}
+        >✓</div>
+      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, paddingRight: isSelected ? 18 : 0 }}>
         {icon && (
           isCouncilIconKind(icon)
-            ? <CouncilIcon kind={icon} size={44} color={isSelected ? PALETTE.greenBright : "#7fa888"} />
+            ? <CouncilIcon kind={icon} size={34} color={isSelected ? PALETTE.greenBright : "#7fa888"} />
             : (
               <span style={{
-                fontSize: 24,
+                fontSize: 20,
                 color: isSelected ? PALETTE.greenBright : PALETTE.textMuted,
                 textShadow: isSelected ? `0 0 14px ${PALETTE.glow}` : "none",
               }}>{icon}</span>
             )
         )}
         <span style={{
-          color: isSelected ? PALETTE.greenBright : PALETTE.text,
-          fontSize: 15,
+          color: isSelected ? PALETTE.greenBright : PALETTE.greenBright,
+          fontSize: 13,
           fontWeight: 800,
-          letterSpacing: 1.4,
+          letterSpacing: 1.5,
           textTransform: "uppercase",
+          opacity: isSelected ? 1 : 0.88,
         }}>{title}</span>
       </div>
-      <div style={{ color: PALETTE.textMuted, fontSize: 13, fontWeight: 500, lineHeight: 1.5, flex: 1 }}>{description}</div>
+      <div style={{ color: "#d7ebd8", fontSize: 12, fontWeight: 500, lineHeight: 1.45, flex: 1 }}>{description}</div>
       {detail && (
         <div style={{
           color: isSelected ? PALETTE.greenBright : PALETTE.textSoft,
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 800,
-          letterSpacing: 1.6,
+          letterSpacing: 1.5,
           textTransform: "uppercase",
           marginTop: "auto",
         }}>{detail}</div>
@@ -1286,12 +1330,13 @@ function HeadingBlock({ title, subtitle }: { title: string; subtitle?: string })
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" }}>
       <h1 style={{
         margin: 0,
-        fontSize: 28,
-        color: PALETTE.greenBright,
+        fontSize: 36,
+        color: "#b8ff8a",
         fontFamily: DISPLAY_FONT,
         fontWeight: 600,
-        letterSpacing: 0.2,
-        textShadow: `0 0 20px rgba(77,255,0,0.35)`,
+        letterSpacing: 0.15,
+        lineHeight: 1.15,
+        textShadow: `0 0 8px rgba(124,255,74,0.55), 0 0 22px rgba(77,255,0,0.4), 0 0 48px rgba(77,255,0,0.22)`,
       }}>{title}</h1>
       {subtitle && <div style={{ maxWidth: 640, color: PALETTE.textMuted, fontSize: 14, lineHeight: 1.65 }}>{subtitle}</div>}
     </div>
@@ -1368,55 +1413,69 @@ function SpecialModeCard({
       style={{
         width: "100%",
         textAlign: "left",
-        padding: "20px 18px",
-        borderRadius: 16,
+        padding: "14px 14px 12px",
+        borderRadius: 14,
         cursor: "pointer",
-        minHeight: 168,
+        minHeight: 132,
         display: "flex",
         flexDirection: "column",
-        gap: 10,
-        background: `linear-gradient(165deg, ${accent}18, rgba(4,12,8,0.97) 50%)`,
-        border: `1px solid ${selected ? accent : `${accent}55`}`,
+        gap: 8,
+        background: `linear-gradient(165deg, ${accent}14, rgba(4,12,8,0.97) 48%)`,
+        border: selected ? `2.5px solid ${accent}` : `1px solid ${accent}66`,
         boxShadow: selected
-          ? `0 0 0 2px ${accent}, 0 0 36px ${accent}55, 0 12px 32px rgba(0,0,0,0.45)`
-          : `0 0 16px ${accent}18`,
+          ? `0 0 0 1px ${accent}88, 0 0 28px ${accent}66, 0 0 52px ${accent}33, 0 10px 28px rgba(0,0,0,0.4)`
+          : `0 0 14px ${accent}14`,
         position: "relative",
+        overflow: "hidden",
       }}
     >
       {selected && (
-        <div style={{
-          position: "absolute",
-          top: 12,
-          right: 12,
-          width: 24,
-          height: 24,
-          borderRadius: "50%",
-          background: "#fff",
-          color: "#031005",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: 900,
-          fontSize: 13,
-          boxShadow: `0 0 14px ${accent}`,
-        }}>✓</div>
+        <>
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: 0,
+              height: 0,
+              borderStyle: "solid",
+              borderWidth: "0 34px 34px 0",
+              borderColor: `transparent ${accent} transparent transparent`,
+              filter: `drop-shadow(0 0 10px ${accent})`,
+            }}
+          />
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              top: 3,
+              right: 5,
+              color: "#031005",
+              fontWeight: 900,
+              fontSize: 11,
+              lineHeight: 1,
+              zIndex: 1,
+            }}
+          >✓</span>
+        </>
       )}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <CouncilIcon kind={icon} size={48} color={accent} />
+      <div style={{ display: "flex", alignItems: "center", gap: 10, paddingRight: selected ? 22 : 0 }}>
+        <CouncilIcon kind={icon} size={38} color={accent} />
         <span style={{
           color: accent,
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: 800,
           letterSpacing: 1.4,
           textTransform: "uppercase",
         }}>{title}</span>
       </div>
-      <div style={{ color: PALETTE.textMuted, fontSize: 13, lineHeight: 1.5, flex: 1 }}>{body}</div>
+      <div style={{ color: "#d7ebd8", fontSize: 12, lineHeight: 1.45, flex: 1 }}>{body}</div>
       <div style={{
         color: accent,
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: 800,
-        letterSpacing: 1.4,
+        letterSpacing: 1.3,
         textTransform: "uppercase",
         marginTop: "auto",
       }}>{footer}</div>
@@ -1439,17 +1498,24 @@ function LevelSelectScreen({
   onTrial: (level: TrainingLevel) => void;
   onBack: () => void;
 }) {
-  const [selected, setSelected] = useCanvasState<TrainingLevel>("levelChoice", initialLevel);
+  const [selected, setSelected] = useCanvasState<TrainingLevel>("levelChoice", initialLevel || "padawan");
   const [highlightMode, setHighlightMode] = useCanvasState<"holocron" | "trial" | "battle" | "">("councilModeHighlight", "");
 
+  const continueFromCouncil = () => {
+    if (highlightMode === "holocron") onHolocron(selected);
+    else if (highlightMode === "trial") onTrial(selected);
+    else if (highlightMode === "battle") onBattle(selected);
+    else onSelect(selected);
+  };
+
   return (
-    <ScreenShell eyebrow="Jedi Council · Choose your path" centerEyebrow>
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
-        <YodaArt variant="full" />
+    <ScreenShell eyebrow="THE JEDI COUNCIL AWAITS" centerEyebrow>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+        <YodaArt variant="council" />
         <HeadingBlock title="Choose your path, you must." />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12 }}>
         {LEVELS.map(item => (
           <SelectableCard
             key={item.id}
@@ -1458,24 +1524,24 @@ function LevelSelectScreen({
             detail={item.detail}
             icon={item.icon}
             isSelected={selected === item.id}
-            onSelect={() => setSelected(item.id)}
+            onSelect={() => { setSelected(item.id); setHighlightMode(""); }}
           />
         ))}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 4 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 2 }}>
         <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${PALETTE.borderStrong}, transparent)` }} />
         <div style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
           color: PALETTE.greenBright,
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 800,
-          letterSpacing: 2.4,
+          letterSpacing: 2.6,
           textTransform: "uppercase",
         }}>
-          <CouncilIcon kind="jedi" size={16} /> Special modes
+          <CouncilIcon kind="jedi" size={14} /> Special modes
         </div>
         <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${PALETTE.borderStrong}, transparent)` }} />
       </div>
@@ -1488,7 +1554,7 @@ function LevelSelectScreen({
           icon="holocron"
           accent={PALETTE.info}
           selected={highlightMode === "holocron"}
-          onSelect={() => { setHighlightMode("holocron"); onHolocron(selected); }}
+          onSelect={() => setHighlightMode(highlightMode === "holocron" ? "" : "holocron")}
         />
         <SpecialModeCard
           title="Trial of Focus"
@@ -1497,7 +1563,7 @@ function LevelSelectScreen({
           icon="trial"
           accent={PALETTE.gold}
           selected={highlightMode === "trial"}
-          onSelect={() => { setHighlightMode("trial"); onTrial(selected); }}
+          onSelect={() => setHighlightMode(highlightMode === "trial" ? "" : "trial")}
         />
         <SpecialModeCard
           title="Battle Mode"
@@ -1506,38 +1572,63 @@ function LevelSelectScreen({
           icon="battle"
           accent={PALETTE.greenBright}
           selected={highlightMode === "battle"}
-          onSelect={() => { setHighlightMode("battle"); onBattle(selected); }}
+          onSelect={() => setHighlightMode(highlightMode === "battle" ? "" : "battle")}
         />
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, marginTop: 4 }}>
-        <button
-          type="button"
-          onClick={() => onSelect(selected)}
-          style={{
-            width: "100%",
-            maxWidth: 420,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 14,
-            padding: "16px 28px",
-            borderRadius: 999,
-            border: `1px solid rgba(124,255,74,0.9)`,
-            background: `linear-gradient(180deg, ${PALETTE.greenBright}, ${PALETTE.green})`,
-            color: "#031005",
-            fontWeight: 900,
-            fontSize: 15,
-            letterSpacing: 2,
-            textTransform: "uppercase",
-            cursor: "pointer",
-            boxShadow: `0 0 36px rgba(77,255,0,0.55), 0 10px 28px rgba(0,0,0,0.4)`,
-          }}
-        >
-          <CouncilIcon kind="jedi" size={28} />
-          <span>Continue Training</span>
-          <span aria-hidden="true">→</span>
-        </button>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 6 }}>
+        <div style={{ position: "relative", width: "100%", maxWidth: 440, display: "flex", justifyContent: "center" }}>
+          <button
+            type="button"
+            onClick={continueFromCouncil}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 14,
+              padding: "15px 28px",
+              borderRadius: 999,
+              border: `1px solid rgba(180,255,120,0.95)`,
+              background: `linear-gradient(180deg, #9dff62 0%, ${PALETTE.greenBright} 40%, ${PALETTE.green} 100%)`,
+              color: "#031005",
+              fontWeight: 900,
+              fontSize: 14,
+              letterSpacing: 2.2,
+              textTransform: "uppercase",
+              cursor: "pointer",
+              position: "relative",
+              zIndex: 1,
+              boxShadow: `
+                0 0 18px rgba(124,255,74,0.75),
+                0 0 42px rgba(77,255,0,0.55),
+                0 0 72px rgba(77,255,0,0.28),
+                0 10px 24px rgba(0,0,0,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.35)
+              `,
+            }}
+          >
+            <CouncilIcon kind="jedi" size={26} />
+            <span>Continue Training</span>
+            <span aria-hidden="true" style={{ fontSize: 18, fontWeight: 400 }}>→</span>
+          </button>
+          {/* Floor reflection under CTA — soft elliptical bloom */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: "12%",
+              right: "12%",
+              bottom: -18,
+              height: 22,
+              borderRadius: "50%",
+              background: "radial-gradient(ellipse at center, rgba(124,255,74,0.45) 0%, rgba(77,255,0,0.18) 42%, transparent 72%)",
+              filter: "blur(4px)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+        </div>
         <button
           type="button"
           onClick={onBack}
@@ -1548,6 +1639,7 @@ function LevelSelectScreen({
             cursor: "pointer",
             fontSize: 13,
             fontWeight: 600,
+            marginTop: 8,
           }}
         >
           Back
@@ -1868,10 +1960,10 @@ function HolocronScreen({
         perspective: 1400,
         WebkitPerspective: 1400,
         width: "100%",
-        maxWidth: 460,
+        maxWidth: 480,
         margin: "0 auto",
-        padding: "8px 0 4px",
-        background: "radial-gradient(circle at 50% 45%, rgba(77,255,0,0.12), transparent 62%)",
+        padding: "10px 0 6px",
+        background: "radial-gradient(circle at 50% 42%, rgba(94,200,255,0.14), rgba(77,255,0,0.06) 42%, transparent 68%)",
       }}>
         <button
           type="button"
@@ -1880,12 +1972,12 @@ function HolocronScreen({
           aria-pressed={revealed}
           style={{
             width: "100%",
-            height: 360,
+            height: 340,
             border: "none",
             padding: 0,
             background: "transparent",
             cursor: "pointer",
-            transform: "rotateX(5deg)",
+            transform: "rotateX(6deg)",
           }}
         >
           <div
@@ -1903,70 +1995,82 @@ function HolocronScreen({
               style={{
                 ...faceBase,
                 background: `
-                  repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(77,255,0,0.04) 18px, rgba(77,255,0,0.04) 19px),
-                  repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(77,255,0,0.03) 18px, rgba(77,255,0,0.03) 19px),
-                  linear-gradient(135deg, rgba(77,255,0,0.14) 0%, transparent 35%),
-                  radial-gradient(circle at 50% 28%, rgba(40,90,50,0.95), rgba(2,8,5,0.98) 68%),
-                  linear-gradient(180deg, #102818, #020805)
+                  radial-gradient(circle at 50% 36%, rgba(94,200,255,0.1), transparent 42%),
+                  repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(94,200,255,0.035) 20px, rgba(94,200,255,0.035) 21px),
+                  repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(77,255,0,0.03) 20px, rgba(77,255,0,0.03) 21px),
+                  linear-gradient(145deg, rgba(94,200,255,0.1) 0%, transparent 38%),
+                  radial-gradient(circle at 50% 28%, rgba(18,40,48,0.98), rgba(2,8,5,0.99) 70%),
+                  linear-gradient(180deg, #0c1a16, #020805)
                 `,
-                border: `1px solid ${PALETTE.borderStrong}`,
-                boxShadow: `0 0 0 1px rgba(77,255,0,0.25), 0 0 48px rgba(77,255,0,0.22), 0 28px 56px rgba(0,0,0,0.6), inset 0 0 50px rgba(77,255,0,0.07)`,
+                border: `1.5px solid rgba(94,200,255,0.55)`,
+                boxShadow: `0 0 0 1px rgba(94,200,255,0.22), 0 0 40px rgba(94,200,255,0.2), 0 0 28px rgba(77,255,0,0.12), 0 28px 56px rgba(0,0,0,0.6), inset 0 0 40px rgba(94,200,255,0.05)`,
                 transform: "rotateY(0deg)",
               }}
             >
-              <div style={{
-                width: 64,
-                height: 64,
-                clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-                border: `2px solid ${PALETTE.greenBright}`,
-                boxShadow: `0 0 28px rgba(77,255,0,0.65), 0 0 48px rgba(77,255,0,0.25), inset 0 0 22px rgba(77,255,0,0.35)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: PALETTE.greenBright,
-                fontSize: 20,
-                fontWeight: 900,
-                background: "radial-gradient(circle at 40% 35%, rgba(77,255,0,0.35), rgba(4,16,10,0.95))",
-                flexShrink: 0,
-              }}>
-                <span style={{
-                  width: 22,
-                  height: 22,
-                  border: `1.5px solid ${PALETTE.greenBright}`,
-                  transform: "rotate(45deg)",
-                  boxShadow: `0 0 10px ${PALETTE.glow}`,
-                }} />
+              <div style={{ width: 64, height: 64, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg viewBox="0 0 64 64" width={64} height={64} aria-hidden="true" style={{ filter: "drop-shadow(0 0 12px rgba(94,200,255,0.65))" }}>
+                  <polygon points="32,6 54,18 54,46 32,58 10,46 10,18" fill="none" stroke="#5ec8ff" strokeWidth="1.4" opacity="0.55" />
+                  <polygon points="32,12 48,21 48,43 32,52 16,43 16,21" fill="none" stroke="#7ee8ff" strokeWidth="1.5" />
+                  <polygon points="32,20 42,26 42,38 32,44 22,38 22,26" fill="rgba(94,200,255,0.12)" stroke="#c8f7ff" strokeWidth="1.3" />
+                  <rect x="28" y="28" width="8" height="8" rx="1.2" fill="#9eefff" stroke="#e8ffff" strokeWidth="0.8" />
+                  <line x1="32" y1="6" x2="32" y2="20" stroke="#5ec8ff" strokeWidth="1" opacity="0.7" />
+                  <line x1="32" y1="44" x2="32" y2="58" stroke="#5ec8ff" strokeWidth="1" opacity="0.7" />
+                  <line x1="10" y1="32" x2="22" y2="32" stroke="#5ec8ff" strokeWidth="1" opacity="0.7" />
+                  <line x1="42" y1="32" x2="54" y2="32" stroke="#5ec8ff" strokeWidth="1" opacity="0.7" />
+                </svg>
               </div>
-              <div style={{ color: PALETTE.greenBright, fontSize: 12, fontWeight: 800, letterSpacing: 2.2, textTransform: "uppercase", textShadow: `0 0 12px ${PALETTE.glow}` }}>
+              <div style={{ color: "#9eefff", fontSize: 13, fontWeight: 800, letterSpacing: 2.2, textTransform: "uppercase", textShadow: "0 0 14px rgba(94,200,255,0.55)" }}>
                 Holocron sealed
               </div>
               <div style={{
-                color: PALETTE.green,
+                color: "#7ee8ff",
                 fontSize: 13,
                 letterSpacing: 3.5,
                 fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-                textShadow: `0 0 10px ${PALETTE.glow}`,
-                opacity: 0.9,
+                textShadow: "0 0 10px rgba(94,200,255,0.45)",
+                opacity: 0.92,
               }}>ᐅ ᐉ ᐊ ᐈ ᐃ · ᚠ ᚢ ᚦ ᚨ ᚱ</div>
               <div style={{
                 width: "100%",
-                marginTop: 4,
-                padding: "14px 12px",
+                marginTop: 2,
+                padding: "12px 12px",
                 borderRadius: 12,
-                border: `1px solid rgba(77,255,0,0.28)`,
-                background: "rgba(0,0,0,0.35)",
-                boxShadow: "inset 0 0 24px rgba(77,255,0,0.06)",
+                border: "1px solid rgba(94,200,255,0.32)",
+                background: "rgba(0,8,12,0.45)",
+                boxShadow: "inset 0 0 24px rgba(94,200,255,0.06)",
                 textAlign: "left",
+                flex: 1,
+                minHeight: 0,
+                overflow: "auto",
               }}>
-                <div style={{ color: PALETTE.textSoft, fontSize: 10, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
+                <div style={{ color: "#7eb8d0", fontSize: 10, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
                   Question
                 </div>
-                <div style={{ color: PALETTE.greenBright, fontSize: 15, fontWeight: 700, lineHeight: 1.45 }}>
+                <div style={{ color: PALETTE.white, fontSize: 14, fontWeight: 600, lineHeight: 1.45 }}>
                   {question.stem}
                 </div>
               </div>
-              <div style={{ color: PALETTE.green, fontSize: 12, fontWeight: 700, marginTop: "auto" }}>
-                👆 Tap to flip
+              <div style={{
+                color: PALETTE.greenBright,
+                fontSize: 12,
+                fontWeight: 700,
+                marginTop: "auto",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+              }}>
+                <span aria-hidden="true" style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  border: `1px solid ${PALETTE.greenBright}`,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 10,
+                  boxShadow: `0 0 10px ${PALETTE.glow}`,
+                }}>↻</span>
+                Tap to flip
               </div>
             </div>
 
@@ -2027,13 +2131,18 @@ function HolocronScreen({
         margin: "0 auto",
         padding: 18,
         borderRadius: 16,
-        border: `1px solid ${PALETTE.border}`,
-        background: "linear-gradient(180deg, rgba(8,22,14,0.95), rgba(3,10,6,0.98))",
-        boxShadow: "0 12px 32px rgba(0,0,0,0.35)",
+        border: "1px solid rgba(94,200,255,0.35)",
+        background: "linear-gradient(180deg, rgba(8,20,22,0.96), rgba(3,10,8,0.98))",
+        boxShadow: "0 0 24px rgba(94,200,255,0.08), 0 12px 32px rgba(0,0,0,0.35)",
       }}>
-        <div style={{ color: PALETTE.greenBright, fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 12 }}>
+        <div style={{ color: "#9eefff", fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 12 }}>
           Answer (optional)
         </div>
+        {!revealed && (
+          <div style={{ color: PALETTE.white, fontSize: 15, fontWeight: 600, lineHeight: 1.45, marginBottom: 14 }}>
+            {question.stem}
+          </div>
+        )}
 
         {!revealed && question.type === "mcq" && question.options && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
@@ -2341,17 +2450,17 @@ function QuizScreenView({
     ? `${progress}% · Unlimited`
     : `${progress}%`;
   const sessionFinished = battleDefeated || trialEnded || trialCleared || (isLast && !unlimitedSession);
-  const primaryActionLabel = battleMode ? "⚔  Strike" : trialMode ? "Hold focus" : "Submit";
+  const primaryActionLabel = battleMode ? "STRIKE" : trialMode ? "HOLD FOCUS" : "Submit";
   const secondaryActionLabel = battleMode
-    ? "Flee (−1 shield)"
+    ? "FLEE (−1 SHIELD)"
     : trialMode
       ? "Break focus"
       : "Skip for now";
   const endSessionLabel = battleMode
-    ? "End battle · claim results"
+    ? "END BATTLE · CLAIM RESULTS"
     : trialMode
-      ? "End trial · keep streak"
-      : "End training · claim results";
+      ? "END TRIAL · KEEP STREAK"
+      : "END TRAINING · CLAIM RESULTS";
   const timerEnabled = timerSeconds > 0;
 
   let reaction = battleMode
@@ -2391,20 +2500,19 @@ function QuizScreenView({
               : "Not quite";
 
   return (
-    <ScreenShell eyebrow={modeEyebrow} onCouncilHome={onRequestExit} mist mark>
-      {/* Status strip — Focus Progress + Shields (Battle) / streak side panel */}
+    <ScreenShell eyebrow={modeEyebrow} onCouncilHome={onRequestExit} mist={battleMode || trialMode} mark>
+      {/* Battle chrome: unified Focus + Shields HUD strip */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: battleMode || trialMode ? "1.4fr 1fr" : "1fr",
-        gap: 18,
-        alignItems: "center",
-        padding: "16px 18px",
-        borderRadius: 16,
+        gridTemplateColumns: battleMode ? "1.2fr 1fr 0.6fr" : trialMode ? "1fr 1fr" : "1fr",
+        alignItems: "stretch",
+        borderRadius: 14,
         border: `1px solid ${PALETTE.borderStrong}`,
-        background: "linear-gradient(180deg, rgba(6,22,12,0.92), rgba(2,10,6,0.88))",
+        background: "linear-gradient(180deg, rgba(4,16,10,0.88), rgba(2,10,6,0.82))",
         boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.08), 0 0 24px rgba(77,255,0,0.06)`,
+        overflow: "hidden",
       }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
           <span style={{ color: PALETTE.greenBright, fontSize: 11, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
             Focus Progress
           </span>
@@ -2423,16 +2531,32 @@ function QuizScreenView({
             {streakLabel}
           </Chip>
         </div>
-        {battleMode ? (
-          <LivesDisplay lives={lives} />
-        ) : trialMode ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {battleMode && (
+          <div style={{
+            padding: "14px 18px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            borderLeft: `1px solid rgba(77,255,0,0.22)`,
+          }}>
+            <LivesDisplay lives={lives} />
+          </div>
+        )}
+        {trialMode && (
+          <div style={{
+            padding: "14px 18px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            borderLeft: `1px solid rgba(77,255,0,0.22)`,
+          }}>
             <span style={{ color: PALETTE.greenBright, fontSize: 11, fontWeight: 800, letterSpacing: 1.8, textTransform: "uppercase" }}>
               Focus Streak
             </span>
             <Chip tone="warning" active={streak > 0}>{`Streak ${streak}`}</Chip>
           </div>
-        ) : null}
+        )}
+        {battleMode && <div style={{ borderLeft: `1px solid rgba(77,255,0,0.12)` }} />}
       </div>
 
       {confirmExit && (
@@ -2447,32 +2571,43 @@ function QuizScreenView({
         </InfoBox>
       )}
 
-      {/* Progress Blade / Force Blade / clock timer */}
+      {/* Mockup: three meters — Progress / Force / circular Time Remaining clock */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-        gap: 16,
+        gap: 0,
         alignItems: "start",
+        borderRadius: 14,
+        border: `1px solid ${PALETTE.borderStrong}`,
+        background: "linear-gradient(180deg, rgba(4,16,10,0.88), rgba(2,10,6,0.82))",
+        boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.08), 0 0 24px rgba(77,255,0,0.05)`,
+        overflow: "hidden",
       }}>
-        <LightsaberBar
-          label={trialMode ? "Focus Blade" : "Progress Blade"}
-          value={progress}
-          hint={trialMode ? focusProgressHint : progressHint}
-          bladeColor={trialMode ? PALETTE.warning : PALETTE.greenBright}
-          danger={trialEnded}
-          hintBelow
-        />
-        <ForceMeterBar value={forceMeter} battleMode hintBelow />
-        {timerEnabled ? (
-          <LiveCountdown
-            deadlineMs={questionDeadline}
-            timerSeconds={timerSeconds}
-            active={timerActive}
-            onExpire={onTimeout}
+        <div style={{ padding: "14px 16px", borderRight: "1px solid rgba(77,255,0,0.18)" }}>
+          <LightsaberBar
+            label={trialMode ? "Focus Blade" : "Progress Blade"}
+            value={progress}
+            hint={trialMode ? focusProgressHint : progressHint}
+            bladeColor={trialMode ? PALETTE.warning : PALETTE.greenBright}
+            danger={trialEnded}
+            hintBelow
           />
-        ) : (
-          <TimerClockMeter inactive />
-        )}
+        </div>
+        <div style={{ padding: "14px 16px", borderRight: "1px solid rgba(77,255,0,0.18)" }}>
+          <ForceMeterBar value={forceMeter} battleMode={battleMode || trialMode || trainingMode} hintBelow />
+        </div>
+        <div style={{ padding: "14px 16px" }}>
+          {timerEnabled ? (
+            <LiveCountdown
+              deadlineMs={questionDeadline}
+              timerSeconds={timerSeconds}
+              active={timerActive}
+              onExpire={onTimeout}
+            />
+          ) : (
+            <TimerClockMeter inactive />
+          )}
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" }}>
@@ -2486,7 +2621,7 @@ function QuizScreenView({
         }}>{reaction}</div>
       </div>
 
-      {/* Challenge panel */}
+      {/* Challenge panel — question + answer + STRIKE/FLEE inside (matches battle mockup) */}
       <Panel style={{
         background: "linear-gradient(180deg, rgba(4,14,8,0.96), rgba(1,6,3,0.98))",
         boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.12), 0 0 28px rgba(0,0,0,0.45)`,
@@ -2569,78 +2704,108 @@ function QuizScreenView({
             </InfoBox>
           </div>
         )}
-      </Panel>
 
-      {/* Actions sit outside the recessed panel so Training Submit / Skip / Hint stay visible after Battle chrome */}
-      {!showFeedback && !confirmExit && (
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: actionColumns,
-          gap: 10,
-          padding: "14px 16px",
-          borderRadius: 16,
-          border: `1px solid ${PALETTE.borderStrong}`,
-          background: "linear-gradient(180deg, rgba(8,28,14,0.95), rgba(3,12,7,0.92))",
-          boxShadow: `inset 0 0 0 1px rgba(77,255,0,0.10), 0 0 20px rgba(77,255,0,0.06)`,
-        }}>
-          <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()} fullWidth>
-            {primaryActionLabel}
-          </ActionButton>
-          {showHintButton && (
-            <ActionButton variant="secondary" onClick={onHint} fullWidth>
-              Use the Force · {hintsAvailable} remaining
+        {!showFeedback && !confirmExit && (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: battleMode ? "1.35fr 1fr" : actionColumns,
+            gap: 12,
+            marginTop: 18,
+          }}>
+            {battleMode ? (
+              <button
+                type="button"
+                onClick={onSubmitAnswer}
+                disabled={!answer.trim()}
+                style={{
+                  width: "100%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 12,
+                  padding: "14px 22px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(180,255,120,0.95)",
+                  background: answer.trim()
+                    ? `linear-gradient(180deg, #9dff62 0%, ${PALETTE.greenBright} 42%, ${PALETTE.green} 100%)`
+                    : "rgba(255,255,255,0.06)",
+                  color: answer.trim() ? "#031005" : PALETTE.textSoft,
+                  fontWeight: 900,
+                  fontSize: 15,
+                  letterSpacing: 2.4,
+                  textTransform: "uppercase",
+                  cursor: answer.trim() ? "pointer" : "not-allowed",
+                  boxShadow: answer.trim()
+                    ? `0 0 22px rgba(124,255,74,0.7), 0 0 48px rgba(77,255,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35)`
+                    : "none",
+                }}
+              >
+                <img src={ICON_BATTLE_CROSSED} alt="" width={22} height={22} style={{ objectFit: "contain", filter: answer.trim() ? "none" : "grayscale(1) opacity(0.5)" }} />
+                {primaryActionLabel}
+              </button>
+            ) : (
+              <ActionButton variant="primary" onClick={onSubmitAnswer} disabled={!answer.trim()} fullWidth>
+                {primaryActionLabel}
+              </ActionButton>
+            )}
+            {showHintButton && (
+              <ActionButton variant="secondary" onClick={onHint} fullWidth>
+                Use the Force · {hintsAvailable} remaining
+              </ActionButton>
+            )}
+            {showHintsOff && (
+              <ActionButton variant="ghost" disabled fullWidth>
+                Hints off
+              </ActionButton>
+            )}
+            <ActionButton variant="secondary" onClick={onSkip} fullWidth>
+              {battleMode ? `🏃  ${secondaryActionLabel}` : secondaryActionLabel}
             </ActionButton>
-          )}
-          {showHintsOff && (
-            <ActionButton variant="ghost" disabled fullWidth>
-              Hints off
-            </ActionButton>
-          )}
-          <ActionButton variant="secondary" onClick={onSkip} fullWidth>
-            {secondaryActionLabel}
-          </ActionButton>
-        </div>
-      )}
+          </div>
+        )}
+      </Panel>
 
       {!showFeedback && !confirmExit && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <ReportQuestionLink stem={question.stem} label="Report question" compact />
           {unlimitedSession && !battleDefeated ? (
-            <button
-              type="button"
-              onClick={onEndSession}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: PALETTE.greenBright,
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 800,
-                letterSpacing: 1.6,
-                textTransform: "uppercase",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                textShadow: `0 0 12px ${PALETTE.glow}`,
-                marginLeft: "auto",
-              }}
-            >
-              <span
-                aria-hidden="true"
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto", flex: 1, justifyContent: "flex-end" }}>
+              <div style={{ flex: 1, height: 1, maxWidth: 220, background: `linear-gradient(90deg, transparent, ${PALETTE.borderStrong})` }} />
+              <button
+                type="button"
+                onClick={onEndSession}
                 style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: "50%",
-                  border: `1.5px solid ${PALETTE.greenBright}`,
+                  background: "transparent",
+                  border: "none",
+                  color: PALETTE.greenBright,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: 1.6,
+                  textTransform: "uppercase",
                   display: "inline-flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 11,
-                  boxShadow: `0 0 12px rgba(77,255,0,0.35)`,
+                  gap: 10,
+                  textShadow: `0 0 12px ${PALETTE.glow}`,
                 }}
-              >✦</span>
-              {endSessionLabel}
-            </button>
+              >
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    border: `1.5px solid ${PALETTE.greenBright}`,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    boxShadow: `0 0 12px rgba(77,255,0,0.35)`,
+                  }}
+                >⚙</span>
+                {endSessionLabel}
+              </button>
+            </div>
           ) : <span />}
         </div>
       )}
@@ -3054,7 +3219,7 @@ export default function YodaTraining() {
     nextLevel = level,
     nextStyle = style,
     nextCount = questionCount,
-    nextSeed = seed,
+    nextSeed,
     focusTopics = [],
     nextPlayMode = "training" as PlayMode,
   }: {
@@ -3065,10 +3230,11 @@ export default function YodaTraining() {
     focusTopics?: string[];
     nextPlayMode?: PlayMode;
   } = {}) => {
+    const resolvedSeed = typeof nextSeed === "number" ? nextSeed : freshSeed(seed);
     setLevel(nextLevel);
     setStyle(nextStyle);
     setQuestionCount(nextCount);
-    setSeed(nextSeed);
+    setSeed(resolvedSeed);
     setPlayMode(nextPlayMode);
     if (nextPlayMode === "battle" || nextPlayMode === "trial") {
       setHintsEnabled(false);
@@ -3079,7 +3245,7 @@ export default function YodaTraining() {
       level: nextLevel,
       style: nextStyle,
       count: nextCount,
-      seed: nextSeed,
+      seed: resolvedSeed,
       focusTopics,
     }));
     resetAttempt();
@@ -3094,14 +3260,15 @@ export default function YodaTraining() {
       nextLevel,
       nextStyle: "mixed",
       nextCount: isUnlimitedCount(nextCount) ? UNLIMITED_COUNT : Math.min(nextCount, questions.length),
-      nextSeed: seed + 777,
       nextPlayMode: "battle",
     });
   };
 
   const beginHolocron = (nextLevel: TrainingLevel = level, nextCount: number = questionCount) => {
+    const nextSeed = freshSeed(seed);
     setLevel(nextLevel);
     setQuestionCount(nextCount);
+    setSeed(nextSeed);
     setPlayMode("holocron");
     setHolocronIndex(0);
     setHolocronRevealed(false);
@@ -3112,7 +3279,7 @@ export default function YodaTraining() {
       level: nextLevel,
       style: "mixed",
       count: isUnlimitedCount(nextCount) ? UNLIMITED_COUNT : Math.min(nextCount, questions.length),
-      seed: seed + 4242,
+      seed: nextSeed,
     }));
     setScreen("holocron");
   };
@@ -3122,7 +3289,6 @@ export default function YodaTraining() {
       nextLevel,
       nextStyle: "mixed",
       nextCount: isUnlimitedCount(nextCount) ? UNLIMITED_COUNT : Math.min(nextCount, questions.length),
-      nextSeed: seed + 1337,
       nextPlayMode: "trial",
     });
   };

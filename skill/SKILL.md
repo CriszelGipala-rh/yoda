@@ -509,8 +509,9 @@ When the user specifies:
 Tell the user:
 
 - The Canvas is ready.
-- Where the generated file was saved.
 - That they can open it beside the chat.
+- A **clickable markdown link** to the `.canvas.tsx` file using its **full absolute path** (Cursor turns this into an Open canvas control). Example: `[Pod & Service Networks](/home/cgipala/.cursor/projects/<workspace>/canvases/pod-service-networks-training.canvas.tsx)`.
+- Do **not** dump a bare `Path: canvases/...` string — always use the markdown link form above.
 - Whether ClamAV was unavailable and only AI-based checks were performed.
 
 Never claim:
