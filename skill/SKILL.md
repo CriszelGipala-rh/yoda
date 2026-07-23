@@ -336,11 +336,18 @@ Produce:
 - `QUIZ_TITLE`
 - `QUIZ_SUBTITLE`
 - `QUIZ_DESCRIPTION`
-- The requested number of questions, defaulting to 10
+- The requested number of questions, defaulting to **at least 299 unique questions**
 - `YODA_MESSAGES`
 - `ANALYSIS_STAGES`
 
 Keep every question grounded in the approved source.
+
+**Question-bank size (non-negotiable default):** every generated quiz must include
+**at least 299 unique questions** unless the user explicitly requests a smaller
+bank. Holocron Mode, endless/unlimited practice, and higher difficulty levels
+draw many items; a tiny bank (for example ~10 questions) causes the same stems
+to loop — that is a failure. Prefer 299–320+ distinct items with varied angles;
+never pad with near-duplicate rewords of the same question.
 
 ## 2. Copy the template
 
@@ -389,6 +396,7 @@ const QUIZ_DESCRIPTION = "REPLACE_DESCRIPTION";
 
 const questions: Question[] = [
   // REPLACE_WITH_GENERATED_QUESTIONS
+  // Generate at least 299 unique Question objects (Holocron/unlimited need a large bank).
 ];
 
 const YODA_MESSAGES = {
@@ -430,7 +438,9 @@ interface Question {
 
 Unless the user specifies otherwise:
 
-- Generate 10 questions.
+- Generate **at least 299 unique questions** (299–320 is a good target; more is
+  fine when quality holds). Holocron/endless modes and high level counts need a
+  large bank — repeating a small set is unacceptable.
 - Use an approximate mix of:
   - 40% multiple choice
   - 20% true or false
@@ -440,16 +450,20 @@ Unless the user specifies otherwise:
   - 30% easy
   - 50% medium
   - 20% hard
-- Group questions into 3–5 meaningful topics.
+- Group questions into 3–8 meaningful topics (more topics are OK for large banks).
 - Test understanding and application, not only trivial recall.
 - Use plausible distractors.
-- Avoid duplicate or near-duplicate questions.
+- Avoid duplicate or near-duplicate questions (same stem reworded trivially).
+  Cover many angles: which command, why, what becomes X, sequence, misconceptions,
+  architecture nodes, flags, resource names, mount paths.
 - Do not reveal the answer through the question wording.
 - Every question must include:
   - `explanation`
   - `simpleExplanation`
   - `example`
   - at least one hint
+- After generation, verify `questions.length >= 299` and that all `id` values
+  (and ideally normalized stems) are unique.
 
 For multiple-choice questions:
 
@@ -499,7 +513,8 @@ When the user specifies:
 
 - Topic focus: weight questions toward that subtopic.
 - Difficulty: shift the easy/medium/hard distribution.
-- Question count: use the requested count.
+- Question count: use the requested count (still never below 299 unless the user
+  explicitly asks for a smaller bank).
 - Question type: restrict to the requested types.
 - Language: generate the entire quiz in that language.
 - Technical depth: match the source and the user's requested level.

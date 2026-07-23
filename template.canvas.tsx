@@ -26,6 +26,8 @@ const QUIZ_DESCRIPTION = "REPLACE_DESCRIPTION";
 
 const questions: Question[] = [
   // REPLACE_WITH_GENERATED_QUESTIONS
+  // Required: at least 299 unique Question objects so Holocron/unlimited modes
+  // do not loop a tiny bank. Target 299–320+; vary stems and angles.
 ];
 
 const YODA_MESSAGES = {
