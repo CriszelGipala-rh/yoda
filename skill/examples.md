@@ -33,6 +33,8 @@ const QUIZ_TITLE = "Example Topic Quiz";
 const QUIZ_SUBTITLE = "Source: Example Material";
 const QUIZ_DESCRIPTION = "Test your understanding of the key concepts from the provided material.";
 
+// NOTE: Real quizzes must ship at least 299 unique questions (Holocron/unlimited
+// modes loop a tiny bank otherwise). The snippets below are abbreviated examples.
 const questions: Question[] = [
   {
     id: "q1",
